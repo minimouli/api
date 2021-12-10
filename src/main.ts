@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import * as mongoose from 'mongoose'
 import { NestFactory } from '@nestjs/core'
 import {
     ArgumentsHost,
@@ -33,6 +34,11 @@ class AllExceptionsFilter implements ExceptionFilter {
         if (exception instanceof HttpException) {
             statusCode = exception.getStatus()
             message = exception.message
+        }
+
+        if (exception instanceof mongoose.Error.ValidationError) {
+            statusCode = 400
+            message = 'Bad Request'
         }
 
         response
