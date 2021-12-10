@@ -8,6 +8,8 @@
 import { Syntheses } from '@minimouli/types'
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose'
 import { Document } from 'mongoose'
+import ProjectProperty from './properties/ProjectProperty'
+import SuiteProperty from './properties/SuiteProperty'
 
 @Schema()
 class Run {
@@ -21,14 +23,10 @@ class Run {
     @Prop()
     owner_uuid: string
 
-    @Prop(raw({
-        name: { type: String, required: true },
-        module: { type: String, required: true },
-        module_code: { type: String, required: false }
-    }))
+    @Prop(raw(ProjectProperty))
     project: Syntheses.ProjectSynthesis
 
-    @Prop()
+    @Prop(raw([SuiteProperty]))
     suites: Syntheses.SuiteSynthesis[]
 
     @Prop()
