@@ -11,7 +11,8 @@ import {
     Catch,
     ExceptionFilter,
     HttpException,
-    HttpStatus
+    HttpStatus,
+    ValidationPipe
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
@@ -49,6 +50,7 @@ const bootstrap = async () => {
     const app = await NestFactory.create(AppModule)
 
     app.useGlobalFilters(new AllExceptionsFilter())
+    app.useGlobalPipes(new ValidationPipe())
 
     const configService = app.get<ConfigService>(ConfigService)
 
