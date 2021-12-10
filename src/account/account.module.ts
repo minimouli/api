@@ -7,8 +7,10 @@
 
 import { Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
+import AccountController from './account.controller'
 import AccountService from './account.service'
 import Account, { AccountSchema } from './schemas/account.schema'
+import JwtStrategy from '../auth/strategies/jwt.strategy'
 
 @Module({
     imports: [
@@ -17,7 +19,8 @@ import Account, { AccountSchema } from './schemas/account.schema'
             schema: AccountSchema
         }])
     ],
-    providers: [AccountService],
+    controllers: [AccountController],
+    providers: [AccountService, JwtStrategy],
     exports: [AccountService]
 })
 class AccountModule {}
