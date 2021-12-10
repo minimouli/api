@@ -23,6 +23,6 @@ const ExpectAndReceiveProperty = new mongoose.Schema({
         ],
         required: true
     }
-})
+}, {_id: false})
 
 export default ExpectAndReceiveProperty

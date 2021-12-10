@@ -17,7 +17,7 @@ const SuiteProperty = new mongoose.Schema({
         type: [TestProperty],
         required: true
     }
-})
+}, {_id: false})
 
 SuiteProperty.add({
     suites: {

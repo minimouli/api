@@ -70,6 +70,6 @@ const HintProperty = new mongoose.Schema({
         type: SnippetProperty,
         required: false
     }
-})
+}, {_id: false})
 
 export default HintProperty

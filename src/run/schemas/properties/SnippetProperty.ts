@@ -5,24 +5,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const SnippetProperty = {
+import * as mongoose from 'mongoose'
+
+const SnippetArgumentProperty = new mongoose.Schema({
+    received: {
+        type: [String],
+        required: true
+    },
+    expected: {
+        type: [String],
+        required: true
+    }
+}, {_id: false})
+
+const SnippetProperty = new mongoose.Schema({
     arguments: {
-        type: {
-            received: {
-                type: [String],
-                required: true
-            },
-            expected: {
-                type: [String],
-                required: true
-            }
-        },
+        type: SnippetArgumentProperty,
         required: true
     },
     method: {
         type: String,
         required: true
     }
-}
+}, {_id: false})
 
 export default SnippetProperty
