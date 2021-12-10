@@ -5,15 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Injectable } from '@nestjs/common'
-
-@Injectable()
-class AppService {
-
-    hello(): string {
-        return 'hello world'
+type LoginResDto = {
+    status: 'success',
+    data: {
+        uuid: string
     }
-
 }
 
-export default AppService
+export default LoginResDto

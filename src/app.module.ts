@@ -6,9 +6,10 @@
  */
 
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
-import AppController from './app.controller'
-import AppService from './app.service'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { MongooseModule } from '@nestjs/mongoose'
+import AccountModule from './account/account.module'
+import AuthModule from './auth/auth.module'
 
 @Module({
     imports: [
@@ -18,10 +19,25 @@ import AppService from './app.service'
                 '.env'
             ],
             isGlobal: true
-        })
-    ],
-    controllers: [AppController],
-    providers: [AppService]
+        }),
+        MongooseModule.forRootAsync({
+            useFactory: async (configService: ConfigService) => {
+
+                const host = configService.get<string>('MONGO_HOST')
+                const port = configService.get<string>('MONGO_PORT')
+                const user = configService.get<string>('MONGO_USERNAME')
+                const passwd = configService.get<string>('MONGO_PASSWORD')
+                const dbname = configService.get<string>('MONGO_DATABASE')
+
+                return {
+                    uri: `mongodb://${user}:${passwd}@${host}:${port}/${dbname}`
+                }
+            },
+            inject: [ConfigService]
+        }),
+        AccountModule,
+        AuthModule
+    ]
 })
 class AppModule {}
 
