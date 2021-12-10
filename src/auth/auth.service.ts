@@ -12,9 +12,11 @@ import {
     ServiceUnavailableException
 } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
+import { JwtService } from '@nestjs/jwt'
 import { Model } from 'mongoose'
 import LoginReqDto from './dto/login.req.dto'
 import Credentials, { CredentialsDocument } from './schemas/credentials.schema'
+import { JwtPayload } from './strategies/jwt.strategy'
 import AccountService from '../account/account.service'
 import Account from '../account/schemas/account.schema'
 
@@ -23,6 +25,7 @@ class AuthService {
 
     constructor(
         private readonly accountService: AccountService,
+        private readonly jwtService: JwtService,
         @InjectModel(Credentials.name) private readonly credentialsModel: Model<CredentialsDocument>
     ) {}
 
@@ -103,6 +106,15 @@ class AuthService {
 
             return this.signin(identity, secret)
         })
+    }
+
+    generateToken(account: Account): string {
+
+        const payload: JwtPayload = {
+            sub: account.uuid
+        }
+
+        return this.jwtService.sign(payload)
     }
 
 }
