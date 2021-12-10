@@ -1,0 +1,35 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "description": "The API that runs the minimouli platform.",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/minimouli/api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/minimouli/api/issues"
+  },
+  "homepage": "https://github.com/minimouli/api",
+  "license": "MIT",
+  "dependencies": {
+    "@nestjs/common": "^8.2.0",
+    "@nestjs/core": "^8.2.0",
+    "@nestjs/platform-express": "^8.2.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.4.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^8.1.4",
+    "@nestjs/schematics": "^8.0.4",
+    "@types/node": "^16.11.7",
+    "source-map-support": "^0.5.20",
+    "typescript": "^4.4.4"
+  }
+}
