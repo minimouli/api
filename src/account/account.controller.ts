@@ -6,14 +6,22 @@
  */
 
 import { Controller, Get, Request, UseGuards } from '@nestjs/common'
+import {
+    ApiBearerAuth,
+    ApiTags,
+    ApiUnauthorizedResponse
+} from '@nestjs/swagger'
 import AccountResDto from './dto/account.res.dto'
 import JwtGuard from '../auth/guards/jwt-auth.guard'
 
 @Controller('/account')
+@ApiTags('account')
+@ApiBearerAuth()
 class AccountController {
 
-    @UseGuards(JwtGuard)
     @Get('/me')
+    @UseGuards(JwtGuard)
+    @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
     me(@Request() req): AccountResDto {
         return {
             status: 'success',

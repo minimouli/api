@@ -15,6 +15,7 @@ import {
     ValidationPipe
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { Response } from 'express'
 import AppModule from './app.module'
 
@@ -51,6 +52,16 @@ const bootstrap = async () => {
 
     app.useGlobalFilters(new AllExceptionsFilter())
     app.useGlobalPipes(new ValidationPipe())
+
+    const docConfig = new DocumentBuilder()
+        .setTitle('Minimouli')
+        .setDescription('The API that runs the minimouli platform.')
+        .setVersion('1.0')
+        .addBearerAuth()
+        .build()
+
+    const doc = SwaggerModule.createDocument(app, docConfig)
+    SwaggerModule.setup('api', app, doc)
 
     const configService = app.get<ConfigService>(ConfigService)
 
