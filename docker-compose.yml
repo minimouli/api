@@ -1,0 +1,16 @@
+version: "3.5"
+
+services:
+  mongo:
+    image: mongo:latest
+    restart: on-failure
+    ports:
+     - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    volumes:
+     - ./.docker/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
