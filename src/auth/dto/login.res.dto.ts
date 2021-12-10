@@ -8,7 +8,8 @@
 type LoginResDto = {
     status: 'success',
     data: {
-        uuid: string
+        uuid: string,
+        token: string
     }
 }
 

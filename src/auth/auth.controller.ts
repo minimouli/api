@@ -26,7 +26,8 @@ class AuthController {
             return {
                 status: 'success',
                 data: {
-                    uuid: account.uuid
+                    uuid: account.uuid,
+                    token: this.authService.generateToken(account)
                 }
             }
         })
