@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-type LoginResDto = {
-    status: 'success',
+class LoginResDto {
+    status: 'success'
     data: {
         uuid: string,
         token: string

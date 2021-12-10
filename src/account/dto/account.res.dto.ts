@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-type AccountResDto = {
-    status: 'success',
+class AccountResDto {
+    status: 'success'
     data: {
         uuid: string
     }
