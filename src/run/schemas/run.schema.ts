@@ -16,6 +16,9 @@ class Run {
     uuid: string
 
     @Prop()
+    id: string
+
+    @Prop()
     owner_uuid: string
 
     @Prop(raw({

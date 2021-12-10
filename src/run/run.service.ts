@@ -13,6 +13,21 @@ import { Model } from 'mongoose'
 import CreateRunReqDto from './dto/create-run.req.dto'
 import Run, { RunDocument } from './schemas/run.schema'
 
+const generateId = (length: number): string => {
+
+    const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_'
+    const result: string[] = []
+
+    for (let i = 0; i < length; i++) {
+
+        const randpos: number = Math.floor(Math.random() * alphabet.length)
+
+        result.push(alphabet.charAt(randpos))
+    }
+
+    return result.join('')
+}
+
 @Injectable()
 class RunService {
 
@@ -31,6 +46,7 @@ class RunService {
         const newRun = new Run()
 
         newRun.uuid = uuidv4()
+        newRun.id = generateId(16)
         newRun.owner_uuid = ownerUuid
         newRun.project = project
         newRun.suites = suites

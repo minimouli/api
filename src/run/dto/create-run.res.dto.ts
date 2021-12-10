@@ -8,7 +8,8 @@
 class CreateRunResDto {
     status: 'success'
     data: {
-        uuid: string
+        uuid: string,
+        id: string
     }
 }
 

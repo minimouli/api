@@ -34,7 +34,8 @@ class RunController {
         return this.runService.store(request.user.accountUuid, createRunReqDto).then((run: Run) => ({
             status: 'success',
             data: {
-                uuid: run.uuid
+                uuid: run.uuid,
+                id: run.id
             }
         }))
     }
