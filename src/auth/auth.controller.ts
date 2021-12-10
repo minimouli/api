@@ -28,16 +28,13 @@ class AuthController {
     @ApiBadRequestResponse({ description: 'Bad parameters format or bad credentials.' })
     async login(@Body() loginReqDto: LoginReqDto): Promise<LoginResDto> {
 
-        return this.authService.login(loginReqDto).then((account: Account) => {
-
-            return {
-                status: 'success',
-                data: {
-                    uuid: account.uuid,
-                    token: this.authService.generateToken(account)
-                }
+        return this.authService.login(loginReqDto).then((account: Account) => ({
+            status: 'success',
+            data: {
+                uuid: account.uuid,
+                token: this.authService.generateToken(account)
             }
-        })
+        }))
     }
 
 }
