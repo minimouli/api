@@ -96,6 +96,11 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
+"@minimouli/types@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@minimouli/types/-/types-1.0.0.tgz#4f1c840fe7704af404eda00433ee373c37ad16d3"
+  integrity sha512-8yqDM64sZE/q5XFOAMeTR46SXrzfYSKJRT5bI+PnEAjxmJ8mZQwRqMId0afbVqivKkMr25szD0pxVUMnR/SKJA==
+
 "@nestjs/cli@^8.1.4":
   version "8.1.5"
   resolved "https://registry.yarnpkg.com/@nestjs/cli/-/cli-8.1.5.tgz#3149c89c18901bfd31a7458369e4d03b9e130bd3"
