@@ -6,7 +6,7 @@
     "prebuild": "rimraf dist",
     "prepare": "husky install",
     "build": "nest build",
-    "start": "nest start",
+    "start": "cross-env NODE_ENV=dev nest start",
     "start:dev": "yarn run start --watch",
     "start:debug": "yarn run start start --debug --watch",
     "start:prod": "node dist/main",
@@ -16,10 +16,11 @@
     "test:watch": "yarn run test --watch",
     "test:cov": "yarn run test --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "yarn run test --config ./test/jest-e2e.json"
+    "test:e2e": "cross-env NODE_ENV=dev yarn run test --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
+    "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
     "reflect-metadata": "^0.1.13",
@@ -38,6 +39,7 @@
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
     "@typescript-eslint/parser": "^5.38.1",
+    "cross-env": "^7.0.3",
     "eslint": "^8.24.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
