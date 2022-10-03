@@ -1,0 +1,17 @@
+version: "3.5"
+
+services:
+  db:
+    image: postgres:14.4
+    restart: on-failure
+    ports:
+      - ${POSTGRES_PORT}:5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+  adminer:
+    image: adminer:latest
+    restart: on-failure
+    ports:
+      - ${ADMINER_PORT}:8080

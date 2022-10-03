@@ -358,6 +358,7 @@
         }
       }
     ],
+    "unicorn/prefer-module": "off",
     "unicorn/prevent-abbreviations": [
       "error", {
         "allowList": {
