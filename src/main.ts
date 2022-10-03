@@ -8,6 +8,7 @@
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
 
 const bootstrap = async () => {
@@ -16,6 +17,13 @@ const bootstrap = async () => {
     const configService = app.get(ConfigService)
 
     const logger = new Logger('Bootstrap')
+    const documentConfig = new DocumentBuilder()
+        .setTitle('Minimouli API')
+        .setDescription('The API that runs the Minimouli platform')
+        .setVersion('2.0')
+        .build()
+
+    app.enableCors()
 
     const appPort = configService.get<number>('APP_PORT') ?? 9000
     const environment = configService.get<string>('NODE_ENV')
@@ -23,6 +31,11 @@ const bootstrap = async () => {
     if (environment === undefined) {
         logger.error('The environment (NODE_ENV) is not defined')
         return app.close()
+    }
+
+    if (configService.get<string>('IS_SWAGGER_DOC_VISIBLE') === 'true') {
+        const swaggerDocument = SwaggerModule.createDocument(app, documentConfig)
+        SwaggerModule.setup('/swagger', app, swaggerDocument)
     }
 
     await app.listen(appPort)
