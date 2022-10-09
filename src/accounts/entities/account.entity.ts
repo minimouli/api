@@ -21,7 +21,9 @@ class Account {
     @Column()
     nickname: string
 
-    @Column()
+    @Column({
+        unique: true
+    })
     username: string
 
     @Column()
