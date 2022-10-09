@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Module } from '@nestjs/common'
+import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
+import { AccountsModule } from './accounts/accounts.module'
+import { AuthModule } from './auth/auth.module'
 
 @Module({
     imports: [
@@ -34,10 +35,23 @@ import { AppService } from './app.service'
                 synchronize: configService.get<string>('POSTGRES_SYNCHRONIZE') === 'true'
             }),
             inject: [ConfigService]
-        })
+        }),
+        AccountsModule,
+        AuthModule
     ],
-    controllers: [AppController],
-    providers: [AppService]
+    providers: [
+        {
+            provide: APP_PIPE,
+            useFactory: () => new ValidationPipe({
+                whitelist: true,
+                forbidNonWhitelisted: true
+            })
+        },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: ClassSerializerInterceptor
+        }
+    ]
 })
 class AppModule {}
 

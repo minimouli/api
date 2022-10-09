@@ -5,17 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Injectable } from '@nestjs/common'
-
-@Injectable()
-class AppService {
-
-    getHello(): string {
-        return 'Hello World!'
-    }
-
+interface GithubUserDto {
+    id: number
+    name: string
 }
 
-export {
-    AppService
+export type {
+    GithubUserDto
 }

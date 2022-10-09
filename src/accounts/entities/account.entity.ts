@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { Expose } from 'class-transformer'
 import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm'
 import { EntityType } from '../../common/enums/entity-type.enum'
 import { getSecureRandomString } from '../../common/helpers/random.helper'
@@ -24,7 +25,15 @@ class Account {
     username: string
 
     @Column()
+    @Expose({
+        groups: ['owner']
+    })
     email: string
+
+    @Expose()
+    get uri(): string {
+        return `minimouli:${this.type}:${this.id}`
+    }
 
     @UpdateDateColumn()
     updatedAt: string

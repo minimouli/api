@@ -25,6 +25,11 @@ node_modules
 .vscode
 *.swp
 
+# Env
+.env.prod
+.env.local
+.env.*.local
+
 # Logs
 *.log
 npm-debug.log*

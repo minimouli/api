@@ -34,15 +34,21 @@ Environment Variables
 
 ### Variables table
 
-| **Variable name**      | **Description**                           | **Type** | **Default value in dev env** | **Default value in all env** |
-|------------------------|-------------------------------------------|----------|------------------------------|------------------------------|
-| APP_PORT               | Port of the application                   | number   | ✅                            | ✅                            |
-| POSTGRES_HOST          | Host of the Postgres service              | string   | ✅                            | ❌                            |
-| POSTGRES_PORT          | Port of the Postgres service              | number   | ✅                            | ❌                            |
-| POSTGRES_USERNAME      | Username of the Postgres database user    | string   | ✅                            | ❌                            |
-| POSTGRES_PASSWORD      | Password of the Postgres database user    | string   | ✅                            | ❌                            |
-| POSTGRES_DATABASE      | Database name of the Postgres database    | string   | ✅                            | ❌                            |
-| POSTGRES_SYNCHRONIZE   | Synchronize entities with database models | boolean  | ✅                            | ✅                            |
-| ADMINER_PORT           | Port of the Adminer service               | number   | ✅                            | ❌                            |
-| IS_SWAGGER_DOC_VISIBLE | Visibility of the Swagger document        | boolean  | ✅                            | ✅                            |
-| NODE_ENV               | Current environment                       | string   | ✅                            | ❌                            |
+| **Variable name**                   | **Description**                           | **Type** | **Default value in dev env** | **Default value in all env** |
+|-------------------------------------|-------------------------------------------|----------|------------------------------|------------------------------|
+| APP_PORT                            | Port of the application                   | number   | ✅                            | ✅                            |
+| POSTGRES_HOST                       | Host of the Postgres service              | string   | ✅                            | ❌                            |
+| POSTGRES_PORT                       | Port of the Postgres service              | number   | ✅                            | ❌                            |
+| POSTGRES_USERNAME                   | Username of the Postgres database user    | string   | ✅                            | ❌                            |
+| POSTGRES_PASSWORD                   | Password of the Postgres database user    | string   | ✅                            | ❌                            |
+| POSTGRES_DATABASE                   | Database name of the Postgres database    | string   | ✅                            | ❌                            |
+| POSTGRES_SYNCHRONIZE                | Synchronize entities with database models | boolean  | ✅                            | ✅                            |
+| ADMINER_PORT                        | Port of the Adminer service               | number   | ✅                            | ❌                            |
+| GITHUB_OAUTH2_CLIENT_ID             | Client ID of the Github app               | string   | ❌                            | ❌                            |
+| GITHUB_OAUTH2_CLIENT_SECRET         | Client secret of the Github app           | string   | ❌                            | ❌                            |
+| GITHUB_OAUTH2_ACCESS_TOKEN_ENDPOINT | Github endpoint for access token          | string   | ✅                            | ✅                            |
+| GITHUB_OAUTH2_REQUIRED_SCOPES       | Github required scopes for oauth2         | string   | ✅                            | ✅                            |
+| GITHUB_API_USER_PROFILE_ENDPOINT    | Github endpoint for user profile          | string   | ✅                            | ✅                            |
+| GITHUB_API_USER_EMAILS_ENDPOINT     | Github endpoint for user emails           | string   | ✅                            | ✅                            |
+| IS_SWAGGER_DOC_VISIBLE              | Visibility of the Swagger document        | boolean  | ✅                            | ✅                            |
+| NODE_ENV                            | Current environment                       | string   | ✅                            | ❌                            |
