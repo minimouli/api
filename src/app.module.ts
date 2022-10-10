@@ -11,6 +11,7 @@ import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsModule } from './accounts/accounts.module'
 import { AuthModule } from './auth/auth.module'
+import { TokensModule } from './tokens/tokens.module'
 
 @Module({
     imports: [
@@ -37,7 +38,8 @@ import { AuthModule } from './auth/auth.module'
             inject: [ConfigService]
         }),
         AccountsModule,
-        AuthModule
+        AuthModule,
+        TokensModule
     ],
     providers: [
         {

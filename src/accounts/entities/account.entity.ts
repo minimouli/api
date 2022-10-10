@@ -6,9 +6,10 @@
  */
 
 import { Expose } from 'class-transformer'
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm'
+import { BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm'
 import { EntityType } from '../../common/enums/entity-type.enum'
 import { getSecureRandomString } from '../../common/helpers/random.helper'
+import { AuthToken } from '../../tokens/entities/auth-token.entity'
 
 @Entity()
 class Account {
@@ -31,6 +32,11 @@ class Account {
         groups: ['owner']
     })
     email: string
+
+    @OneToMany(() => AuthToken, (authToken) => authToken.account, {
+        onDelete: 'CASCADE'
+    })
+    authTokens: AuthToken[]
 
     @Expose()
     get uri(): string {

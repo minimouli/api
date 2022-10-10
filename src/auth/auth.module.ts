@@ -14,12 +14,14 @@ import { GithubCredentials } from './entities/github-credentials.entity'
 import { GithubApiService } from './services/github-api.service'
 import { GithubCredentialsService } from './services/github-credentials.service'
 import { AccountsModule } from '../accounts/accounts.module'
+import { TokensModule } from '../tokens/tokens.module'
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([GithubCredentials]),
         HttpModule,
-        AccountsModule
+        AccountsModule,
+        TokensModule
     ],
     controllers: [AuthController],
     providers: [

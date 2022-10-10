@@ -15,6 +15,9 @@ class LoginDataResDto {
     })
     account: AccountDto
 
+    @ApiProperty()
+    jwt: string
+
 }
 
 class LoginResDto {

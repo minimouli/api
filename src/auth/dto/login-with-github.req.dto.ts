@@ -6,13 +6,18 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger'
-import { IsString } from 'class-validator'
+import { IsString, MaxLength } from 'class-validator'
 
 class LoginWithGithubReqDto {
 
     @ApiProperty()
     @IsString()
     code: string
+
+    @ApiProperty()
+    @IsString()
+    @MaxLength(64)
+    authTokenName: string
 
 }
 

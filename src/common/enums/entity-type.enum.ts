@@ -6,7 +6,8 @@
  */
 
 enum EntityType {
-    Account = 'account'
+    Account = 'account',
+    AuthToken = 'auth-token'
 }
 
 export {

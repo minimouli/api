@@ -12,13 +12,15 @@ import { LoginResDto } from './dto/login.res.dto'
 import { LoginWithGithubReqDto } from './dto/login-with-github.req.dto'
 import { SignupResDto } from './dto/signup.res.dto'
 import { SignupWithGithubReqDto } from './dto/signup-with-github.req.dto'
+import { TokensService } from '../tokens/tokens.service'
 
 @Controller('/auth')
 @ApiTags('auth')
 class AuthController {
 
     constructor(
-        private readonly authService: AuthService
+        private readonly authService: AuthService,
+        private readonly tokensService: TokensService
     ) {}
 
     @Post('/signup/github')
@@ -30,13 +32,16 @@ class AuthController {
     @ApiBadRequestResponse({ description: 'Unable to sign up with Github' })
     async signupWithGithub(@Body() body: SignupWithGithubReqDto): Promise<SignupResDto> {
 
-        const { code } = body
+        const { code, authTokenName } = body
+
         const account = await this.authService.signupWithGithub(code)
+        const [, jwt] = await this.tokensService.create(authTokenName, account)
 
         return {
             status: 'success',
             data: {
-                account
+                account,
+                jwt
             }
         }
     }
@@ -50,13 +55,16 @@ class AuthController {
     @ApiBadRequestResponse({ description: 'Unable to login with Github' })
     async loginWithGithub(@Body() body: LoginWithGithubReqDto): Promise<LoginResDto> {
 
-        const { code } = body
+        const { code, authTokenName } = body
+
         const account = await this.authService.loginWithGithub(code)
+        const [, jwt] = await this.tokensService.create(authTokenName, account)
 
         return {
             status: 'success',
             data: {
-                account
+                account,
+                jwt
             }
         }
     }

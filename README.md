@@ -44,6 +44,8 @@ Environment Variables
 | POSTGRES_DATABASE                   | Database name of the Postgres database    | string   | ✅                            | ❌                            |
 | POSTGRES_SYNCHRONIZE                | Synchronize entities with database models | boolean  | ✅                            | ✅                            |
 | ADMINER_PORT                        | Port of the Adminer service               | number   | ✅                            | ❌                            |
+| JWT_SECRET                          | Secret of JWT                             | string   | ✅                            | ❌                            |
+| JWT_OPTION_EXPIRES_IN               | JWT expiration date                       | string   | ✅                            | ❌                            |
 | GITHUB_OAUTH2_CLIENT_ID             | Client ID of the Github app               | string   | ❌                            | ❌                            |
 | GITHUB_OAUTH2_CLIENT_SECRET         | Client secret of the Github app           | string   | ❌                            | ❌                            |
 | GITHUB_OAUTH2_ACCESS_TOKEN_ENDPOINT | Github endpoint for access token          | string   | ✅                            | ✅                            |

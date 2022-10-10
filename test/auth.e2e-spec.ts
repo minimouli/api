@@ -9,6 +9,7 @@ import { Test } from '@nestjs/testing'
 import request from 'supertest'
 import { AppModule } from '../src/app.module'
 import { AuthService } from '../src/auth/auth.service'
+import { TokensService } from '../src/tokens/tokens.service'
 import type { INestApplication } from '@nestjs/common'
 
 describe('Auth', () => {
@@ -18,6 +19,9 @@ describe('Auth', () => {
         signupWithGithub: () => 'signup account',
         loginWithGithub: () => 'login account'
     }
+    const tokensService = {
+        create: () => [undefined, 'jwt']
+    }
 
     beforeAll(async () => {
 
@@ -26,6 +30,8 @@ describe('Auth', () => {
         })
             .overrideProvider(AuthService)
             .useValue(authService)
+            .overrideProvider(TokensService)
+            .useValue(tokensService)
             .compile()
 
         app = moduleRef.createNestApplication()
@@ -44,13 +50,15 @@ describe('Auth', () => {
         it('should return 200', () => request(app.getHttpServer())
             .post('/auth/signup/github')
             .send({
-                code: 'github-code'
+                code: 'github-code',
+                authTokenName: 'auth-token-name'
             })
             .expect(200)
             .expect({
                 status: 'success',
                 data: {
-                    account: authService.signupWithGithub()
+                    account: authService.signupWithGithub(),
+                    jwt: tokensService.create().at(1)
                 }
             }))
     })
@@ -65,13 +73,15 @@ describe('Auth', () => {
         it('should return 200', () => request(app.getHttpServer())
             .post('/auth/login/github')
             .send({
-                code: 'github-code'
+                code: 'github-code',
+                authTokenName: 'auth-token-name'
             })
             .expect(200)
             .expect({
                 status: 'success',
                 data: {
-                    account: authService.loginWithGithub()
+                    account: authService.loginWithGithub(),
+                    jwt: tokensService.create().at(1)
                 }
             }))
     })
