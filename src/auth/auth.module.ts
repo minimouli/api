@@ -13,12 +13,15 @@ import { AuthService } from './auth.service'
 import { GithubCredentials } from './entities/github-credentials.entity'
 import { GithubApiService } from './services/github-api.service'
 import { GithubCredentialsService } from './services/github-credentials.service'
+import { JwtStrategy } from './strategies/jwt.strategy'
 import { AccountsModule } from '../accounts/accounts.module'
+import { Account } from '../accounts/entities/account.entity'
 import { TokensModule } from '../tokens/tokens.module'
+import { AuthToken } from '../tokens/entities/auth-token.entity'
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([GithubCredentials]),
+        TypeOrmModule.forFeature([Account, AuthToken, GithubCredentials]),
         HttpModule,
         AccountsModule,
         TokensModule
@@ -27,7 +30,8 @@ import { TokensModule } from '../tokens/tokens.module'
     providers: [
         AuthService,
         GithubApiService,
-        GithubCredentialsService
+        GithubCredentialsService,
+        JwtStrategy
     ]
 })
 class AuthModule {}

@@ -21,6 +21,7 @@ const bootstrap = async () => {
         .setTitle('Minimouli API')
         .setDescription('The API that runs the Minimouli platform')
         .setVersion('2.0')
+        .addBearerAuth()
         .build()
 
     app.enableCors()
