@@ -10,6 +10,7 @@ import { BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryColum
 import { EntityType } from '../../common/enums/entity-type.enum'
 import { getSecureRandomString } from '../../common/helpers/random.helper'
 import { AuthToken } from '../../tokens/entities/auth-token.entity'
+import type { Permission } from '../../common/enums/permission.enum'
 
 @Entity()
 class Account {
@@ -32,6 +33,14 @@ class Account {
         groups: ['owner']
     })
     email: string
+
+    @Column({
+        type: 'simple-array'
+    })
+    @Expose({
+        groups: ['owner']
+    })
+    permissions: Permission[]
 
     @OneToMany(() => AuthToken, (authToken) => authToken.account, {
         onDelete: 'CASCADE'

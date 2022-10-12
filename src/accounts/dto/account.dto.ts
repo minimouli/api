@@ -23,6 +23,9 @@ class AccountDto {
     email: string
 
     @ApiProperty()
+    permissions: string[]
+
+    @ApiProperty()
     uri: string
 
     @ApiProperty()

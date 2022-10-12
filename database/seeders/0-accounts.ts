@@ -7,6 +7,7 @@
 
 import { faker } from '@faker-js/faker'
 import { Account } from '../../src/accounts/entities/account.entity'
+import { Permission } from '../../src/common/enums/permission.enum'
 import type { MigrationInterface, QueryRunner } from 'typeorm'
 
 class AccountsSeeder implements MigrationInterface {
@@ -22,7 +23,28 @@ class AccountsSeeder implements MigrationInterface {
                     id: 'admin',
                     nickname: faker.name.firstName(),
                     username: faker.internet.userName().toLowerCase(),
-                    email: faker.internet.email().toLowerCase()
+                    email: faker.internet.email().toLowerCase(),
+                    permissions: [
+                        Permission.ReadAuthToken,
+                        Permission.DeleteAuthToken
+                    ]
+                },
+                {
+                    id: 'user-1',
+                    nickname: faker.name.firstName(),
+                    username: faker.internet.userName().toLowerCase(),
+                    email: faker.internet.email().toLowerCase(),
+                    permissions: []
+                },
+                {
+                    id: 'user-2',
+                    nickname: faker.name.firstName(),
+                    username: faker.internet.userName().toLowerCase(),
+                    email: faker.internet.email().toLowerCase(),
+                    permissions: [
+                        Permission.ReadOwnAuthToken,
+                        Permission.DeleteOwnAuthToken
+                    ]
                 }
             ])
             .execute()

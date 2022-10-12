@@ -9,7 +9,13 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Account } from './entities/account.entity'
+import { Permission } from '../common/enums/permission.enum'
 import { getRandomString, LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/random.helper'
+
+const defaultPermissions = [
+    Permission.ReadOwnAuthToken,
+    Permission.DeleteOwnAuthToken
+]
 
 @Injectable()
 class AccountsService {
@@ -19,12 +25,13 @@ class AccountsService {
         private readonly accountRepository: Repository<Account>
     ) {}
 
-    async create(nickname: string, email: string): Promise<Account> {
+    async create(nickname: string, email: string, permissions = defaultPermissions): Promise<Account> {
 
         const account = this.accountRepository.create({
             username: getRandomString(16, `${LOWER_CASE_ALPHA}${NUMERIC}`),
             nickname,
-            email
+            email,
+            permissions
         })
 
         return this.accountRepository.save(account)
