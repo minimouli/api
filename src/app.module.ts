@@ -11,6 +11,7 @@ import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsModule } from './accounts/accounts.module'
 import { AuthModule } from './auth/auth.module'
+import { CaslModule } from './casl/casl.module'
 import { TokensModule } from './tokens/tokens.module'
 
 @Module({
@@ -39,6 +40,7 @@ import { TokensModule } from './tokens/tokens.module'
         }),
         AccountsModule,
         AuthModule,
+        CaslModule,
         TokensModule
     ],
     providers: [
