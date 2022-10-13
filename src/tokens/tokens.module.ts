@@ -9,8 +9,10 @@ import { Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { TokensController } from './tokens.controller'
 import { TokensService } from './tokens.service'
 import { AuthToken } from './entities/auth-token.entity'
+import { CaslModule } from '../casl/casl.module'
 
 @Module({
     imports: [
@@ -20,8 +22,10 @@ import { AuthToken } from './entities/auth-token.entity'
                 secret: configService.get<string>('JWT_SECRET')
             }),
             inject: [ConfigService]
-        })
+        }),
+        CaslModule
     ],
+    controllers: [TokensController],
     providers: [TokensService],
     exports: [TokensService]
 })

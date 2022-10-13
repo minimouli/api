@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import ms from 'ms'
 import { Repository } from 'typeorm'
 import { AuthToken } from './entities/auth-token.entity'
+import { CaslAbilityFactory } from '../casl/casl-ability.factory'
+import { CaslAction } from '../common/enums/casl-action.enum'
 import type { JwtApplicationPayload } from './types/jwt.type'
 import type { Account } from '../accounts/entities/account.entity'
 
@@ -21,6 +23,7 @@ class TokensService {
     constructor(
         @InjectRepository(AuthToken)
         private readonly authTokenRepository: Repository<AuthToken>,
+        private readonly caslAbilityFactory: CaslAbilityFactory,
         private readonly configService: ConfigService,
         private readonly jwtService: JwtService
     ) {}
@@ -33,6 +36,25 @@ class TokensService {
         const jwt = this.createJwt(authToken, expiresAt)
 
         return [authToken, jwt]
+    }
+
+    async getAllAuthTokensOf(ownerId: string, initiator: Account): Promise<AuthToken[]> {
+
+        const ability = this.caslAbilityFactory.createForAccount(initiator)
+        const authTokens = await this.authTokenRepository.find({
+            where: {
+                account: {
+                    id: ownerId
+                }
+            },
+            relations: ['account']
+        })
+
+        for (const authToken of authTokens)
+            if (!ability.can(CaslAction.Read, authToken))
+                throw new ForbiddenException()
+
+        return authTokens
     }
 
     private createAuthToken(name: string, account: Account, expiresAt: Date): Promise<AuthToken> {

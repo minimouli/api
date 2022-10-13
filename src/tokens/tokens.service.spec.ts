@@ -9,16 +9,26 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
+import { ForbiddenException } from '@nestjs/common'
 import { TokensService } from './tokens.service'
 import { AuthToken } from './entities/auth-token.entity'
 import { Account } from '../accounts/entities/account.entity'
+import { CaslAbilityFactory } from '../casl/casl-ability.factory'
+import { CaslAction } from '../common/enums/casl-action.enum'
 
 describe('TokensService', () => {
 
     let tokensService: TokensService
     const authTokenRepository = {
         create: jest.fn(),
+        find: jest.fn(),
         save: jest.fn()
+    }
+    const caslAbilityFactory = {
+        createForAccount: jest.fn()
+    }
+    const caslAbility = {
+        can: jest.fn()
     }
     const configService = {
         get: jest.fn()
@@ -38,6 +48,9 @@ describe('TokensService', () => {
                 if (token === getRepositoryToken(AuthToken))
                     return authTokenRepository
 
+                if (token === CaslAbilityFactory)
+                    return caslAbilityFactory
+
                 if (token === ConfigService)
                     return configService
 
@@ -52,7 +65,10 @@ describe('TokensService', () => {
         tokensService = moduleRef.get(TokensService)
 
         authTokenRepository.create.mockReset()
+        authTokenRepository.find.mockReset()
         authTokenRepository.save.mockReset()
+        caslAbilityFactory.createForAccount.mockReset()
+        caslAbility.can.mockReset()
         configService.get.mockReset()
         jwtService.sign.mockReset()
     })
@@ -126,6 +142,54 @@ describe('TokensService', () => {
             }, {
                 expiresIn
             })
+        })
+    })
+
+    describe('getAllAuthTokensOf', () => {
+
+        const ownerId = 'owner id'
+        const initiator = new Account()
+        const authToken = 'auth token'
+        const authTokens = [authToken]
+
+        it('should throw a ForbiddenException the account has not the permission to read auth tokens', async () => {
+
+            authTokenRepository.find.mockResolvedValue(authTokens)
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(false)
+
+            await expect(tokensService.getAllAuthTokensOf(ownerId, initiator)).rejects.toThrow(new ForbiddenException())
+
+            expect(authTokenRepository.find).toHaveBeenCalledWith({
+                where: {
+                    account: {
+                        id: ownerId
+                    }
+                },
+                relations: ['account']
+            })
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Read, authToken)
+        })
+
+        it('should return all auth tokens', async () => {
+
+            authTokenRepository.find.mockResolvedValue(authTokens)
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(true)
+
+            await expect(tokensService.getAllAuthTokensOf(ownerId, initiator)).resolves.toStrictEqual(authTokens)
+
+            expect(authTokenRepository.find).toHaveBeenCalledWith({
+                where: {
+                    account: {
+                        id: ownerId
+                    }
+                },
+                relations: ['account']
+            })
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Read, authToken)
         })
     })
 })
