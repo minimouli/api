@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ForbiddenException } from '@nestjs/common'
+import { ForbiddenException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test } from '@nestjs/testing'
@@ -24,6 +24,8 @@ describe('TokensService', () => {
         create: jest.fn(),
         delete: jest.fn(),
         find: jest.fn(),
+        findOne: jest.fn(),
+        remove: jest.fn(),
         save: jest.fn()
     }
     const caslAbilityFactory = {
@@ -69,6 +71,8 @@ describe('TokensService', () => {
         authTokenRepository.create.mockReset()
         authTokenRepository.delete.mockReset()
         authTokenRepository.find.mockReset()
+        authTokenRepository.findOne.mockReset()
+        authTokenRepository.remove.mockReset()
         authTokenRepository.save.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
         caslAbility.can.mockReset()
@@ -155,7 +159,7 @@ describe('TokensService', () => {
         const authToken = 'auth token'
         const authTokens = [authToken]
 
-        it('should throw a ForbiddenException the account has not the permission to read auth tokens', async () => {
+        it('should throw a ForbiddenException if the account has not the permission to read auth tokens', async () => {
 
             authTokenRepository.find.mockResolvedValue(authTokens)
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
@@ -193,6 +197,67 @@ describe('TokensService', () => {
             })
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Read, authToken)
+        })
+    })
+
+    describe('deleteAuthToken', () => {
+
+        const authTokenId = 'auth token id'
+        const initiator = new Account()
+        const authToken = 'auth token'
+
+        it('should throw a NotFoundException if the auth token is not found', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            authTokenRepository.findOne.mockResolvedValue(null)
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+
+            await expect(tokensService.deleteAuthToken(authTokenId, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(authTokenRepository.findOne).toHaveBeenCalledWith({
+                where: {
+                    id: authTokenId
+                },
+                relations: ['account']
+            })
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+        })
+
+        it('should throw a ForbiddenException if the account has not the permission to delete auth tokens', async () => {
+
+            authTokenRepository.findOne.mockResolvedValue(authToken)
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(false)
+
+            await expect(tokensService.deleteAuthToken(authTokenId, initiator)).rejects.toThrow(new ForbiddenException())
+
+            expect(authTokenRepository.findOne).toHaveBeenCalledWith({
+                where: {
+                    id: authTokenId
+                },
+                relations: ['account']
+            })
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, authToken)
+        })
+
+        it('should delete the auth token', async () => {
+
+            authTokenRepository.findOne.mockResolvedValue(authToken)
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(true)
+
+            await expect(tokensService.deleteAuthToken(authTokenId, initiator)).resolves.toBeUndefined()
+
+            expect(authTokenRepository.findOne).toHaveBeenCalledWith({
+                where: {
+                    id: authTokenId
+                },
+                relations: ['account']
+            })
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, authToken)
+            expect(authTokenRepository.remove).toHaveBeenCalledWith(authToken)
         })
     })
 

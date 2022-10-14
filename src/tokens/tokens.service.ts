@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Cron, CronExpression } from '@nestjs/schedule'
@@ -56,6 +56,25 @@ class TokensService {
                 throw new ForbiddenException()
 
         return authTokens
+    }
+
+    async deleteAuthToken(authTokenId: string, initiator: Account): Promise<void> {
+
+        const ability = this.caslAbilityFactory.createForAccount(initiator)
+        const authToken = await this.authTokenRepository.findOne({
+            where: {
+                id: authTokenId
+            },
+            relations: ['account']
+        })
+
+        if (authToken === null)
+            throw new NotFoundException()
+
+        if (!ability.can(CaslAction.Delete, authToken))
+            throw new ForbiddenException()
+
+        await this.authTokenRepository.remove(authToken)
     }
 
     @Cron(CronExpression.EVERY_HOUR)

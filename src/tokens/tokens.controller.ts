@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Controller, Get, UseGuards } from '@nestjs/common'
+import { Controller, Delete, Get, HttpCode, Param, UseGuards } from '@nestjs/common'
 import {
     ApiBearerAuth,
-    ApiForbiddenResponse,
+    ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiTags,
@@ -53,6 +53,29 @@ class TokensController {
             status: 'success',
             data: authTokens
         }
+    }
+
+    @Delete('/token/:authTokenId')
+    @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Delete an auth token by id' })
+    @ApiNoContentResponse({
+        description: 'Delete an auth token by id'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async deleteAuthToken(@CurrentUser() user: Account, @Param('authTokenId') authTokenId: string): Promise<void> {
+        await this.tokensService.deleteAuthToken(authTokenId, user)
     }
 
 }

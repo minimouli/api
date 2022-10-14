@@ -8,13 +8,14 @@
 import { Test } from '@nestjs/testing'
 import { TokensController } from './tokens.controller'
 import { TokensService } from './tokens.service'
-import type { Account } from '../accounts/entities/account.entity'
+import { Account } from '../accounts/entities/account.entity'
 
 describe('TokensController', () => {
 
     let tokensController: TokensController
     const tokensService = {
-        getAllAuthTokensOf: jest.fn()
+        getAllAuthTokensOf: jest.fn(),
+        deleteAuthToken: jest.fn()
     }
 
     beforeEach(async () => {
@@ -29,6 +30,9 @@ describe('TokensController', () => {
             .compile()
 
         tokensController = moduleRef.get(TokensController)
+
+        tokensService.getAllAuthTokensOf.mockReset()
+        tokensService.deleteAuthToken.mockReset()
     })
 
     describe('getCurrentUserAuthTokens', () => {
@@ -48,6 +52,19 @@ describe('TokensController', () => {
             })
 
             expect(tokensService.getAllAuthTokensOf).toHaveBeenCalledWith(user.id, user)
+        })
+    })
+
+    describe('deleteAuthToken', () => {
+
+        it('should return the correct response', async () => {
+
+            const user = new Account()
+            const authTokenId = '1'
+
+            await expect(tokensController.deleteAuthToken(user, authTokenId)).resolves.toBeUndefined()
+
+            expect(tokensService.deleteAuthToken).toHaveBeenCalledWith(authTokenId, user)
         })
     })
 })

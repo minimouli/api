@@ -17,7 +17,8 @@ describe('Tokens', () => {
     let app: INestApplication
     let jwtService: JwtService
     const tokensService = {
-        getAllAuthTokensOf: () => ['auth token 1', 'auth token 2']
+        getAllAuthTokensOf: () => ['auth token 1', 'auth token 2'],
+        deleteAuthToken: () => Promise.resolve()
     }
 
     beforeAll(async () => {
@@ -43,7 +44,7 @@ describe('Tokens', () => {
             .get('/me/tokens')
             .expect(401))
 
-        describe('logged as user', () => {
+        describe('logged', () => {
 
             const accountId = 'user-2'
             let jwt: string
@@ -59,6 +60,31 @@ describe('Tokens', () => {
                 .get('/me/tokens')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(200))
+        })
+    })
+
+    describe('DELETE /token/:authTokenId', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .delete('/token/123')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'user-2'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('it should return 204', () => request(app.getHttpServer())
+                .delete('/token/123')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(204))
         })
     })
 })
