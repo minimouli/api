@@ -26,10 +26,14 @@ class AuthToken {
     @ManyToOne(() => Account, (account) => account.authTokens)
     account: Account
 
-    @Column()
+    @Column({
+        type: 'timestamptz'
+    })
     lastActive: string
 
-    @Column()
+    @Column({
+        type: 'timestamptz'
+    })
     expiresAt: string
 
     @UpdateDateColumn()
