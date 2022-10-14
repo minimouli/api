@@ -12,11 +12,12 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { TokensController } from './tokens.controller'
 import { TokensService } from './tokens.service'
 import { AuthToken } from './entities/auth-token.entity'
+import { Account } from '../accounts/entities/account.entity'
 import { CaslModule } from '../casl/casl.module'
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([AuthToken]),
+        TypeOrmModule.forFeature([Account, AuthToken]),
         JwtModule.registerAsync({
             useFactory: (configService: ConfigService) => ({
                 secret: configService.get<string>('JWT_SECRET')

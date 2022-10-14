@@ -55,6 +55,27 @@ describe('TokensController', () => {
         })
     })
 
+    describe('getAuthTokens', () => {
+
+        it('should return the correct response', async () => {
+
+            const user = {
+                id: '1'
+            } as Account
+            const ownerId = 'owner id'
+            const authTokens = ['auth tokens']
+
+            tokensService.getAllAuthTokensOf.mockResolvedValue(authTokens)
+
+            await expect(tokensController.getAuthTokens(user, ownerId)).resolves.toStrictEqual({
+                status: 'success',
+                data: authTokens
+            })
+
+            expect(tokensService.getAllAuthTokensOf).toHaveBeenCalledWith(ownerId, user)
+        })
+    })
+
     describe('deleteAuthToken', () => {
 
         it('should return the correct response', async () => {

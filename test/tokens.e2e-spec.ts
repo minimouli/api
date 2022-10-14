@@ -63,6 +63,31 @@ describe('Tokens', () => {
         })
     })
 
+    describe('GET /account/:ownerId/tokens', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .get('/account/123/tokens')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'user-2'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('it should return 200', () => request(app.getHttpServer())
+                .get('/account/123/tokens')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(200))
+        })
+    })
+
     describe('DELETE /token/:authTokenId', () => {
 
         it('should return 401 if the user is not logged', () => request(app.getHttpServer())

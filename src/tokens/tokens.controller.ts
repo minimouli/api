@@ -55,6 +55,35 @@ class TokensController {
         }
     }
 
+    @Get('/account/:ownerId/tokens')
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Get auth tokens owned by a given user' })
+    @ApiOkResponse({
+        type: GetAuthTokensResDto,
+        description: 'Get auth tokens owned by a given user'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async getAuthTokens(@CurrentUser() user: Account, @Param('ownerId') ownerId: string): Promise<GetAuthTokensResDto> {
+
+        const authTokens = await this.tokensService.getAllAuthTokensOf(ownerId, user)
+
+        return {
+            status: 'success',
+            data: authTokens
+        }
+    }
+
     @Delete('/token/:authTokenId')
     @HttpCode(204)
     @UseGuards(JwtAuthGuard)

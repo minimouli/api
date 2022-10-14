@@ -13,15 +13,17 @@ import { InjectRepository } from '@nestjs/typeorm'
 import ms from 'ms'
 import { LessThanOrEqual, Repository } from 'typeorm'
 import { AuthToken } from './entities/auth-token.entity'
+import { Account } from '../accounts/entities/account.entity'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import type { JwtApplicationPayload } from './types/jwt.type'
-import type { Account } from '../accounts/entities/account.entity'
 
 @Injectable()
 class TokensService {
 
     constructor(
+        @InjectRepository(Account)
+        private readonly accountRepository: Repository<Account>,
         @InjectRepository(AuthToken)
         private readonly authTokenRepository: Repository<AuthToken>,
         private readonly caslAbilityFactory: CaslAbilityFactory,
@@ -40,6 +42,11 @@ class TokensService {
     }
 
     async getAllAuthTokensOf(ownerId: string, initiator: Account): Promise<AuthToken[]> {
+
+        const owner = await this.accountRepository.findOneBy({ id: ownerId })
+
+        if (owner === null)
+            throw new NotFoundException()
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
         const authTokens = await this.authTokenRepository.find({

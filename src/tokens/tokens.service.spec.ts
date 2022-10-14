@@ -20,6 +20,9 @@ import { CaslAction } from '../common/enums/casl-action.enum'
 describe('TokensService', () => {
 
     let tokensService: TokensService
+    const accountRepository = {
+        findOneBy: jest.fn()
+    }
     const authTokenRepository = {
         create: jest.fn(),
         delete: jest.fn(),
@@ -49,6 +52,9 @@ describe('TokensService', () => {
             providers: [TokensService]
         })
             .useMocker((token) => {
+                if (token === getRepositoryToken(Account))
+                    return accountRepository
+
                 if (token === getRepositoryToken(AuthToken))
                     return authTokenRepository
 
@@ -68,6 +74,7 @@ describe('TokensService', () => {
 
         tokensService = moduleRef.get(TokensService)
 
+        accountRepository.findOneBy.mockReset()
         authTokenRepository.create.mockReset()
         authTokenRepository.delete.mockReset()
         authTokenRepository.find.mockReset()
@@ -156,17 +163,34 @@ describe('TokensService', () => {
 
         const ownerId = 'owner id'
         const initiator = new Account()
+        const owner = new Account()
         const authToken = 'auth token'
         const authTokens = [authToken]
 
+        it('should throw a NotFoundException if the owner id is not related to an existing account', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            accountRepository.findOneBy.mockResolvedValue(null)
+
+            await expect(tokensService.getAllAuthTokensOf(ownerId, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({
+                id: ownerId
+            })
+        })
+
         it('should throw a ForbiddenException if the account has not the permission to read auth tokens', async () => {
 
+            accountRepository.findOneBy.mockResolvedValue(owner)
             authTokenRepository.find.mockResolvedValue(authTokens)
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
             await expect(tokensService.getAllAuthTokensOf(ownerId, initiator)).rejects.toThrow(new ForbiddenException())
 
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({
+                id: ownerId
+            })
             expect(authTokenRepository.find).toHaveBeenCalledWith({
                 where: {
                     account: {
@@ -181,12 +205,16 @@ describe('TokensService', () => {
 
         it('should return all auth tokens', async () => {
 
+            accountRepository.findOneBy.mockResolvedValue(owner)
             authTokenRepository.find.mockResolvedValue(authTokens)
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
 
             await expect(tokensService.getAllAuthTokensOf(ownerId, initiator)).resolves.toStrictEqual(authTokens)
 
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({
+                id: ownerId
+            })
             expect(authTokenRepository.find).toHaveBeenCalledWith({
                 where: {
                     account: {
