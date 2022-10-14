@@ -8,9 +8,10 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import { Cron, CronExpression } from '@nestjs/schedule'
 import { InjectRepository } from '@nestjs/typeorm'
 import ms from 'ms'
-import { Repository } from 'typeorm'
+import { LessThanOrEqual, Repository } from 'typeorm'
 import { AuthToken } from './entities/auth-token.entity'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
@@ -55,6 +56,13 @@ class TokensService {
                 throw new ForbiddenException()
 
         return authTokens
+    }
+
+    @Cron(CronExpression.EVERY_HOUR)
+    async handleRemoveExpiredAuthTokens(): Promise<void> {
+         await this.authTokenRepository.delete({
+            expiresAt: LessThanOrEqual(new Date().toISOString())
+        })
     }
 
     private createAuthToken(name: string, account: Account, expiresAt: Date): Promise<AuthToken> {

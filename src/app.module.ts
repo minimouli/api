@@ -8,6 +8,7 @@
 import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { ScheduleModule } from '@nestjs/schedule'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsModule } from './accounts/accounts.module'
 import { AuthModule } from './auth/auth.module'
@@ -25,6 +26,7 @@ import { TokensModule } from './tokens/tokens.module'
             ],
             isGlobal: true
         }),
+        ScheduleModule.forRoot(),
         TypeOrmModule.forRootAsync({
             useFactory: (configService: ConfigService) => ({
                 type: 'postgres',

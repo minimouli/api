@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { ForbiddenException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
-import { ForbiddenException } from '@nestjs/common'
+import { LessThanOrEqual } from 'typeorm'
 import { TokensService } from './tokens.service'
 import { AuthToken } from './entities/auth-token.entity'
 import { Account } from '../accounts/entities/account.entity'
@@ -21,6 +22,7 @@ describe('TokensService', () => {
     let tokensService: TokensService
     const authTokenRepository = {
         create: jest.fn(),
+        delete: jest.fn(),
         find: jest.fn(),
         save: jest.fn()
     }
@@ -65,6 +67,7 @@ describe('TokensService', () => {
         tokensService = moduleRef.get(TokensService)
 
         authTokenRepository.create.mockReset()
+        authTokenRepository.delete.mockReset()
         authTokenRepository.find.mockReset()
         authTokenRepository.save.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
@@ -190,6 +193,18 @@ describe('TokensService', () => {
             })
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Read, authToken)
+        })
+    })
+
+    describe('handleRemoveExpiredAuthTokens', () => {
+
+        it('should delete all expired auth tokens', async () => {
+
+            await expect(tokensService.handleRemoveExpiredAuthTokens()).resolves.toBeUndefined()
+
+            expect(authTokenRepository.delete).toHaveBeenCalledWith({
+                expiresAt: LessThanOrEqual(systemTime.toISOString())
+            })
         })
     })
 })
