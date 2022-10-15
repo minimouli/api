@@ -13,8 +13,8 @@ import { Permission } from '../common/enums/permission.enum'
 import { getRandomString, LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/random.helper'
 
 const defaultPermissions = [
-    Permission.ReadOwnAuthToken,
-    Permission.DeleteOwnAuthToken
+    Permission.ReadOwnAuthTokens,
+    Permission.DeleteOwnAuthTokens
 ]
 
 @Injectable()

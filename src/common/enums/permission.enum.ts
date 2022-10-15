@@ -6,10 +6,11 @@
  */
 
 enum Permission {
-    ReadAuthToken = 'Permission.ReadAuthToken',
-    ReadOwnAuthToken = 'Permission.ReadOwnAuthToken',
-    DeleteAuthToken = 'Permission.DeleteAuthToken',
-    DeleteOwnAuthToken = 'Permission.DeleteOwnAuthToken'
+    ReadAllAccounts = 'Permission.ReadAllAccounts',
+    ReadOwnAuthTokens = 'Permission.ReadOwnAuthTokens',
+    ReadAllAuthTokens = 'Permission.ReadAllAuthTokens',
+    DeleteOwnAuthTokens = 'Permission.DeleteOwnAuthTokens',
+    DeleteAllAuthTokens = 'Permission.DeleteAllAuthTokens'
 }
 
 export {

@@ -8,11 +8,11 @@
 import { AbilityBuilder, PureAbility } from '@casl/ability'
 import { Injectable } from '@nestjs/common'
 import { $eq, createQueryTester } from 'sift'
+import { Account } from '../accounts/entities/account.entity'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
 import { AuthToken } from '../tokens/entities/auth-token.entity'
 import type { AbilityClass, ExtractSubjectType, InferSubjects } from '@casl/ability'
-import type { Account } from '../accounts/entities/account.entity'
 
 type Subjects = InferSubjects<typeof Account | typeof AuthToken>
 type AppAbility = PureAbility<[CaslAction, Subjects]>
@@ -26,17 +26,24 @@ class CaslAbilityFactory {
         const { can, build } = new AbilityBuilder(PureAbility as AbilityClass<AppAbility>)
         const permissions = account.permissions
 
-        if (permissions.includes(Permission.ReadAuthToken))
-            can(CaslAction.Read, AuthToken)
+        /* Account */
+        can(CaslAction.Read, Account, { id: account.id })
 
-        if (permissions.includes(Permission.ReadOwnAuthToken))
+        if (permissions.includes(Permission.ReadAllAccounts))
+            can(CaslAction.Read, Account)
+
+        /* Auth Token */
+        if (permissions.includes(Permission.ReadOwnAuthTokens))
             can(CaslAction.Read, AuthToken, { 'account.id': account.id })
 
-        if (permissions.includes(Permission.DeleteAuthToken))
-            can(CaslAction.Delete, AuthToken)
+        if (permissions.includes(Permission.ReadAllAuthTokens))
+            can(CaslAction.Read, AuthToken)
 
-        if (permissions.includes(Permission.DeleteOwnAuthToken))
+        if (permissions.includes(Permission.DeleteOwnAuthTokens))
             can(CaslAction.Delete, AuthToken, { 'account.id': account.id })
+
+        if (permissions.includes(Permission.DeleteAllAuthTokens))
+            can(CaslAction.Delete, AuthToken)
 
         return build({
             detectSubjectType: (subject) => subject.constructor as ExtractSubjectType<Subjects>,
