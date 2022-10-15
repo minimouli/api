@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { InjectRepository } from '@nestjs/typeorm'
@@ -31,13 +31,14 @@ class JwtStrategy extends PassportStrategy(Strategy) {
         })
     }
 
-    async validate(payload: JwtPayload): Promise<Account> {
+    async validate(payload: JwtPayload): Promise<Account | null> {
 
         const account = await this.accountRepository.findOneBy({ id: payload.sub })
         const authToken = await this.authTokenRepository.findOneBy({ id: payload.jti })
 
         if (account === null || authToken === null)
-            throw new UnauthorizedException()
+            // eslint-disable-next-line unicorn/no-null
+            return null
 
         authToken.lastActive = new Date().toISOString()
         await this.authTokenRepository.save(authToken)

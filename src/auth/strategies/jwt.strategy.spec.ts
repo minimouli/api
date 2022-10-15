@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
@@ -72,25 +71,25 @@ describe('JwtStrategy', () => {
             lastActive: 1
         }
 
-        it('should throw a BadRequestException if the account is not found', async () => {
+        it('should return null if the account is not found', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             accountRepository.findOneBy.mockResolvedValue(null)
             authTokenRepository.findOneBy.mockResolvedValue(authToken)
 
-            await expect(jwtStrategy.validate(payload as JwtPayload)).rejects.toStrictEqual(new UnauthorizedException())
+            await expect(jwtStrategy.validate(payload as JwtPayload)).resolves.toBeNull()
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: payload.sub })
             expect(authTokenRepository.findOneBy).toHaveBeenCalledWith({ id: payload.jti })
         })
 
-        it('should throw a BadRequestException if the auth token is not found', async () => {
+        it('should return null if the auth token is not found', async () => {
 
             accountRepository.findOneBy.mockResolvedValue(account)
             // eslint-disable-next-line unicorn/no-null
             authTokenRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(jwtStrategy.validate(payload as JwtPayload)).rejects.toStrictEqual(new UnauthorizedException())
+            await expect(jwtStrategy.validate(payload as JwtPayload)).resolves.toBeNull()
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: payload.sub })
             expect(authTokenRepository.findOneBy).toHaveBeenCalledWith({ id: payload.jti })
