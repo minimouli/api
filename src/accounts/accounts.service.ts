@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Account } from './entities/account.entity'
@@ -35,6 +35,16 @@ class AccountsService {
         })
 
         return this.accountRepository.save(account)
+    }
+
+    async findAccountById(id: string): Promise<Account> {
+
+        const account = await this.accountRepository.findOneBy({ id })
+
+        if (account === null)
+            throw new NotFoundException()
+
+        return account
     }
 
 }
