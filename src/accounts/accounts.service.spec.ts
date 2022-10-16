@@ -292,6 +292,63 @@ describe('AccountService', () => {
         })
     })
 
+    describe('updateAccountPermissionsById', () => {
+
+        const subjectId = 'subject id'
+        const permissions = [Permission.ReadAllAccounts]
+        const initiator = {
+            id: '1',
+            permissions: [Permission.UpdateAccountPermissions]
+        } as Account
+        const foundAccount = { id: '1' } as Account
+        const updatedAccount = { id: '2' } as Account
+
+        it('should throw a ForbiddenException if the initiator has not the permission to update account permissions', async () => {
+
+            const initiatorWithoutPermissions = {
+                id: '1',
+                permissions: [] as Permission[]
+            } as Account
+
+            await expect(accountsService.updateAccountPermissionsById(subjectId, permissions, initiatorWithoutPermissions)).rejects.toThrow(new ForbiddenException())
+        })
+
+        it('should throw a NotFoundException if the account is not found', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            accountRepository.findOneBy.mockResolvedValueOnce(null)
+
+            await expect(accountsService.updateAccountPermissionsById(subjectId, permissions, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(accountRepository.findOneBy).toHaveBeenNthCalledWith(1, {
+                id: subjectId
+            })
+        })
+
+        it('should throw a NotFoundException if the updated account is not found', async () => {
+
+            accountRepository.findOneBy.mockResolvedValueOnce(foundAccount)
+            // eslint-disable-next-line unicorn/no-null
+            accountRepository.findOneBy.mockResolvedValueOnce(null)
+
+            await expect(accountsService.updateAccountPermissionsById(subjectId, permissions, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(accountRepository.findOneBy).toHaveBeenNthCalledWith(1, { id: subjectId })
+            expect(accountRepository.findOneBy).toHaveBeenNthCalledWith(2, { id: subjectId })
+        })
+
+        it('should return the updated account', async () => {
+
+            accountRepository.findOneBy.mockResolvedValueOnce(foundAccount)
+            accountRepository.findOneBy.mockResolvedValueOnce(updatedAccount)
+
+            await expect(accountsService.updateAccountPermissionsById(subjectId, permissions, initiator)).resolves.toStrictEqual(updatedAccount)
+
+            expect(accountRepository.findOneBy).toHaveBeenNthCalledWith(1, { id: subjectId })
+            expect(accountRepository.findOneBy).toHaveBeenNthCalledWith(2, { id: subjectId })
+        })
+    })
+
     describe('deleteAccount', () => {
 
         const subject = { id: '1' } as Account

@@ -13,6 +13,7 @@ import {
     HttpCode,
     Param,
     Patch,
+    Put,
     SerializeOptions,
     UseGuards,
     UseInterceptors
@@ -32,6 +33,7 @@ import { AccountsService } from './accounts.service'
 import { GetAccountResDto } from './dto/get-account.res.dto'
 import { UpdateAccountReqDto } from './dto/update-account.req.dto'
 import { Account } from './entities/account.entity'
+import { UpdateAccountPermissionsReqDto } from './dto/update-account-permissions.req.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard'
 import { CurrentUser } from '../common/decorators/current-user.decorator'
@@ -153,6 +155,44 @@ class AccountsController {
         return {
             status: 'success',
             data: updatedAccount
+        }
+    }
+
+    @Put('/account/:accountId/permissions')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(AccountAsOwnerTransformer)
+    @ApiOperation({ summary: 'Update permissions about a user' })
+    @ApiOkResponse({
+        type: GetAccountResDto,
+        description: 'Update permissions about a user'
+    })
+    @ApiBadRequestResponse({
+        type: ErrorResDto,
+        description: 'Bad Request'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async updateUserPermissions(
+        @CurrentUser() currentUser: Account,
+        @Param('accountId') accountId: string,
+        @Body() body: UpdateAccountPermissionsReqDto
+    ): Promise<GetAccountResDto> {
+
+        const account = await this.accountsService.updateAccountPermissionsById(accountId, body.permissions, currentUser)
+
+        return {
+            status: 'success',
+            data: account
         }
     }
 

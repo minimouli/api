@@ -13,6 +13,7 @@ import { validateNickname, validateUsername } from './helpers/name.helper'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { DefaultPermissions } from '../common/configs/permissions.config'
 import { CaslAction } from '../common/enums/casl-action.enum'
+import { Permission } from '../common/enums/permission.enum'
 import { getRandomString } from '../common/helpers/random.helper'
 import { LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/string.helper'
 import type { UpdateAccountReqDto } from './dto/update-account.req.dto'
@@ -91,10 +92,33 @@ class AccountsService {
 
         const account = await this.accountRepository.findOneBy({ id: subjectId })
 
-        if (!account)
+        if (account === null)
             throw new NotFoundException()
 
         return this.updateAccount(account, body, initiator)
+    }
+
+    async updateAccountPermissionsById(subjectId: string, permissions: Permission[], initiator: Account): Promise<Account> {
+
+        if (!initiator.permissions.includes(Permission.UpdateAccountPermissions))
+            throw new ForbiddenException()
+
+        const account = await this.accountRepository.findOneBy({ id: subjectId })
+
+        if (account === null)
+            throw new NotFoundException()
+
+        await this.accountRepository.save({
+            ...account,
+            permissions
+        })
+
+        const updatedAccount = await this.accountRepository.findOneBy({ id: subjectId })
+
+        if (updatedAccount === null)
+            throw new NotFoundException()
+
+        return updatedAccount
     }
 
     async deleteAccount(subject: Account, initiator: Account): Promise<void> {

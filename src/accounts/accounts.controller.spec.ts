@@ -9,6 +9,7 @@ import { Test } from '@nestjs/testing'
 import { AccountsController } from './accounts.controller'
 import { AccountsService } from './accounts.service'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
+import { Permission } from '../common/enums/permission.enum'
 import type { Account } from './entities/account.entity'
 
 describe('AccountsController', () => {
@@ -19,7 +20,8 @@ describe('AccountsController', () => {
         deleteAccountById: jest.fn(),
         findAccountById: jest.fn(),
         updateAccount: jest.fn(),
-        updateAccountById: jest.fn()
+        updateAccountById: jest.fn(),
+        updateAccountPermissionsById: jest.fn()
     }
     const caslAbilityFactory = {
         createForAccount: jest.fn()
@@ -46,6 +48,7 @@ describe('AccountsController', () => {
         accountsService.findAccountById.mockReset()
         accountsService.updateAccount.mockReset()
         accountsService.updateAccountById.mockReset()
+        accountsService.updateAccountPermissionsById.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
     })
 
@@ -116,6 +119,26 @@ describe('AccountsController', () => {
             })
 
             expect(accountsService.updateAccountById).toHaveBeenCalledWith(accountId, body, currentUser)
+        })
+    })
+
+    describe('updateUserPermissions', () => {
+
+        it('should return the correct response', async () => {
+
+            const currentUser = { id: '1' } as Account
+            const updatedAccount = { id: '2' } as Account
+            const accountId = 'account id'
+            const body = { permissions: [Permission.ReadAllAccounts] }
+
+            accountsService.updateAccountPermissionsById.mockResolvedValue(updatedAccount)
+
+            await expect(accountsController.updateUserPermissions(currentUser, accountId, body)).resolves.toStrictEqual({
+                status: 'success',
+                data: updatedAccount
+            })
+
+            expect(accountsService.updateAccountPermissionsById).toHaveBeenCalledWith(accountId, body.permissions, currentUser)
         })
     })
 

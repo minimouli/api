@@ -10,6 +10,7 @@ import { Permission } from '../enums/permission.enum'
 const AdminPermissions = [
     Permission.ReadAllAccounts,
     Permission.UpdateAllAccounts,
+    Permission.UpdateAccountPermissions,
     Permission.DeleteAllAccounts,
     Permission.ReadAllAuthTokens,
     Permission.DeleteAllAuthTokens

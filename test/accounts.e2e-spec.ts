@@ -23,7 +23,8 @@ describe('Accounts', () => {
         deleteAccountById: () => Promise.resolve(),
         findAccountById: () => 'findAccountById',
         updateAccount: () => 'updateAccount',
-        updateAccountById: () => 'updateAccountById'
+        updateAccountById: () => 'updateAccountById',
+        updateAccountPermissionsById: () => 'updateAccountPermissionsById'
     }
 
     beforeAll(async () => {
@@ -151,6 +152,44 @@ describe('Accounts', () => {
                 .expect({
                     status: 'success',
                     data: accountsService.updateAccountById()
+                }))
+        })
+    })
+
+    describe('PUT /account/:accountId/permissions', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .put('/account/123/permissions')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('should return 400 if the body is incomplete', () => request(app.getHttpServer())
+                .put('/account/123/permissions')
+                .set('Authorization', `Bearer ${jwt}`)
+                .send({})
+                .expect(400))
+
+            it('should return 200', () => request(app.getHttpServer())
+                .put('/account/123/permissions')
+                .set('Authorization', `Bearer ${jwt}`)
+                .send({
+                    permissions: []
+                })
+                .expect(200)
+                .expect({
+                    status: 'success',
+                    data: accountsService.updateAccountPermissionsById()
                 }))
         })
     })
