@@ -42,9 +42,7 @@ class Account {
     })
     permissions: Permission[]
 
-    @OneToMany(() => AuthToken, (authToken) => authToken.account, {
-        onDelete: 'CASCADE'
-    })
+    @OneToMany(() => AuthToken, (authToken) => authToken.account)
     authTokens: AuthToken[]
 
     @Expose()

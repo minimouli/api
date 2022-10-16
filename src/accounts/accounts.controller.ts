@@ -5,11 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Get, Param, Patch, SerializeOptions, UseGuards, UseInterceptors } from '@nestjs/common'
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    Param,
+    Patch,
+    SerializeOptions,
+    UseGuards,
+    UseInterceptors
+} from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiForbiddenResponse,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -142,6 +154,48 @@ class AccountsController {
             status: 'success',
             data: updatedAccount
         }
+    }
+
+    @Delete('/me')
+    @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Delete the account of the current user' })
+    @ApiNoContentResponse({
+        description: 'Delete the account of the current user'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    async deleteCurrentUserAccount(@CurrentUser() user: Account): Promise<void> {
+        await this.accountsService.deleteAccount(user, user)
+    }
+
+    @Delete('/account/:accountId')
+    @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Delete the account of a user' })
+    @ApiNoContentResponse({
+        description: 'Delete the account of a user'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async deleteUserAccount(@CurrentUser() user: Account, @Param('accountId') accountId: string): Promise<void> {
+        await this.accountsService.deleteAccountById(accountId, user)
     }
 
 }

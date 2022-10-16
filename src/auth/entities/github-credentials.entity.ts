@@ -27,7 +27,9 @@ class GithubCredentials {
     @Column()
     githubId: number
 
-    @OneToOne(() => Account)
+    @OneToOne(() => Account, {
+        onDelete: 'CASCADE'
+    })
     @JoinColumn()
     account: Account
 

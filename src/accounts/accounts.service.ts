@@ -19,6 +19,7 @@ import type { UpdateAccountReqDto } from './dto/update-account.req.dto'
 
 const defaultPermissions = [
     Permission.UpdateOwnAccount,
+    Permission.DeleteOwnAccount,
     Permission.ReadOwnAuthTokens,
     Permission.DeleteOwnAuthTokens
 ]
@@ -101,6 +102,26 @@ class AccountsService {
             throw new NotFoundException()
 
         return this.updateAccount(account, body, initiator)
+    }
+
+    async deleteAccount(subject: Account, initiator: Account): Promise<void> {
+
+        const ability = this.caslAbilityFactory.createForAccount(initiator)
+
+        if (!ability.can(CaslAction.Delete, subject))
+            throw new ForbiddenException()
+
+        await this.accountRepository.remove(subject)
+    }
+
+    async deleteAccountById(subjectId: string, initiator: Account): Promise<void> {
+
+        const subject = await this.accountRepository.findOneBy({ id: subjectId })
+
+        if (subject === null)
+            throw new NotFoundException()
+
+        await this.deleteAccount(subject, initiator)
     }
 
     async isTheUsernameAvailable(username: string): Promise<boolean> {

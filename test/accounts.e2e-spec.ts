@@ -19,6 +19,8 @@ describe('Accounts', () => {
     let app: INestApplication
     let jwtService: JwtService
     const accountsService = {
+        deleteAccount: () => Promise.resolve(),
+        deleteAccountById: () => Promise.resolve(),
         findAccountById: () => 'findAccountById',
         updateAccount: () => 'updateAccount',
         updateAccountById: () => 'updateAccountById'
@@ -150,6 +152,56 @@ describe('Accounts', () => {
                     status: 'success',
                     data: accountsService.updateAccountById()
                 }))
+        })
+    })
+
+    describe('DELETE /me', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .delete('/me')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('it should return 204', () => request(app.getHttpServer())
+                .delete('/me')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(204))
+        })
+    })
+
+    describe('DELETE /account/:accountId', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .delete('/account/123')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('it should return 204', () => request(app.getHttpServer())
+                .delete('/account/123')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(204))
         })
     })
 })

@@ -26,6 +26,7 @@ describe('AccountService', () => {
     const accountRepository = {
         create: jest.fn(),
         findOneBy: jest.fn(),
+        remove: jest.fn(),
         save: jest.fn()
     }
     const caslAbilityFactory = {
@@ -56,6 +57,7 @@ describe('AccountService', () => {
 
         accountRepository.create.mockReset()
         accountRepository.findOneBy.mockReset()
+        accountRepository.remove.mockReset()
         accountRepository.save.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
         caslAbility.can.mockReset()
@@ -286,6 +288,69 @@ describe('AccountService', () => {
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: accountId })
             expect(updateAccount).toHaveBeenCalledWith(account, body, initiator)
+        })
+    })
+
+    describe('deleteAccount', () => {
+
+        const subject = { id: '1' } as Account
+        const initiator = { id: '2' } as Account
+
+        it('should throw a ForbiddenException if the initiator has not the permission to delete accounts', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(false)
+
+            await expect(accountsService.deleteAccount(subject, initiator)).rejects.toThrow(new ForbiddenException())
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+        })
+
+        it('should delete the account', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(true)
+
+            await expect(accountsService.deleteAccount(subject, initiator)).resolves.toBeUndefined()
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+            expect(accountRepository.remove).toHaveBeenCalledWith(subject)
+        })
+    })
+
+    describe('deleteAccountById', () => {
+
+        let deleteAccount: jest.SpyInstance
+
+        const subjectId = '1'
+        const subject = { id: '1' } as Account
+        const initiator = { id: '2' } as Account
+
+        beforeEach(() => {
+            deleteAccount = jest.spyOn(accountsService, 'deleteAccount')
+        })
+
+        it('should throw a NotFoundException if subject id is not related to an account', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            accountRepository.findOneBy.mockResolvedValue(null)
+
+            await expect(accountsService.deleteAccountById(subjectId, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+        })
+
+        it('should delete the account by subject id', async () => {
+
+            accountRepository.findOneBy.mockResolvedValue(subject)
+            deleteAccount.mockReturnValue(Promise.resolve())
+
+            await expect(accountsService.deleteAccountById(subjectId, initiator)).resolves.toBeUndefined()
+
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+            expect(deleteAccount).toHaveBeenCalledWith(subject, initiator)
         })
     })
 

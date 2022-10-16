@@ -15,6 +15,8 @@ describe('AccountsController', () => {
 
     let accountsController: AccountsController
     const accountsService = {
+        deleteAccount: jest.fn(),
+        deleteAccountById: jest.fn(),
         findAccountById: jest.fn(),
         updateAccount: jest.fn(),
         updateAccountById: jest.fn()
@@ -39,6 +41,8 @@ describe('AccountsController', () => {
 
         accountsController = moduleRef.get(AccountsController)
 
+        accountsService.deleteAccount.mockReset()
+        accountsService.deleteAccountById.mockReset()
         accountsService.findAccountById.mockReset()
         accountsService.updateAccount.mockReset()
         accountsService.updateAccountById.mockReset()
@@ -112,6 +116,31 @@ describe('AccountsController', () => {
             })
 
             expect(accountsService.updateAccountById).toHaveBeenCalledWith(accountId, body, user)
+        })
+    })
+
+    describe('deleteCurrentUserAccount', () => {
+
+        it('should return the correct response', async () => {
+
+            const user = { id: '1' } as Account
+
+            await expect(accountsController.deleteCurrentUserAccount(user)).resolves.toBeUndefined()
+
+            expect(accountsService.deleteAccount).toHaveBeenCalledWith(user, user)
+        })
+    })
+
+    describe('deleteUserAccount', () => {
+
+        it('should return the correct response', async () => {
+
+            const user = { id: '1' } as Account
+            const accountId = '2'
+
+            await expect(accountsController.deleteUserAccount(user, accountId)).resolves.toBeUndefined()
+
+            expect(accountsService.deleteAccountById).toHaveBeenCalledWith(accountId, user)
         })
     })
 })

@@ -23,7 +23,9 @@ class AuthToken {
     name: string
 
     @Exclude()
-    @ManyToOne(() => Account, (account) => account.authTokens)
+    @ManyToOne(() => Account, (account) => account.authTokens, {
+        onDelete: 'CASCADE'
+    })
     account: Account
 
     @Column({

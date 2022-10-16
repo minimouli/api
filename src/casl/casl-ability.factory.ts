@@ -38,6 +38,12 @@ class CaslAbilityFactory {
         if (permissions.includes(Permission.UpdateAllAccounts))
             can(CaslAction.Update, Account)
 
+        if (permissions.includes(Permission.DeleteOwnAccount))
+            can(CaslAction.Delete, Account, { id: account.id })
+
+        if (permissions.includes(Permission.DeleteAllAccounts))
+            can(CaslAction.Delete, Account)
+
         /* Auth Token */
         if (permissions.includes(Permission.ReadOwnAuthTokens))
             can(CaslAction.Read, AuthToken, { 'account.id': account.id })
