@@ -159,11 +159,11 @@ describe('TokensService', () => {
         })
     })
 
-    describe('getAllAuthTokensOf', () => {
+    describe('getAllAuthTokensFromAccountId', () => {
 
         const ownerId = 'owner id'
-        const initiator = new Account()
-        const owner = new Account()
+        const initiator = { id: '1' } as Account
+        const owner = { id: '2' } as Account
         const authToken = 'auth token'
         const authTokens = [authToken]
 
@@ -172,7 +172,7 @@ describe('TokensService', () => {
             // eslint-disable-next-line unicorn/no-null
             accountRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(tokensService.getAllAuthTokensOf(ownerId, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(tokensService.getAllAuthTokensFromAccountId(ownerId, initiator)).rejects.toThrow(new NotFoundException())
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({
                 id: ownerId
@@ -186,7 +186,7 @@ describe('TokensService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(tokensService.getAllAuthTokensOf(ownerId, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(tokensService.getAllAuthTokensFromAccountId(ownerId, initiator)).rejects.toThrow(new ForbiddenException())
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({
                 id: ownerId
@@ -210,7 +210,7 @@ describe('TokensService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
 
-            await expect(tokensService.getAllAuthTokensOf(ownerId, initiator)).resolves.toStrictEqual(authTokens)
+            await expect(tokensService.getAllAuthTokensFromAccountId(ownerId, initiator)).resolves.toStrictEqual(authTokens)
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({
                 id: ownerId

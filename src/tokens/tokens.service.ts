@@ -41,7 +41,7 @@ class TokensService {
         return [authToken, jwt]
     }
 
-    async getAllAuthTokensOf(ownerId: string, initiator: Account): Promise<AuthToken[]> {
+    async getAllAuthTokensFromAccountId(ownerId: string, initiator: Account): Promise<AuthToken[]> {
 
         const owner = await this.accountRepository.findOneBy({ id: ownerId })
 

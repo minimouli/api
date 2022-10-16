@@ -17,7 +17,7 @@ describe('Tokens', () => {
     let app: INestApplication
     let jwtService: JwtService
     const tokensService = {
-        getAllAuthTokensOf: () => ['auth token 1', 'auth token 2'],
+        getAllAuthTokensFromAccountId: () => ['auth token 1', 'auth token 2'],
         deleteAuthToken: () => Promise.resolve()
     }
 
@@ -62,7 +62,7 @@ describe('Tokens', () => {
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: tokensService.getAllAuthTokensOf()
+                    data: tokensService.getAllAuthTokensFromAccountId()
                 }))
         })
     })
@@ -91,7 +91,7 @@ describe('Tokens', () => {
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: tokensService.getAllAuthTokensOf()
+                    data: tokensService.getAllAuthTokensFromAccountId()
                 }))
         })
     })

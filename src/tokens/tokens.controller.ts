@@ -45,9 +45,9 @@ class TokensController {
         type: ErrorResDto,
         description: 'Forbidden'
     })
-    async getCurrentUserAuthTokens(@CurrentUser() user: Account): Promise<GetAuthTokensResDto> {
+    async getCurrentUserAuthTokens(@CurrentUser() currentUser: Account): Promise<GetAuthTokensResDto> {
 
-        const authTokens = await this.tokensService.getAllAuthTokensOf(user.id, user)
+        const authTokens = await this.tokensService.getAllAuthTokensFromAccountId(currentUser.id, currentUser)
 
         return {
             status: 'success',
@@ -74,9 +74,9 @@ class TokensController {
         type: ErrorResDto,
         description: 'Not Found'
     })
-    async getAuthTokens(@CurrentUser() user: Account, @Param('ownerId') ownerId: string): Promise<GetAuthTokensResDto> {
+    async getAuthTokens(@CurrentUser() currentUser: Account, @Param('ownerId') ownerId: string): Promise<GetAuthTokensResDto> {
 
-        const authTokens = await this.tokensService.getAllAuthTokensOf(ownerId, user)
+        const authTokens = await this.tokensService.getAllAuthTokensFromAccountId(ownerId, currentUser)
 
         return {
             status: 'success',

@@ -14,7 +14,7 @@ describe('TokensController', () => {
 
     let tokensController: TokensController
     const tokensService = {
-        getAllAuthTokensOf: jest.fn(),
+        getAllAuthTokensFromAccountId: jest.fn(),
         deleteAuthToken: jest.fn()
     }
 
@@ -31,7 +31,7 @@ describe('TokensController', () => {
 
         tokensController = moduleRef.get(TokensController)
 
-        tokensService.getAllAuthTokensOf.mockReset()
+        tokensService.getAllAuthTokensFromAccountId.mockReset()
         tokensService.deleteAuthToken.mockReset()
     })
 
@@ -39,19 +39,17 @@ describe('TokensController', () => {
 
         it('should return the correct response', async () => {
 
-            const user = {
-                id: '1'
-            } as Account
+            const currentUser = { id: '1' } as Account
             const authTokens = ['auth tokens']
 
-            tokensService.getAllAuthTokensOf.mockResolvedValue(authTokens)
+            tokensService.getAllAuthTokensFromAccountId.mockResolvedValue(authTokens)
 
-            await expect(tokensController.getCurrentUserAuthTokens(user)).resolves.toStrictEqual({
+            await expect(tokensController.getCurrentUserAuthTokens(currentUser)).resolves.toStrictEqual({
                 status: 'success',
                 data: authTokens
             })
 
-            expect(tokensService.getAllAuthTokensOf).toHaveBeenCalledWith(user.id, user)
+            expect(tokensService.getAllAuthTokensFromAccountId).toHaveBeenCalledWith(currentUser.id, currentUser)
         })
     })
 
@@ -59,20 +57,18 @@ describe('TokensController', () => {
 
         it('should return the correct response', async () => {
 
-            const user = {
-                id: '1'
-            } as Account
+            const currentUser = { id: '1' } as Account
             const ownerId = 'owner id'
             const authTokens = ['auth tokens']
 
-            tokensService.getAllAuthTokensOf.mockResolvedValue(authTokens)
+            tokensService.getAllAuthTokensFromAccountId.mockResolvedValue(authTokens)
 
-            await expect(tokensController.getAuthTokens(user, ownerId)).resolves.toStrictEqual({
+            await expect(tokensController.getAuthTokens(currentUser, ownerId)).resolves.toStrictEqual({
                 status: 'success',
                 data: authTokens
             })
 
-            expect(tokensService.getAllAuthTokensOf).toHaveBeenCalledWith(ownerId, user)
+            expect(tokensService.getAllAuthTokensFromAccountId).toHaveBeenCalledWith(ownerId, currentUser)
         })
     })
 
