@@ -111,5 +111,6 @@ class AccountsService {
 }
 
 export {
-    AccountsService
+    AccountsService,
+    defaultPermissions
 }

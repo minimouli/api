@@ -8,18 +8,23 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
-import { AccountsService } from './accounts.service'
+import { AccountsService, defaultPermissions } from './accounts.service'
 import { Account } from './entities/account.entity'
 import { validateNickname, validateUsername } from './helpers/name.helper'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
+import { Permission } from '../common/enums/permission.enum'
+import { getRandomString } from '../common/helpers/random.helper'
+import { LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/string.helper'
 
 jest.mock('./helpers/name.helper')
+jest.mock('../common/helpers/random.helper')
 
 describe('AccountService', () => {
 
     let accountsService: AccountsService
     const accountRepository = {
+        create: jest.fn(),
         findOneBy: jest.fn(),
         save: jest.fn()
     }
@@ -31,6 +36,7 @@ describe('AccountService', () => {
     }
     const validateNicknameMock = validateNickname as jest.Mock
     const validateUsernameMock = validateUsername as jest.Mock
+    const getRandomStringMock = getRandomString as jest.Mock
 
     beforeEach(async () => {
 
@@ -48,12 +54,60 @@ describe('AccountService', () => {
 
         accountsService = moduleRef.get(AccountsService)
 
+        accountRepository.create.mockReset()
         accountRepository.findOneBy.mockReset()
         accountRepository.save.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
         caslAbility.can.mockReset()
         validateNicknameMock.mockReset()
         validateUsernameMock.mockReset()
+        getRandomStringMock.mockReset()
+    })
+
+    describe('create', () => {
+
+        const nickname = 'nickname'
+        const username = 'username'
+        const email = 'email'
+        const permissions = [Permission.UpdateOwnAccount]
+        const createdAccount = { id: '1' } as Account
+        const savedAccount = { id: '2' } as Account
+
+        it('should return the created account with default permissions', async () => {
+
+            accountRepository.create.mockReturnValue(createdAccount)
+            accountRepository.save.mockResolvedValue(savedAccount)
+            getRandomStringMock.mockReturnValue(username)
+
+            await expect(accountsService.create(nickname, email)).resolves.toStrictEqual(savedAccount)
+
+            expect(accountRepository.create).toHaveBeenCalledWith({
+                username,
+                nickname,
+                email,
+                permissions: defaultPermissions
+            })
+            expect(accountRepository.save).toHaveBeenCalledWith(createdAccount)
+            expect(getRandomStringMock).toHaveBeenCalledWith(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)
+        })
+
+        it('should return the created account with specified permissions', async () => {
+
+            accountRepository.create.mockReturnValue(createdAccount)
+            accountRepository.save.mockResolvedValue(savedAccount)
+            getRandomStringMock.mockReturnValue(username)
+
+            await expect(accountsService.create(nickname, email, permissions)).resolves.toStrictEqual(savedAccount)
+
+            expect(accountRepository.create).toHaveBeenCalledWith({
+                username,
+                nickname,
+                email,
+                permissions
+            })
+            expect(accountRepository.save).toHaveBeenCalledWith(createdAccount)
+            expect(getRandomStringMock).toHaveBeenCalledWith(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)
+        })
     })
 
     describe('findAccountById', () => {
