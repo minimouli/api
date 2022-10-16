@@ -62,7 +62,7 @@ describe('Accounts', () => {
                 })
             })
 
-            it('it should return 200', () => request(app.getHttpServer())
+            it('should return 200', () => request(app.getHttpServer())
                 .get('/me')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(200))
@@ -87,7 +87,7 @@ describe('Accounts', () => {
                 })
             })
 
-            it('it should return 200', () => request(app.getHttpServer())
+            it('should return 200', () => request(app.getHttpServer())
                 .get('/account/123')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(200)
@@ -116,7 +116,7 @@ describe('Accounts', () => {
                 })
             })
 
-            it('it should return 200', () => request(app.getHttpServer())
+            it('should return 200', () => request(app.getHttpServer())
                 .patch('/me')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(200)
@@ -145,7 +145,7 @@ describe('Accounts', () => {
                 })
             })
 
-            it('it should return 200', () => request(app.getHttpServer())
+            it('should return 200', () => request(app.getHttpServer())
                 .patch('/account/123')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(200)
@@ -212,7 +212,7 @@ describe('Accounts', () => {
                 })
             })
 
-            it('it should return 204', () => request(app.getHttpServer())
+            it('should return 204', () => request(app.getHttpServer())
                 .delete('/me')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(204))
@@ -237,7 +237,7 @@ describe('Accounts', () => {
                 })
             })
 
-            it('it should return 204', () => request(app.getHttpServer())
+            it('should return 204', () => request(app.getHttpServer())
                 .delete('/account/123')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(204))
