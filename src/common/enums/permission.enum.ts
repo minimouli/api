@@ -7,6 +7,8 @@
 
 enum Permission {
     ReadAllAccounts = 'Permission.ReadAllAccounts',
+    UpdateOwnAccount = 'Permission.UpdateOwnAccount',
+    UpdateAllAccounts = 'Permission.UpdateAllAccounts',
     ReadOwnAuthTokens = 'Permission.ReadOwnAuthTokens',
     ReadAllAuthTokens = 'Permission.ReadAllAuthTokens',
     DeleteOwnAuthTokens = 'Permission.DeleteOwnAuthTokens',

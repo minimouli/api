@@ -19,7 +19,9 @@ describe('Accounts', () => {
     let app: INestApplication
     let jwtService: JwtService
     const accountsService = {
-        findAccountById: () => 'findAccountById'
+        findAccountById: () => 'findAccountById',
+        updateAccount: () => 'updateAccount',
+        updateAccountById: () => 'updateAccountById'
     }
 
     beforeAll(async () => {
@@ -89,6 +91,64 @@ describe('Accounts', () => {
                 .expect({
                     status: 'success',
                     data: accountsService.findAccountById()
+                }))
+        })
+    })
+
+    describe('PATCH /me', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .patch('/me')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('it should return 200', () => request(app.getHttpServer())
+                .patch('/me')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(200)
+                .expect({
+                    status: 'success',
+                    data: accountsService.updateAccount()
+                }))
+        })
+    })
+
+    describe('PATCH /account/123', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .patch('/account/123')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('it should return 200', () => request(app.getHttpServer())
+                .patch('/account/123')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(200)
+                .expect({
+                    status: 'success',
+                    data: accountsService.updateAccountById()
                 }))
         })
     })

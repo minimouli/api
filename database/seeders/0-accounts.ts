@@ -27,6 +27,7 @@ class AccountsSeeder implements MigrationInterface {
                     permissions: [
                         Permission.ReadAllAccounts,
                         Permission.ReadAllAuthTokens,
+                        Permission.UpdateAllAccounts,
                         Permission.DeleteAllAuthTokens
                     ]
                 },
@@ -43,6 +44,7 @@ class AccountsSeeder implements MigrationInterface {
                     username: faker.internet.userName().toLowerCase(),
                     email: faker.internet.email().toLowerCase(),
                     permissions: [
+                        Permission.UpdateOwnAccount,
                         Permission.ReadOwnAuthTokens,
                         Permission.DeleteOwnAuthTokens
                     ]

@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Controller, Get, Param, SerializeOptions, UseGuards, UseInterceptors } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, SerializeOptions, UseGuards, UseInterceptors } from '@nestjs/common'
 import {
+    ApiBadRequestResponse,
     ApiBearerAuth,
+    ApiForbiddenResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -16,6 +18,7 @@ import {
 } from '@nestjs/swagger'
 import { AccountsService } from './accounts.service'
 import { GetAccountResDto } from './dto/get-account.res.dto'
+import { UpdateAccountReqDto } from './dto/update-account.req.dto'
 import { Account } from './entities/account.entity'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard'
@@ -70,6 +73,74 @@ class AccountsController {
         return {
             status: 'success',
             data: account
+        }
+    }
+
+    @Patch('/me')
+    @UseGuards(JwtAuthGuard)
+    @SerializeOptions({ groups: ['owner'] })
+    @ApiOperation({ summary: 'Update the profile information about the current user' })
+    @ApiOkResponse({
+        type: GetAccountResDto,
+        description: 'Update the profile information about the current user'
+    })
+    @ApiBadRequestResponse({
+        type: ErrorResDto,
+        description: 'Bad Request'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    async updateCurrentUserProfile(@CurrentUser() user: Account, @Body() body: UpdateAccountReqDto): Promise<GetAccountResDto> {
+
+        const updatedAccount = await this.accountsService.updateAccount(user, body, user)
+
+        return {
+            status: 'success',
+            data: updatedAccount
+        }
+    }
+
+    @Patch('/account/:accountId')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(AccountAsOwnerTransformer)
+    @ApiOperation({ summary: 'Update the profile information about a user' })
+    @ApiOkResponse({
+        type: GetAccountResDto,
+        description: 'Update the profile information about a user'
+    })
+    @ApiBadRequestResponse({
+        type: ErrorResDto,
+        description: 'Bad Request'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async updateUserProfile(
+        @CurrentUser() user: Account,
+        @Param('accountId') accountId: string,
+        @Body() body: UpdateAccountReqDto
+    ): Promise<GetAccountResDto> {
+
+        const updatedAccount = await this.accountsService.updateAccountById(accountId, body, user)
+
+        return {
+            status: 'success',
+            data: updatedAccount
         }
     }
 

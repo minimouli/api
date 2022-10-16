@@ -32,6 +32,12 @@ class CaslAbilityFactory {
         if (permissions.includes(Permission.ReadAllAccounts))
             can(CaslAction.Read, Account)
 
+        if (permissions.includes(Permission.UpdateOwnAccount))
+            can(CaslAction.Update, Account, { id: account.id })
+
+        if (permissions.includes(Permission.UpdateAllAccounts))
+            can(CaslAction.Update, Account)
+
         /* Auth Token */
         if (permissions.includes(Permission.ReadOwnAuthTokens))
             can(CaslAction.Read, AuthToken, { 'account.id': account.id })

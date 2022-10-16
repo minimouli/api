@@ -6,11 +6,7 @@
  */
 
 import crypto from 'node:crypto'
-
-const NUMERIC = '0123456789'
-const LOWER_CASE_ALPHA = 'abcdefghijklmnopqrstuvwxyz'
-const UPPER_CASE_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-const ALPHANUMERIC = `${LOWER_CASE_ALPHA}${UPPER_CASE_ALPHA}${NUMERIC}`
+import { ALPHANUMERIC } from './string.helper'
 
 type NumberGenerator = (max: number) => number
 
@@ -26,9 +22,5 @@ const getSecureRandomString = (length: number, alphabet = ALPHANUMERIC) => getRa
 
 export {
     getRandomString,
-    getSecureRandomString,
-    NUMERIC,
-    LOWER_CASE_ALPHA,
-    UPPER_CASE_ALPHA,
-    ALPHANUMERIC
+    getSecureRandomString
 }

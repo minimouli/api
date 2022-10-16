@@ -8,14 +8,16 @@
 import { Test } from '@nestjs/testing'
 import { AccountsController } from './accounts.controller'
 import { AccountsService } from './accounts.service'
-import { Account } from './entities/account.entity'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
+import type { Account } from './entities/account.entity'
 
 describe('AccountsController', () => {
 
     let accountsController: AccountsController
     const accountsService = {
-        findAccountById: jest.fn()
+        findAccountById: jest.fn(),
+        updateAccount: jest.fn(),
+        updateAccountById: jest.fn()
     }
     const caslAbilityFactory = {
         createForAccount: jest.fn()
@@ -38,6 +40,8 @@ describe('AccountsController', () => {
         accountsController = moduleRef.get(AccountsController)
 
         accountsService.findAccountById.mockReset()
+        accountsService.updateAccount.mockReset()
+        accountsService.updateAccountById.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
     })
 
@@ -45,7 +49,7 @@ describe('AccountsController', () => {
 
         it('should return the correct response', () => {
 
-            const user = new Account()
+            const user = { id: '1' } as Account
 
             expect(accountsController.getCurrentUserProfile(user)).toStrictEqual({
                 status: 'success',
@@ -59,7 +63,7 @@ describe('AccountsController', () => {
         it('should return the correct response', async () => {
 
             const accountId = '1'
-            const user = new Account()
+            const user = { id: '1' } as Account
 
             accountsService.findAccountById.mockResolvedValue(user)
 
@@ -69,6 +73,45 @@ describe('AccountsController', () => {
             })
 
             expect(accountsService.findAccountById).toHaveBeenCalledWith(accountId)
+        })
+    })
+
+    describe('updateCurrentUserProfile', () => {
+
+        it('should return the correct response', async () => {
+
+            const user = { id: '1' } as Account
+            const body = { nickname: 'nickname' }
+            const updatedAccount = { id: '2' } as Account
+
+            accountsService.updateAccount.mockResolvedValue(updatedAccount)
+
+            await expect(accountsController.updateCurrentUserProfile(user, body)).resolves.toStrictEqual({
+                status: 'success',
+                data: updatedAccount
+            })
+
+            expect(accountsService.updateAccount).toHaveBeenCalledWith(user, body, user)
+        })
+    })
+
+    describe('updateUserProfile', () => {
+
+        it('should return the correct response', async () => {
+
+            const user = { id: '1' } as Account
+            const accountId = '2'
+            const body = { nickname: 'nickname' }
+            const updatedAccount = { id: '2' } as Account
+
+            accountsService.updateAccountById.mockResolvedValue(updatedAccount)
+
+            await expect(accountsController.updateUserProfile(user, accountId, body)).resolves.toStrictEqual({
+                status: 'success',
+                data: updatedAccount
+            })
+
+            expect(accountsService.updateAccountById).toHaveBeenCalledWith(accountId, body, user)
         })
     })
 })
