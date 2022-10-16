@@ -59,7 +59,11 @@ describe('Tokens', () => {
             it('it should return 200', () => request(app.getHttpServer())
                 .get('/me/tokens')
                 .set('Authorization', `Bearer ${jwt}`)
-                .expect(200))
+                .expect(200)
+                .expect({
+                    status: 'success',
+                    data: tokensService.getAllAuthTokensOf()
+                }))
         })
     })
 
@@ -84,7 +88,11 @@ describe('Tokens', () => {
             it('it should return 200', () => request(app.getHttpServer())
                 .get('/account/123/tokens')
                 .set('Authorization', `Bearer ${jwt}`)
-                .expect(200))
+                .expect(200)
+                .expect({
+                    status: 'success',
+                    data: tokensService.getAllAuthTokensOf()
+                }))
         })
     })
 
