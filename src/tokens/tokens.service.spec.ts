@@ -228,9 +228,9 @@ describe('TokensService', () => {
         })
     })
 
-    describe('deleteAuthToken', () => {
+    describe('deleteAuthTokenById', () => {
 
-        const authTokenId = 'auth token id'
+        const subjectId = 'subject id'
         const initiator = new Account()
         const authToken = 'auth token'
 
@@ -240,11 +240,11 @@ describe('TokensService', () => {
             authTokenRepository.findOne.mockResolvedValue(null)
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
 
-            await expect(tokensService.deleteAuthToken(authTokenId, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(tokensService.deleteAuthTokenById(subjectId, initiator)).rejects.toThrow(new NotFoundException())
 
             expect(authTokenRepository.findOne).toHaveBeenCalledWith({
                 where: {
-                    id: authTokenId
+                    id: subjectId
                 },
                 relations: ['account']
             })
@@ -257,11 +257,11 @@ describe('TokensService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(tokensService.deleteAuthToken(authTokenId, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(tokensService.deleteAuthTokenById(subjectId, initiator)).rejects.toThrow(new ForbiddenException())
 
             expect(authTokenRepository.findOne).toHaveBeenCalledWith({
                 where: {
-                    id: authTokenId
+                    id: subjectId
                 },
                 relations: ['account']
             })
@@ -275,11 +275,11 @@ describe('TokensService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
 
-            await expect(tokensService.deleteAuthToken(authTokenId, initiator)).resolves.toBeUndefined()
+            await expect(tokensService.deleteAuthTokenById(subjectId, initiator)).resolves.toBeUndefined()
 
             expect(authTokenRepository.findOne).toHaveBeenCalledWith({
                 where: {
-                    id: authTokenId
+                    id: subjectId
                 },
                 relations: ['account']
             })

@@ -18,7 +18,7 @@ describe('Tokens', () => {
     let jwtService: JwtService
     const tokensService = {
         getAllAuthTokensFromAccountId: () => ['auth token 1', 'auth token 2'],
-        deleteAuthToken: () => Promise.resolve()
+        deleteAuthTokenById: () => Promise.resolve()
     }
 
     beforeAll(async () => {

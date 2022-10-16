@@ -8,14 +8,14 @@
 import { Test } from '@nestjs/testing'
 import { TokensController } from './tokens.controller'
 import { TokensService } from './tokens.service'
-import { Account } from '../accounts/entities/account.entity'
+import type { Account } from '../accounts/entities/account.entity'
 
 describe('TokensController', () => {
 
     let tokensController: TokensController
     const tokensService = {
         getAllAuthTokensFromAccountId: jest.fn(),
-        deleteAuthToken: jest.fn()
+        deleteAuthTokenById: jest.fn()
     }
 
     beforeEach(async () => {
@@ -32,7 +32,7 @@ describe('TokensController', () => {
         tokensController = moduleRef.get(TokensController)
 
         tokensService.getAllAuthTokensFromAccountId.mockReset()
-        tokensService.deleteAuthToken.mockReset()
+        tokensService.deleteAuthTokenById.mockReset()
     })
 
     describe('getCurrentUserAuthTokens', () => {
@@ -72,16 +72,16 @@ describe('TokensController', () => {
         })
     })
 
-    describe('deleteAuthToken', () => {
+    describe('deleteAuthTokenById', () => {
 
         it('should return the correct response', async () => {
 
-            const user = new Account()
-            const authTokenId = '1'
+            const currentUser = { id: '1' } as Account
+            const authTokenId = 'auth token id'
 
-            await expect(tokensController.deleteAuthToken(user, authTokenId)).resolves.toBeUndefined()
+            await expect(tokensController.deleteAuthTokenById(currentUser, authTokenId)).resolves.toBeUndefined()
 
-            expect(tokensService.deleteAuthToken).toHaveBeenCalledWith(authTokenId, user)
+            expect(tokensService.deleteAuthTokenById).toHaveBeenCalledWith(authTokenId, currentUser)
         })
     })
 })

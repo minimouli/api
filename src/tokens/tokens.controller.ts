@@ -103,8 +103,8 @@ class TokensController {
         type: ErrorResDto,
         description: 'Not Found'
     })
-    async deleteAuthToken(@CurrentUser() user: Account, @Param('authTokenId') authTokenId: string): Promise<void> {
-        await this.tokensService.deleteAuthToken(authTokenId, user)
+    async deleteAuthTokenById(@CurrentUser() currentUser: Account, @Param('authTokenId') authTokenId: string): Promise<void> {
+        await this.tokensService.deleteAuthTokenById(authTokenId, currentUser)
     }
 
 }

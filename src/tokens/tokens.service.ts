@@ -65,12 +65,12 @@ class TokensService {
         return authTokens
     }
 
-    async deleteAuthToken(authTokenId: string, initiator: Account): Promise<void> {
+    async deleteAuthTokenById(subjectId: string, initiator: Account): Promise<void> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
         const authToken = await this.authTokenRepository.findOne({
             where: {
-                id: authTokenId
+                id: subjectId
             },
             relations: ['account']
         })
