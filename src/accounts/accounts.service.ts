@@ -11,18 +11,11 @@ import { Repository } from 'typeorm'
 import { Account } from './entities/account.entity'
 import { validateNickname, validateUsername } from './helpers/name.helper'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
+import { DefaultPermissions } from '../common/configs/permissions.config'
 import { CaslAction } from '../common/enums/casl-action.enum'
-import { Permission } from '../common/enums/permission.enum'
 import { getRandomString } from '../common/helpers/random.helper'
 import { LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/string.helper'
 import type { UpdateAccountReqDto } from './dto/update-account.req.dto'
-
-const defaultPermissions = [
-    Permission.UpdateOwnAccount,
-    Permission.DeleteOwnAccount,
-    Permission.ReadOwnAuthTokens,
-    Permission.DeleteOwnAuthTokens
-]
 
 @Injectable()
 class AccountsService {
@@ -33,7 +26,7 @@ class AccountsService {
         private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
-    async create(nickname: string, email: string, permissions = defaultPermissions): Promise<Account> {
+    async create(nickname: string, email: string, permissions = DefaultPermissions): Promise<Account> {
 
         const account = this.accountRepository.create({
             username: getRandomString(16, `${LOWER_CASE_ALPHA}${NUMERIC}`),
@@ -132,6 +125,5 @@ class AccountsService {
 }
 
 export {
-    AccountsService,
-    defaultPermissions
+    AccountsService
 }

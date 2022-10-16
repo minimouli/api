@@ -8,10 +8,11 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
-import { AccountsService, defaultPermissions } from './accounts.service'
+import { AccountsService } from './accounts.service'
 import { Account } from './entities/account.entity'
 import { validateNickname, validateUsername } from './helpers/name.helper'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
+import { DefaultPermissions } from '../common/configs/permissions.config'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
 import { getRandomString } from '../common/helpers/random.helper'
@@ -87,7 +88,7 @@ describe('AccountService', () => {
                 username,
                 nickname,
                 email,
-                permissions: defaultPermissions
+                permissions: DefaultPermissions
             })
             expect(accountRepository.save).toHaveBeenCalledWith(createdAccount)
             expect(getRandomStringMock).toHaveBeenCalledWith(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)

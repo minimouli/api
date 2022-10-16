@@ -7,7 +7,7 @@
 
 import { faker } from '@faker-js/faker'
 import { Account } from '../../src/accounts/entities/account.entity'
-import { Permission } from '../../src/common/enums/permission.enum'
+import { AdminPermissions, DefaultPermissions } from '../../src/common/configs/permissions.config'
 import type { MigrationInterface, QueryRunner } from 'typeorm'
 
 class AccountsSeeder implements MigrationInterface {
@@ -24,13 +24,7 @@ class AccountsSeeder implements MigrationInterface {
                     nickname: faker.name.firstName(),
                     username: faker.internet.userName().toLowerCase(),
                     email: faker.internet.email().toLowerCase(),
-                    permissions: [
-                        Permission.ReadAllAccounts,
-                        Permission.UpdateAllAccounts,
-                        Permission.DeleteAllAccounts,
-                        Permission.ReadAllAuthTokens,
-                        Permission.DeleteAllAuthTokens
-                    ]
+                    permissions: AdminPermissions
                 },
                 {
                     id: 'user-1',
@@ -44,12 +38,7 @@ class AccountsSeeder implements MigrationInterface {
                     nickname: faker.name.firstName(),
                     username: faker.internet.userName().toLowerCase(),
                     email: faker.internet.email().toLowerCase(),
-                    permissions: [
-                        Permission.UpdateOwnAccount,
-                        Permission.DeleteOwnAccount,
-                        Permission.ReadOwnAuthTokens,
-                        Permission.DeleteOwnAuthTokens
-                    ]
+                    permissions: DefaultPermissions
                 }
             ])
             .execute()
