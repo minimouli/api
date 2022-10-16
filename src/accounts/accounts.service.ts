@@ -55,11 +55,11 @@ class AccountsService {
         return account
     }
 
-    async updateAccount(account: Account, body: Partial<UpdateAccountReqDto>, initiator: Account): Promise<Account> {
+    async updateAccount(subject: Account, body: Partial<UpdateAccountReqDto>, initiator: Account): Promise<Account> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
-        if (!ability.can(CaslAction.Update, account))
+        if (!ability.can(CaslAction.Update, subject))
             throw new ForbiddenException()
 
         let nameErrors: string[] = []
@@ -82,11 +82,11 @@ class AccountsService {
         }
 
         await this.accountRepository.save({
-            ...account,
+            ...subject,
             ...body
         })
 
-        const updatedAccount = await this.accountRepository.findOneBy({ id: account.id })
+        const updatedAccount = await this.accountRepository.findOneBy({ id: subject.id })
 
         if (updatedAccount === null)
             throw new NotFoundException()
@@ -94,9 +94,9 @@ class AccountsService {
         return updatedAccount
     }
 
-    async updateAccountById(accountId: string, body: Partial<UpdateAccountReqDto>, initiator: Account): Promise<Account> {
+    async updateAccountById(subjectId: string, body: Partial<UpdateAccountReqDto>, initiator: Account): Promise<Account> {
 
-        const account = await this.accountRepository.findOneBy({ id: accountId })
+        const account = await this.accountRepository.findOneBy({ id: subjectId })
 
         if (!account)
             throw new NotFoundException()

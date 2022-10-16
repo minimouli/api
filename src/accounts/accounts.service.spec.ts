@@ -141,7 +141,7 @@ describe('AccountService', () => {
 
         let isTheUsernameAvailable: jest.SpyInstance
 
-        const account = { id: '1' } as Account
+        const subject = { id: '1' } as Account
         const initiator = { id: '2' } as Account
         const updatedAccount = { id: '3' } as Account
         const body = {
@@ -158,10 +158,10 @@ describe('AccountService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(accountsService.updateAccount(account, body, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(accountsService.updateAccount(subject, body, initiator)).rejects.toThrow(new ForbiddenException())
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
-            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, account)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
         })
 
         it('should throw a BadRequestException if the nickname validation fails', async () => {
@@ -173,10 +173,10 @@ describe('AccountService', () => {
             validateNicknameMock.mockReturnValue(errors)
             validateUsernameMock.mockReturnValue([])
 
-            await expect(accountsService.updateAccount(account, body, initiator)).rejects.toThrow(new BadRequestException(errors))
+            await expect(accountsService.updateAccount(subject, body, initiator)).rejects.toThrow(new BadRequestException(errors))
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
-            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, account)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
             expect(validateNicknameMock).toHaveBeenCalledWith(body.nickname)
         })
 
@@ -189,10 +189,10 @@ describe('AccountService', () => {
             validateNicknameMock.mockReturnValue([])
             validateUsernameMock.mockReturnValue(errors)
 
-            await expect(accountsService.updateAccount(account, body, initiator)).rejects.toThrow(new BadRequestException(errors))
+            await expect(accountsService.updateAccount(subject, body, initiator)).rejects.toThrow(new BadRequestException(errors))
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
-            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, account)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
             expect(validateUsernameMock).toHaveBeenCalledWith(body.username)
         })
 
@@ -204,12 +204,12 @@ describe('AccountService', () => {
             validateUsernameMock.mockReturnValue([])
             isTheUsernameAvailable.mockResolvedValue(false)
 
-            await expect(accountsService.updateAccount(account, body, initiator)).rejects.toThrow(
+            await expect(accountsService.updateAccount(subject, body, initiator)).rejects.toThrow(
                 new BadRequestException('The username is already taken by another user')
             )
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
-            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, account)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
             expect(validateNicknameMock).toHaveBeenCalledWith(body.nickname)
             expect(validateUsernameMock).toHaveBeenCalledWith(body.username)
             expect(isTheUsernameAvailable).toHaveBeenCalledWith(body.username)
@@ -225,14 +225,14 @@ describe('AccountService', () => {
             // eslint-disable-next-line unicorn/no-null
             accountRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(accountsService.updateAccount(account, body, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(accountsService.updateAccount(subject, body, initiator)).rejects.toThrow(new NotFoundException())
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
-            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, account)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
             expect(validateNicknameMock).toHaveBeenCalledWith(body.nickname)
             expect(validateUsernameMock).toHaveBeenCalledWith(body.username)
             expect(isTheUsernameAvailable).toHaveBeenCalledWith(body.username)
-            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: account.id })
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subject.id })
         })
 
         it('should return the updated account', async () => {
@@ -244,14 +244,14 @@ describe('AccountService', () => {
             isTheUsernameAvailable.mockResolvedValue(true)
             accountRepository.findOneBy.mockResolvedValue(updatedAccount)
 
-            await expect(accountsService.updateAccount(account, body, initiator)).resolves.toStrictEqual(updatedAccount)
+            await expect(accountsService.updateAccount(subject, body, initiator)).resolves.toStrictEqual(updatedAccount)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
-            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, account)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
             expect(validateNicknameMock).toHaveBeenCalledWith(body.nickname)
             expect(validateUsernameMock).toHaveBeenCalledWith(body.username)
             expect(isTheUsernameAvailable).toHaveBeenCalledWith(body.username)
-            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: account.id })
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subject.id })
         })
     })
 
@@ -259,7 +259,7 @@ describe('AccountService', () => {
 
         let updateAccount: jest.SpyInstance
 
-        const accountId = '1'
+        const subjectId = 'subject id'
         const account = { id: '1' } as Account
         const initiator = { id: '2' } as Account
         const updatedAccount = { id: '3' } as Account
@@ -274,9 +274,9 @@ describe('AccountService', () => {
             // eslint-disable-next-line unicorn/no-null
             accountRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(accountsService.updateAccountById(accountId, body, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(accountsService.updateAccountById(subjectId, body, initiator)).rejects.toThrow(new NotFoundException())
 
-            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: accountId })
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
         })
 
         it('should return the updated account', async () => {
@@ -284,9 +284,9 @@ describe('AccountService', () => {
             accountRepository.findOneBy.mockResolvedValue(account)
             updateAccount.mockResolvedValue(updatedAccount)
 
-            await expect(accountsService.updateAccountById(accountId, body, initiator)).resolves.toStrictEqual(updatedAccount)
+            await expect(accountsService.updateAccountById(subjectId, body, initiator)).resolves.toStrictEqual(updatedAccount)
 
-            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: accountId })
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
             expect(updateAccount).toHaveBeenCalledWith(account, body, initiator)
         })
     })
@@ -324,7 +324,7 @@ describe('AccountService', () => {
 
         let deleteAccount: jest.SpyInstance
 
-        const subjectId = '1'
+        const subjectId = 'subject id'
         const subject = { id: '1' } as Account
         const initiator = { id: '2' } as Account
 

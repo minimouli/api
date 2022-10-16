@@ -66,7 +66,7 @@ describe('AccountsController', () => {
 
         it('should return the correct response', async () => {
 
-            const accountId = '1'
+            const accountId = 'account id'
             const user = { id: '1' } as Account
 
             accountsService.findAccountById.mockResolvedValue(user)
@@ -84,18 +84,18 @@ describe('AccountsController', () => {
 
         it('should return the correct response', async () => {
 
-            const user = { id: '1' } as Account
+            const currentUser = { id: '1' } as Account
             const body = { nickname: 'nickname' }
             const updatedAccount = { id: '2' } as Account
 
             accountsService.updateAccount.mockResolvedValue(updatedAccount)
 
-            await expect(accountsController.updateCurrentUserProfile(user, body)).resolves.toStrictEqual({
+            await expect(accountsController.updateCurrentUserProfile(currentUser, body)).resolves.toStrictEqual({
                 status: 'success',
                 data: updatedAccount
             })
 
-            expect(accountsService.updateAccount).toHaveBeenCalledWith(user, body, user)
+            expect(accountsService.updateAccount).toHaveBeenCalledWith(currentUser, body, currentUser)
         })
     })
 
@@ -103,19 +103,19 @@ describe('AccountsController', () => {
 
         it('should return the correct response', async () => {
 
-            const user = { id: '1' } as Account
-            const accountId = '2'
+            const currentUser = { id: '1' } as Account
+            const accountId = 'account id'
             const body = { nickname: 'nickname' }
             const updatedAccount = { id: '2' } as Account
 
             accountsService.updateAccountById.mockResolvedValue(updatedAccount)
 
-            await expect(accountsController.updateUserProfile(user, accountId, body)).resolves.toStrictEqual({
+            await expect(accountsController.updateUserProfile(currentUser, accountId, body)).resolves.toStrictEqual({
                 status: 'success',
                 data: updatedAccount
             })
 
-            expect(accountsService.updateAccountById).toHaveBeenCalledWith(accountId, body, user)
+            expect(accountsService.updateAccountById).toHaveBeenCalledWith(accountId, body, currentUser)
         })
     })
 
@@ -123,11 +123,11 @@ describe('AccountsController', () => {
 
         it('should return the correct response', async () => {
 
-            const user = { id: '1' } as Account
+            const currentUser = { id: '1' } as Account
 
-            await expect(accountsController.deleteCurrentUserAccount(user)).resolves.toBeUndefined()
+            await expect(accountsController.deleteCurrentUserAccount(currentUser)).resolves.toBeUndefined()
 
-            expect(accountsService.deleteAccount).toHaveBeenCalledWith(user, user)
+            expect(accountsService.deleteAccount).toHaveBeenCalledWith(currentUser, currentUser)
         })
     })
 
@@ -135,12 +135,12 @@ describe('AccountsController', () => {
 
         it('should return the correct response', async () => {
 
-            const user = { id: '1' } as Account
-            const accountId = '2'
+            const currentUser = { id: '1' } as Account
+            const accountId = 'account id'
 
-            await expect(accountsController.deleteUserAccount(user, accountId)).resolves.toBeUndefined()
+            await expect(accountsController.deleteUserAccount(currentUser, accountId)).resolves.toBeUndefined()
 
-            expect(accountsService.deleteAccountById).toHaveBeenCalledWith(accountId, user)
+            expect(accountsService.deleteAccountById).toHaveBeenCalledWith(accountId, currentUser)
         })
     })
 })

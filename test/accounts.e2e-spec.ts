@@ -68,7 +68,7 @@ describe('Accounts', () => {
         })
     })
 
-    describe('GET /account:accountId', () => {
+    describe('GET /account/:accountId', () => {
 
         it('should return 200', () => request(app.getHttpServer())
             .get('/account/123')
@@ -126,7 +126,7 @@ describe('Accounts', () => {
         })
     })
 
-    describe('PATCH /account/123', () => {
+    describe('PATCH /account/:accountId', () => {
 
         it('should return 401 if the user is not logged', () => request(app.getHttpServer())
             .patch('/account/123')

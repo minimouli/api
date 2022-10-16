@@ -108,9 +108,9 @@ class AccountsController {
         type: ErrorResDto,
         description: 'Forbidden'
     })
-    async updateCurrentUserProfile(@CurrentUser() user: Account, @Body() body: UpdateAccountReqDto): Promise<GetAccountResDto> {
+    async updateCurrentUserProfile(@CurrentUser() currentUser: Account, @Body() body: UpdateAccountReqDto): Promise<GetAccountResDto> {
 
-        const updatedAccount = await this.accountsService.updateAccount(user, body, user)
+        const updatedAccount = await this.accountsService.updateAccount(currentUser, body, currentUser)
 
         return {
             status: 'success',
@@ -143,12 +143,12 @@ class AccountsController {
         description: 'Not Found'
     })
     async updateUserProfile(
-        @CurrentUser() user: Account,
+        @CurrentUser() currentUser: Account,
         @Param('accountId') accountId: string,
         @Body() body: UpdateAccountReqDto
     ): Promise<GetAccountResDto> {
 
-        const updatedAccount = await this.accountsService.updateAccountById(accountId, body, user)
+        const updatedAccount = await this.accountsService.updateAccountById(accountId, body, currentUser)
 
         return {
             status: 'success',
@@ -171,8 +171,8 @@ class AccountsController {
         type: ErrorResDto,
         description: 'Forbidden'
     })
-    async deleteCurrentUserAccount(@CurrentUser() user: Account): Promise<void> {
-        await this.accountsService.deleteAccount(user, user)
+    async deleteCurrentUserAccount(@CurrentUser() currentUser: Account): Promise<void> {
+        await this.accountsService.deleteAccount(currentUser, currentUser)
     }
 
     @Delete('/account/:accountId')
@@ -194,8 +194,8 @@ class AccountsController {
         type: ErrorResDto,
         description: 'Not Found'
     })
-    async deleteUserAccount(@CurrentUser() user: Account, @Param('accountId') accountId: string): Promise<void> {
-        await this.accountsService.deleteAccountById(accountId, user)
+    async deleteUserAccount(@CurrentUser() currentUser: Account, @Param('accountId') accountId: string): Promise<void> {
+        await this.accountsService.deleteAccountById(accountId, currentUser)
     }
 
 }
