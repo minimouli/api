@@ -18,7 +18,8 @@ describe('Projects', () => {
     let jwtService: JwtService
     const projectsService = {
         createProject: () => 'createProject',
-        findProjectById: () => 'findProjectById'
+        findProjectById: () => 'findProjectById',
+        updateProjectById: () => 'updateProjectById'
     }
 
     beforeAll(async () => {
@@ -88,6 +89,41 @@ describe('Projects', () => {
                 .expect({
                     status: 'success',
                     data: projectsService.createProject()
+                }))
+        })
+    })
+
+    describe('PATCH /project/:projectId', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .patch('/project/123')
+            .send({
+                name: 'name'
+            })
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('should return 200', () => request(app.getHttpServer())
+                .patch('/project/123')
+                .set('Authorization', `Bearer ${jwt}`)
+                .send({
+                    name: 'name'
+                })
+                .expect(200)
+                .expect({
+                    status: 'success',
+                    data: projectsService.updateProjectById()
                 }))
         })
     })

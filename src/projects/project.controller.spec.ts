@@ -15,7 +15,8 @@ describe('ProjectsController', () => {
     let projectsController: ProjectsController
     const projectsService = {
         createProject: jest.fn(),
-        findProjectById: jest.fn()
+        findProjectById: jest.fn(),
+        updateProjectById: jest.fn()
     }
 
     beforeEach(async () => {
@@ -33,6 +34,7 @@ describe('ProjectsController', () => {
 
         projectsService.createProject.mockReset()
         projectsService.findProjectById.mockReset()
+        projectsService.updateProjectById.mockReset()
     })
 
     describe('getProject', () => {
@@ -72,6 +74,26 @@ describe('ProjectsController', () => {
             })
 
             expect(projectsService.createProject).toHaveBeenCalledWith(body.name, body.organization, currentUser)
+        })
+    })
+
+    describe('updateProjectInformation', () => {
+
+        it('should return the correct response', async () => {
+
+            const currentUser = { id: '1' } as Account
+            const projectId = '2'
+            const body = { name: 'name' }
+            const project = 'project'
+
+            projectsService.updateProjectById.mockResolvedValue(project)
+
+            await expect(projectsController.updateProjectInformation(currentUser, projectId, body)).resolves.toStrictEqual({
+                status: 'success',
+                data: project
+            })
+
+            expect(projectsService.updateProjectById).toHaveBeenCalledWith(projectId, body, currentUser)
         })
     })
 })

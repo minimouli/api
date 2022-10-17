@@ -12,6 +12,7 @@ import { Project } from './entities/project.entity'
 import { getCurrentCycle } from './helpers/cycle.helper'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
+import type { UpdateProjectReqDto } from './dto/update-project.req.dto'
 import type { Account } from '../accounts/entities/account.entity'
 
 @Injectable()
@@ -58,6 +59,36 @@ class ProjectsService {
             throw new NotFoundException()
 
         return project
+    }
+
+    async updateProject(subject: Project, body: Partial<UpdateProjectReqDto>, initiator: Account): Promise<Project> {
+
+        const ability = this.caslAbilityFactory.createForAccount(initiator)
+
+        if (!ability.can(CaslAction.Update, subject))
+            throw new ForbiddenException()
+
+        await this.projectRepository.save({
+            ...subject,
+            ...body
+        })
+
+        const updatedProject = await this.projectRepository.findOneBy({ id: subject.id })
+
+        if (updatedProject === null)
+            throw new NotFoundException()
+
+        return updatedProject
+    }
+
+    async updateProjectById(subjectId: string, body: Partial<UpdateProjectReqDto>, initiator: Account): Promise<Project> {
+
+        const project = await this.projectRepository.findOneBy({ id: subjectId })
+
+        if (project === null)
+            throw new NotFoundException()
+
+        return this.updateProject(project, body, initiator)
     }
 
 }

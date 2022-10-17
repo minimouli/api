@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -20,6 +20,7 @@ import {
 import { ProjectsService } from './projects.service'
 import { CreateProjectReqDto } from './dto/create-project.req.dto'
 import { GetProjectResDto } from './dto/get-project.res.dto'
+import { UpdateProjectReqDto } from './dto/update-project.req.dto'
 import { Account } from '../accounts/entities/account.entity'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { CurrentUser } from '../common/decorators/current-user.decorator'
@@ -80,6 +81,43 @@ class ProjectsController {
         return {
             status: 'success',
             data: project
+        }
+    }
+
+    @Patch('/project/:projectId')
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Update information about a project' })
+    @ApiOkResponse({
+        type: GetProjectResDto,
+        description: 'Update information about a project'
+    })
+    @ApiBadRequestResponse({
+        type: ErrorResDto,
+        description: 'Bad Request'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async updateProjectInformation(
+        @CurrentUser() currentUser: Account,
+        @Param('projectId') projectId: string,
+        @Body() body: UpdateProjectReqDto
+    ): Promise<GetProjectResDto> {
+
+        const updatedProject = await this.projectsService.updateProjectById(projectId, body, currentUser)
+
+        return {
+            status: 'success',
+            data: updatedProject
         }
     }
 

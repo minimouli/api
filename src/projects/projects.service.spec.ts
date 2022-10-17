@@ -147,4 +147,94 @@ describe('ProjectsService', () => {
             expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
     })
+
+    describe('updateProject', () => {
+
+        const subject = { id: '1' } as Project
+        const initiator = { id: '2' } as Account
+        const foundProject = { id: '3' } as Project
+        const body = { name: 'name' }
+
+        it('it should throw a ForbiddenException if the initiator has not the permission to update projects', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(false)
+
+            await expect(projectsService.updateProject(subject, body, initiator)).rejects.toThrow(new ForbiddenException())
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
+        })
+
+        it('should throw a NotFoundException the the updated project is not found', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(true)
+            // eslint-disable-next-line unicorn/no-null
+            projectRepository.findOneBy.mockResolvedValue(null)
+
+            await expect(projectsService.updateProject(subject, body, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
+            expect(projectRepository.save).toHaveBeenCalledWith({
+                ...subject,
+                ...body
+            })
+            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subject.id })
+        })
+
+        it('should return the updated project', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(true)
+            projectRepository.findOneBy.mockResolvedValue(foundProject)
+
+            await expect(projectsService.updateProject(subject, body, initiator)).resolves.toStrictEqual(foundProject)
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
+            expect(projectRepository.save).toHaveBeenCalledWith({
+                ...subject,
+                ...body
+            })
+            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subject.id })
+        })
+    })
+
+    describe('updateProjectById', () => {
+
+        let updateProject: jest.SpyInstance
+
+        const subjectId = 'subject id'
+        const initiator = { id: '1' } as Account
+        const foundProject = { id: '2' } as Project
+        const updatedProject = { id: '3' } as Project
+        const body = { name: 'name' }
+
+        beforeEach(() => {
+            updateProject = jest.spyOn(projectsService, 'updateProject')
+        })
+
+        it('should throw a NotFoundException if the project is not found', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            projectRepository.findOneBy.mockResolvedValue(null)
+
+            await expect(projectsService.updateProjectById(subjectId, body, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+        })
+
+        it('should return the updated project', async () => {
+
+            projectRepository.findOneBy.mockResolvedValue(foundProject)
+            updateProject.mockResolvedValue(updatedProject)
+
+            await expect(projectsService.updateProjectById(subjectId, body, initiator)).resolves.toStrictEqual(updatedProject)
+
+            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+            expect(updateProject).toHaveBeenCalledWith(foundProject, body, initiator)
+        })
+    })
 })
