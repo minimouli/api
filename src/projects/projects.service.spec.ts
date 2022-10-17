@@ -23,6 +23,7 @@ describe('ProjectsService', () => {
     const projectRepository = {
         create: jest.fn(),
         findOneBy: jest.fn(),
+        remove: jest.fn(),
         save: jest.fn()
     }
     const caslAbilityFactory = {
@@ -51,6 +52,7 @@ describe('ProjectsService', () => {
 
         projectRepository.create.mockReset()
         projectRepository.findOneBy.mockReset()
+        projectRepository.remove.mockReset()
         projectRepository.save.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
         caslAbility.can.mockReset()
@@ -235,6 +237,69 @@ describe('ProjectsService', () => {
 
             expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
             expect(updateProject).toHaveBeenCalledWith(foundProject, body, initiator)
+        })
+    })
+
+    describe('deleteProject', () => {
+
+        const subject = { id: '1' } as Project
+        const initiator = { id: '2' } as Account
+
+        it('should throw a ForbiddenException if the initiator has not the permission to delete projects', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(false)
+
+            await expect(projectsService.deleteProject(subject, initiator)).rejects.toThrow(new ForbiddenException())
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+        })
+
+        it('should delete the project', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(true)
+
+            await expect(projectsService.deleteProject(subject, initiator)).resolves.toBeUndefined()
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+            expect(projectRepository.remove).toHaveBeenCalledWith(subject)
+        })
+    })
+
+    describe('deleteProjectById', () => {
+
+        let deleteProject: jest.SpyInstance
+
+        const subjectId = 'subject id'
+        const project = { id: '1' } as Project
+        const initiator = { id: '2' } as Account
+
+        beforeEach(() => {
+            deleteProject = jest.spyOn(projectsService, 'deleteProject')
+        })
+
+        it('should throw a NotFoundException if subject id is not related to a project', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            projectRepository.findOneBy.mockResolvedValue(null)
+
+            await expect(projectsService.deleteProjectById(subjectId, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+        })
+
+        it('should delete the project', async () => {
+
+            projectRepository.findOneBy.mockResolvedValue(project)
+            deleteProject.mockReturnValue(Promise.resolve())
+
+            await expect(projectsService.deleteProjectById(subjectId, initiator)).resolves.toBeUndefined()
+
+            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+            expect(deleteProject).toHaveBeenCalledWith(project, initiator)
         })
     })
 })

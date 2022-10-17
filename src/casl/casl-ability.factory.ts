@@ -65,6 +65,9 @@ class CaslAbilityFactory {
         if (permissions.includes(Permission.UpdateProject))
             can(CaslAction.Update, Project)
 
+        if (permissions.includes(Permission.DeleteProject))
+            can(CaslAction.Delete, Project)
+
         return build({
             detectSubjectType: (subject) => subject.constructor as ExtractSubjectType<Subjects>,
             conditionsMatcher: (conditions) => createQueryTester(conditions, {

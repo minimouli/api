@@ -15,6 +15,7 @@ describe('ProjectsController', () => {
     let projectsController: ProjectsController
     const projectsService = {
         createProject: jest.fn(),
+        deleteProjectById: jest.fn(),
         findProjectById: jest.fn(),
         updateProjectById: jest.fn()
     }
@@ -33,6 +34,7 @@ describe('ProjectsController', () => {
         projectsController = moduleRef.get(ProjectsController)
 
         projectsService.createProject.mockReset()
+        projectsService.deleteProjectById.mockReset()
         projectsService.findProjectById.mockReset()
         projectsService.updateProjectById.mockReset()
     })
@@ -94,6 +96,19 @@ describe('ProjectsController', () => {
             })
 
             expect(projectsService.updateProjectById).toHaveBeenCalledWith(projectId, body, currentUser)
+        })
+    })
+
+    describe('deleteProjectById', () => {
+
+        it('should return the correct response', async () => {
+
+            const currentUser = { id: '1' } as Account
+            const projectId = '2'
+
+            await expect(projectsController.deleteProject(currentUser, projectId)).resolves.toBeUndefined()
+
+            expect(projectsService.deleteProjectById).toHaveBeenCalledWith(projectId, currentUser)
         })
     })
 })

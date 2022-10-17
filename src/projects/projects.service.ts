@@ -91,6 +91,26 @@ class ProjectsService {
         return this.updateProject(project, body, initiator)
     }
 
+    async deleteProject(subject: Project, initiator: Account): Promise<void> {
+
+        const ability = this.caslAbilityFactory.createForAccount(initiator)
+
+        if (!ability.can(CaslAction.Delete, subject))
+            throw new ForbiddenException()
+
+        await this.projectRepository.remove(subject)
+    }
+
+    async deleteProjectById(subjectId: string, initiator: Account): Promise<void> {
+
+        const subject = await this.projectRepository.findOneBy({ id: subjectId })
+
+        if (subject === null)
+            throw new NotFoundException()
+
+        await this.deleteProject(subject, initiator)
+    }
+
 }
 
 export {

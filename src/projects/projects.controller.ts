@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiCreatedResponse,
-    ApiForbiddenResponse,
+    ApiForbiddenResponse, ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -119,6 +119,29 @@ class ProjectsController {
             status: 'success',
             data: updatedProject
         }
+    }
+
+    @Delete('/project/:projectId')
+    @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Delete a project' })
+    @ApiNoContentResponse({
+        description: 'Delete a project'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async deleteProject(@CurrentUser() currentUser: Account, @Param('projectId') projectId: string): Promise<void> {
+        await this.projectsService.deleteProjectById(projectId, currentUser)
     }
 
 }

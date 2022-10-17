@@ -18,6 +18,7 @@ describe('Projects', () => {
     let jwtService: JwtService
     const projectsService = {
         createProject: () => 'createProject',
+        deleteProjectById: () => Promise.resolve(),
         findProjectById: () => 'findProjectById',
         updateProjectById: () => 'updateProjectById'
     }
@@ -125,6 +126,31 @@ describe('Projects', () => {
                     status: 'success',
                     data: projectsService.updateProjectById()
                 }))
+        })
+    })
+
+    describe('DELETE /project/:projectId', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .delete('/project/123')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('should return 200', () => request(app.getHttpServer())
+                .delete('/project/123')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(204))
         })
     })
 })
