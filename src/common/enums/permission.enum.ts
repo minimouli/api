@@ -15,7 +15,8 @@ enum Permission {
     ReadOwnAuthTokens = 'Permission.ReadOwnAuthTokens',
     ReadAllAuthTokens = 'Permission.ReadAllAuthTokens',
     DeleteOwnAuthTokens = 'Permission.DeleteOwnAuthTokens',
-    DeleteAllAuthTokens = 'Permission.DeleteAllAuthTokens'
+    DeleteAllAuthTokens = 'Permission.DeleteAllAuthTokens',
+    CreateProject = 'Permission.CreateProject'
 }
 
 export {

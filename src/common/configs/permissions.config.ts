@@ -13,7 +13,8 @@ const AdminPermissions = [
     Permission.UpdateAccountPermissions,
     Permission.DeleteAllAccounts,
     Permission.ReadAllAuthTokens,
-    Permission.DeleteAllAuthTokens
+    Permission.DeleteAllAuthTokens,
+    Permission.CreateProject
 ]
 
 const DefaultPermissions = [

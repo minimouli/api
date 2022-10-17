@@ -1,0 +1,57 @@
+/**
+ * Copyright (c) Minimouli
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import { Test } from '@nestjs/testing'
+import { ProjectsController } from './projects.controller'
+import { ProjectsService } from './projects.service'
+import type { Account } from '../accounts/entities/account.entity'
+
+describe('ProjectsController', () => {
+
+    let projectsController: ProjectsController
+    const projectsService = {
+        createProject: jest.fn()
+    }
+
+    beforeEach(async () => {
+
+        const moduleRef = await Test.createTestingModule({
+            imports: [ProjectsController]
+        })
+            .useMocker((token) => {
+                if (token === ProjectsService)
+                    return projectsService
+            })
+            .compile()
+
+        projectsController = moduleRef.get(ProjectsController)
+
+        projectsService.createProject.mockReset()
+    })
+
+    describe('createProject', () => {
+
+        it('should return the correct response', async () => {
+
+            const currentUser = { id: '1' } as Account
+            const body = {
+                name: 'name',
+                organization: 'organization'
+            }
+            const project = 'project'
+
+            projectsService.createProject.mockResolvedValue(project)
+
+            await expect(projectsController.createProject(currentUser, body)).resolves.toStrictEqual({
+                status: 'success',
+                data: project
+            })
+
+            expect(projectsService.createProject).toHaveBeenCalledWith(body.name, body.organization, currentUser)
+        })
+    })
+})

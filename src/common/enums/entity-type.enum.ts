@@ -7,7 +7,8 @@
 
 enum EntityType {
     Account = 'account',
-    AuthToken = 'auth-token'
+    AuthToken = 'auth-token',
+    Project = 'project'
 }
 
 export {

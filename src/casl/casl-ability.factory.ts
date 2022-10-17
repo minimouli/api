@@ -12,9 +12,10 @@ import { Account } from '../accounts/entities/account.entity'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
 import { AuthToken } from '../tokens/entities/auth-token.entity'
+import { Project } from '../projects/entities/project.entity'
 import type { AbilityClass, ExtractSubjectType, InferSubjects } from '@casl/ability'
 
-type Subjects = InferSubjects<typeof Account | typeof AuthToken>
+type Subjects = InferSubjects<typeof Account | typeof AuthToken | typeof Project>
 type AppAbility = PureAbility<[CaslAction, Subjects]>
 
 @Injectable()
@@ -56,6 +57,10 @@ class CaslAbilityFactory {
 
         if (permissions.includes(Permission.DeleteAllAuthTokens))
             can(CaslAction.Delete, AuthToken)
+
+        /* Project */
+        if (permissions.includes(Permission.CreateProject))
+            can(CaslAction.Create, Project)
 
         return build({
             detectSubjectType: (subject) => subject.constructor as ExtractSubjectType<Subjects>,
