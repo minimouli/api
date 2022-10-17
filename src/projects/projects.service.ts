@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Project } from './entities/project.entity'
@@ -48,6 +48,16 @@ class ProjectsService {
         })
 
         return this.projectRepository.save(createdProject)
+    }
+
+    async findProjectById(id: string): Promise<Project> {
+
+        const project = await this.projectRepository.findOneBy({ id })
+
+        if (project === null)
+            throw new NotFoundException()
+
+        return project
     }
 
 }

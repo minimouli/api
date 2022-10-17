@@ -5,12 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiCreatedResponse,
     ApiForbiddenResponse,
+    ApiNotFoundResponse,
+    ApiOkResponse,
     ApiOperation,
     ApiTags,
     ApiUnauthorizedResponse
@@ -31,6 +33,26 @@ class ProjectsController {
     constructor(
         private readonly projectsService: ProjectsService
     ) {}
+
+    @Get('/project/:projectId')
+    @ApiOperation({ summary: 'Get information about a project' })
+    @ApiOkResponse({
+        type: GetProjectResDto,
+        description: 'Get information about a project'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async getProject(@Param('projectId') projectId: string): Promise<GetProjectResDto> {
+
+        const project = await this.projectsService.findProjectById(projectId)
+
+        return {
+            status: 'success',
+            data: project
+        }
+    }
 
     @Post('/project')
     @UseGuards(JwtAuthGuard)

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ForbiddenException } from '@nestjs/common'
+import { ForbiddenException, NotFoundException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { ProjectsService } from './projects.service'
@@ -120,6 +120,31 @@ describe('ProjectsService', () => {
                 cycle
             })
             expect(projectRepository.save).toHaveBeenCalledWith(createdProject)
+        })
+    })
+
+    describe('findProjectById', () => {
+
+        const id = '1'
+        const project = { id: '1' } as Project
+
+        it('should throw a NotFoundException if the id is not related to a project', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            projectRepository.findOneBy.mockResolvedValue(null)
+
+            await expect(projectsService.findProjectById(id)).rejects.toThrow(new NotFoundException())
+
+            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id })
+        })
+
+        it('should return the project found', async () => {
+
+            projectRepository.findOneBy.mockResolvedValue(project)
+
+            await expect(projectsService.findProjectById(id)).resolves.toStrictEqual(project)
+
+            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
     })
 })

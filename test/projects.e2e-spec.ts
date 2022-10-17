@@ -17,7 +17,8 @@ describe('Projects', () => {
     let app: INestApplication
     let jwtService: JwtService
     const projectsService = {
-        createProject: () => 'createProject'
+        createProject: () => 'createProject',
+        findProjectById: () => 'findProjectById'
     }
 
     beforeAll(async () => {
@@ -36,6 +37,17 @@ describe('Projects', () => {
     })
 
     afterAll(() => app.close())
+
+    describe('GET /project/:projectId', () => {
+
+        it('should return 200', () => request(app.getHttpServer())
+            .get('/project/123')
+            .expect(200)
+            .expect({
+                status: 'success',
+                data: projectsService.findProjectById()
+            }))
+    })
 
     describe('POST /project', () => {
 
