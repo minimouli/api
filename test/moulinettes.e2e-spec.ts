@@ -19,6 +19,7 @@ describe('Moulinettes', () => {
     let app: INestApplication
     let jwtService: JwtService
     const moulinettesService = {
+        findMoulinetteById: () => 'findMoulinetteById',
         createMoulinette: () => 'createMoulinette',
         updateMoulinetteById: () => 'updateMoulinetteById',
         deleteMoulinetteById: () => Promise.resolve()
@@ -40,6 +41,17 @@ describe('Moulinettes', () => {
     })
 
     afterAll(() => app.close())
+
+    describe('GET /moulinette/:moulinetteId', () => {
+
+        it('should return 200', () => request(app.getHttpServer())
+            .get('/moulinette/123')
+            .expect(200)
+            .expect({
+                status: 'success',
+                data: moulinettesService.findMoulinetteById()
+            }))
+    })
 
     describe('POST /moulinette', () => {
 

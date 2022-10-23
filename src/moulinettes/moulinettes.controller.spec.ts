@@ -15,6 +15,7 @@ describe('MoulinettesController', () => {
 
     let moulinettesController: MoulinettesController
     const moulinettesService = {
+        findMoulinetteById: jest.fn(),
         createMoulinette: jest.fn(),
         updateMoulinetteById: jest.fn(),
         deleteMoulinetteById: jest.fn()
@@ -35,6 +36,24 @@ describe('MoulinettesController', () => {
 
         moulinettesService.createMoulinette.mockReset()
         moulinettesService.updateMoulinetteById.mockReset()
+    })
+
+    describe('getMoulinette', () => {
+
+        it('should return the correct response', async () => {
+
+            const id = '1'
+            const moulinette = 'moulinette'
+
+            moulinettesService.findMoulinetteById.mockResolvedValue(moulinette)
+
+            await expect(moulinettesController.getMoulinette(id)).resolves.toStrictEqual({
+                status: 'success',
+                data: moulinette
+            })
+
+            expect(moulinettesService.findMoulinetteById).toHaveBeenCalledWith(id)
+        })
     })
 
     describe('createMoulinette', () => {

@@ -70,6 +70,37 @@ describe('MoulinettesService', () => {
         caslAbility.can.mockReset()
     })
 
+    describe('findMoulinetteById', () => {
+
+        const id = '1'
+        const moulinette = { id: '1' } as Moulinette
+
+        it('should throw a NotFoundException if the id is not related to a moulinette', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            moulinetteRepository.findOne.mockResolvedValue(null)
+
+            await expect(moulinettesService.findMoulinetteById(id)).rejects.toThrow(new NotFoundException())
+
+            expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
+                where: { id },
+                relations: ['maintainers', 'project', 'sources']
+            })
+        })
+
+        it('should return the moulinette found', async () => {
+
+            moulinetteRepository.findOne.mockResolvedValue(moulinette)
+
+            await expect(moulinettesService.findMoulinetteById(id)).resolves.toStrictEqual(moulinette)
+
+            expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
+                where: { id },
+                relations: ['maintainers', 'project', 'sources']
+            })
+        })
+    })
+
     describe('createMoulinette', () => {
 
         const body = {

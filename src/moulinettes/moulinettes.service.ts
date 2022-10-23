@@ -29,6 +29,19 @@ class MoulinettesService {
         private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
+    async findMoulinetteById(id: string): Promise<Moulinette> {
+
+        const moulinette = await this.moulinetteRepository.findOne({
+            where: { id },
+            relations: ['maintainers', 'project', 'sources']
+        })
+
+        if (moulinette === null)
+            throw new NotFoundException()
+
+        return moulinette
+    }
+
     async createMoulinette(body: CreateMoulinetteReqDto, initiator: Account): Promise<Moulinette> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)

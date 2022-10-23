@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Delete, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -35,6 +35,26 @@ class MoulinettesController {
     constructor(
         private readonly moulinettesService: MoulinettesService
     ) {}
+
+    @Get('/moulinette/:moulinetteId')
+    @ApiOperation({ summary: 'Get information about a moulinette' })
+    @ApiOkResponse({
+        type: GetMoulinetteResDto,
+        description: 'Get information about a moulinette'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async getMoulinette(@Param('moulinetteId') moulinetteId: string): Promise<GetMoulinetteResDto> {
+
+        const moulinette = await this.moulinettesService.findMoulinetteById(moulinetteId)
+
+        return {
+            status: 'success',
+            data: moulinette
+        }
+    }
 
     @Post('/moulinette')
     @UseGuards(JwtAuthGuard)
