@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiCreatedResponse,
     ApiForbiddenResponse,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -99,6 +100,29 @@ class MoulinettesController {
             status: 'success',
             data: updatedMoulinette
         }
+    }
+
+    @Delete('/moulinette/:moulinetteId')
+    @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Delete a moulinette' })
+    @ApiNoContentResponse({
+        description: 'Delete a moulinette'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async deleteMoulinette(@CurrentUser() currentUser: Account, @Param('moulinetteId') moulinetteId: string): Promise<void> {
+        await this.moulinettesService.deleteMoulinetteById(moulinetteId, currentUser)
     }
 
 }

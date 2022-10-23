@@ -103,6 +103,29 @@ class MoulinettesService {
 
         return this.updateMoulinette(moulinette, body, initiator)
     }
+
+    async deleteMoulinette(subject: Moulinette, initiator: Account): Promise<void> {
+
+        const ability = this.caslAbilityFactory.createForAccount(initiator)
+
+        if (!ability.can(CaslAction.Delete, subject))
+            throw new ForbiddenException()
+
+        await this.moulinetteRepository.remove(subject)
+    }
+
+    async deleteMoulinetteById(subjectId: string, initiator: Account): Promise<void> {
+
+        const subject = await this.moulinetteRepository.findOne({
+            where: { id: subjectId },
+            relations: ['maintainers']
+        })
+
+        if (subject === null)
+            throw new NotFoundException()
+
+        await this.deleteMoulinette(subject, initiator)
+    }
 }
 
 export {

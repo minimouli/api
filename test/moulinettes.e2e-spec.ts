@@ -20,7 +20,8 @@ describe('Moulinettes', () => {
     let jwtService: JwtService
     const moulinettesService = {
         createMoulinette: () => 'createMoulinette',
-        updateMoulinetteById: () => 'updateMoulinetteById'
+        updateMoulinetteById: () => 'updateMoulinetteById',
+        deleteMoulinetteById: () => Promise.resolve()
     }
 
     beforeAll(async () => {
@@ -119,6 +120,31 @@ describe('Moulinettes', () => {
                     status: 'success',
                     data: moulinettesService.updateMoulinetteById()
                 }))
+        })
+    })
+
+    describe('DELETE /moulinette/:moulinetteId', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .delete('/moulinette/123')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('should return 200', () => request(app.getHttpServer())
+                .delete('/moulinette/123')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(204))
         })
     })
 })

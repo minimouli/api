@@ -16,7 +16,8 @@ describe('MoulinettesController', () => {
     let moulinettesController: MoulinettesController
     const moulinettesService = {
         createMoulinette: jest.fn(),
-        updateMoulinetteById: jest.fn()
+        updateMoulinetteById: jest.fn(),
+        deleteMoulinetteById: jest.fn()
     }
 
     beforeEach(async () => {
@@ -72,6 +73,19 @@ describe('MoulinettesController', () => {
             })
 
             expect(moulinettesService.updateMoulinetteById).toHaveBeenCalledWith(moulinetteId, body, currentUser)
+        })
+    })
+
+    describe('deleteMoulinette', () => {
+
+        it('should return the correct response', async () => {
+
+            const currentUser = { id: '1' } as Account
+            const moulinetteId = 'moulinette id'
+
+            await expect(moulinettesController.deleteMoulinette(currentUser, moulinetteId)).resolves.toBeUndefined()
+
+            expect(moulinettesService.deleteMoulinetteById).toHaveBeenCalledWith(moulinetteId, currentUser)
         })
     })
 })

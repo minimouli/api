@@ -25,6 +25,7 @@ describe('MoulinettesService', () => {
     const moulinetteRepository = {
         create: jest.fn(),
         findOne: jest.fn(),
+        remove: jest.fn(),
         save: jest.fn()
     }
     const projectRepository = {
@@ -62,6 +63,7 @@ describe('MoulinettesService', () => {
         accountRepository.findOneBy.mockReset()
         moulinetteRepository.create.mockReset()
         moulinetteRepository.findOne.mockReset()
+        moulinetteRepository.remove.mockReset()
         moulinetteRepository.save.mockReset()
         projectRepository.findOneBy.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
@@ -309,6 +311,75 @@ describe('MoulinettesService', () => {
                 relations: ['maintainers']
             })
             expect(updateMoulinette).toHaveBeenCalledWith(foundMoulinette, body, initiator)
+        })
+    })
+
+    describe('deleteMoulinette', () => {
+
+        const subject = { id: '1' } as Moulinette
+        const initiator = { id: '2' } as Account
+
+        it('should throw a ForbiddenException if the initiator has not the permission to delete moulinettes', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(false)
+
+            await expect(moulinettesService.deleteMoulinette(subject, initiator)).rejects.toThrow(new ForbiddenException())
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+        })
+
+        it('should delete the moulinettes', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(true)
+
+            await expect(moulinettesService.deleteMoulinette(subject, initiator)).resolves.toBeUndefined()
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+            expect(moulinetteRepository.remove).toHaveBeenCalledWith(subject)
+        })
+    })
+
+    describe('deleteMoulinetteById', () => {
+
+        let deleteMoulinette: jest.SpyInstance
+
+        const subjectId = 'subject id'
+        const moulinette = { id: '1' } as Moulinette
+        const initiator = { id: '2' } as Account
+
+        beforeEach(() => {
+            deleteMoulinette = jest.spyOn(moulinettesService, 'deleteMoulinette')
+        })
+
+        it('should throw a NotFoundException if subject id is not related to a project', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            moulinetteRepository.findOne.mockResolvedValue(null)
+
+            await expect(moulinettesService.deleteMoulinetteById(subjectId, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
+                where: { id: subjectId },
+                relations: ['maintainers']
+            })
+        })
+
+        it('should delete the project', async () => {
+
+            moulinetteRepository.findOne.mockResolvedValue(moulinette)
+            deleteMoulinette.mockReturnValue(Promise.resolve())
+
+            await expect(moulinettesService.deleteMoulinetteById(subjectId, initiator)).resolves.toBeUndefined()
+
+            expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
+                where: { id: subjectId },
+                relations: ['maintainers']
+            })
+            expect(deleteMoulinette).toHaveBeenCalledWith(moulinette, initiator)
         })
     })
 })

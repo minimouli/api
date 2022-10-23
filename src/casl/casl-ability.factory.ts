@@ -22,6 +22,7 @@ type AppAbility = PureAbility<[CaslAction, Subjects]>
 @Injectable()
 class CaslAbilityFactory {
 
+    // eslint-disable-next-line complexity
     createForAccount(account: Account): AppAbility {
 
         // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -71,6 +72,15 @@ class CaslAbilityFactory {
 
         if (permissions.includes(Permission.UpdateMoulinette))
             can(CaslAction.Update, Moulinette)
+
+        can(CaslAction.Delete, Moulinette, {
+            maintainers: {
+                $elemMatch: { id: account.id }
+            }
+        })
+
+        if (permissions.includes(Permission.DeleteMoulinette))
+            can(CaslAction.Delete, Moulinette)
 
         /* Project */
         if (permissions.includes(Permission.CreateProject))
