@@ -15,6 +15,7 @@ const AdminPermissions = [
     Permission.ReadAllAuthTokens,
     Permission.DeleteAllAuthTokens,
     Permission.CreateMoulinette,
+    Permission.UpdateMoulinette,
     Permission.CreateProject,
     Permission.UpdateProject,
     Permission.DeleteProject

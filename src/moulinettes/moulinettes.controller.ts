@@ -5,12 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiCreatedResponse,
     ApiForbiddenResponse,
+    ApiNotFoundResponse,
+    ApiOkResponse,
     ApiOperation,
     ApiTags,
     ApiUnauthorizedResponse
@@ -18,10 +20,11 @@ import {
 import { MoulinettesService } from './moulinettes.service'
 import { CreateMoulinetteReqDto } from './dto/create-moulinette.req.dto'
 import { GetMoulinetteResDto } from './dto/get-moulinette.res.dto'
+import { UpdateMoulinetteReqDto } from './dto/update-moulinette.req.dto'
 import { Account } from '../accounts/entities/account.entity'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
-import { ErrorResDto } from '../common/dto/error.res.dto'
 import { CurrentUser } from '../common/decorators/current-user.decorator'
+import { ErrorResDto } from '../common/dto/error.res.dto'
 
 @Controller('/')
 @ApiTags('moulinettes')
@@ -58,6 +61,43 @@ class MoulinettesController {
         return {
             status: 'success',
             data: moulinette
+        }
+    }
+
+    @Patch('/moulinette/:moulinetteId')
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Update information about a moulinette' })
+    @ApiOkResponse({
+        type: GetMoulinetteResDto,
+        description: 'Update information about a moulinette'
+    })
+    @ApiBadRequestResponse({
+        type: ErrorResDto,
+        description: 'Bad request'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async updateMoulinetteInformation(
+        @CurrentUser() currentUser: Account,
+        @Param('moulinetteId') moulinetteId: string,
+        @Body() body: UpdateMoulinetteReqDto
+    ): Promise<GetMoulinetteResDto> {
+
+        const updatedMoulinette = await this.moulinettesService.updateMoulinetteById(moulinetteId, body, currentUser)
+
+        return {
+            status: 'success',
+            data: updatedMoulinette
         }
     }
 

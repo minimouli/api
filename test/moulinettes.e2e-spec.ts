@@ -19,7 +19,8 @@ describe('Moulinettes', () => {
     let app: INestApplication
     let jwtService: JwtService
     const moulinettesService = {
-        createMoulinette: () => 'createMoulinette'
+        createMoulinette: () => 'createMoulinette',
+        updateMoulinetteById: () => 'updateMoulinetteById'
     }
 
     beforeAll(async () => {
@@ -82,6 +83,41 @@ describe('Moulinettes', () => {
                 .expect({
                     status: 'success',
                     data: moulinettesService.createMoulinette()
+                }))
+        })
+    })
+
+    describe('PATCH /moulinette/:moulinetteId', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .patch('/moulinette/123')
+            .send({
+                repository: 'https://example.com'
+            })
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('should return 200', () => request(app.getHttpServer())
+                .patch('/moulinette/123')
+                .set('Authorization', `Bearer ${jwt}`)
+                .send({
+                    repository: 'https://example.com'
+                })
+                .expect(200)
+                .expect({
+                    status: 'success',
+                    data: moulinettesService.updateMoulinetteById()
                 }))
         })
     })

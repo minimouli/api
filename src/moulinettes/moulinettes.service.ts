@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Moulinette } from './entities/moulinette.entity'
@@ -14,6 +14,7 @@ import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Project } from '../projects/entities/project.entity'
 import type { CreateMoulinetteReqDto } from './dto/create-moulinette.req.dto'
+import type { UpdateMoulinetteReqDto } from './dto/update-moulinette.req.dto'
 
 @Injectable()
 class MoulinettesService {
@@ -58,6 +59,50 @@ class MoulinettesService {
         return this.moulinetteRepository.save(createdMoulinette)
     }
 
+    async updateMoulinette(subject: Moulinette, body: UpdateMoulinetteReqDto, initiator: Account): Promise<Moulinette> {
+
+        const ability = this.caslAbilityFactory.createForAccount(initiator)
+
+        if (!ability.can(CaslAction.Update, subject))
+            throw new ForbiddenException()
+
+        const maintainers = !body.maintainers
+            ? subject.maintainers
+            : await Promise.all(body.maintainers.map(async (id) => this.accountRepository.findOneBy({ id })))
+
+        // eslint-disable-next-line unicorn/no-null
+        if (maintainers.includes(null))
+            throw new BadRequestException('A least one of the specified maintainer ids does not belong to an existing account')
+
+        await this.moulinetteRepository.save({
+            ...subject,
+            ...body,
+            maintainers: maintainers as Account[]
+        })
+
+        const updatedMoulinette = await this.moulinetteRepository.findOne({
+            where: { id: subject.id },
+            relations: ['maintainers', 'project']
+        })
+
+        if (updatedMoulinette === null)
+            throw new NotFoundException()
+
+        return updatedMoulinette
+    }
+
+    async updateMoulinetteById(subjectId: string, body: UpdateMoulinetteReqDto, initiator: Account): Promise<Moulinette> {
+
+        const moulinette = await this.moulinetteRepository.findOne({
+            where: { id: subjectId },
+            relations: ['maintainers']
+        })
+
+        if (moulinette === null)
+            throw new NotFoundException()
+
+        return this.updateMoulinette(moulinette, body, initiator)
+    }
 }
 
 export {

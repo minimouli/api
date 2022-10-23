@@ -15,7 +15,8 @@ describe('MoulinettesController', () => {
 
     let moulinettesController: MoulinettesController
     const moulinettesService = {
-        createMoulinette: jest.fn()
+        createMoulinette: jest.fn(),
+        updateMoulinetteById: jest.fn()
     }
 
     beforeEach(async () => {
@@ -32,6 +33,7 @@ describe('MoulinettesController', () => {
         moulinettesController = moduleRef.get(MoulinettesController)
 
         moulinettesService.createMoulinette.mockReset()
+        moulinettesService.updateMoulinetteById.mockReset()
     })
 
     describe('createMoulinette', () => {
@@ -50,6 +52,26 @@ describe('MoulinettesController', () => {
             })
 
             expect(moulinettesService.createMoulinette).toHaveBeenCalledWith(body, currentUser)
+        })
+    })
+
+    describe('updateMoulinetteInformation', () => {
+
+        it('should return the correct response', async () => {
+
+            const currentUser = { id: '1' } as Account
+            const moulinetteId = 'moulinette id'
+            const body = { project: 'project' } as CreateMoulinetteReqDto
+            const moulinette = 'moulinette'
+
+            moulinettesService.updateMoulinetteById.mockResolvedValue(moulinette)
+
+            await expect(moulinettesController.updateMoulinetteInformation(currentUser, moulinetteId, body)).resolves.toStrictEqual({
+                status: 'success',
+                data: moulinette
+            })
+
+            expect(moulinettesService.updateMoulinetteById).toHaveBeenCalledWith(moulinetteId, body, currentUser)
         })
     })
 })

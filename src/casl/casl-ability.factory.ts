@@ -7,7 +7,7 @@
 
 import { AbilityBuilder, PureAbility } from '@casl/ability'
 import { Injectable } from '@nestjs/common'
-import { $eq, createQueryTester } from 'sift'
+import { $elemMatch, $eq, createQueryTester } from 'sift'
 import { Account } from '../accounts/entities/account.entity'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
@@ -63,6 +63,15 @@ class CaslAbilityFactory {
         if (permissions.includes(Permission.CreateMoulinette))
             can(CaslAction.Create, Moulinette)
 
+        can(CaslAction.Update, Moulinette, {
+            maintainers: {
+                $elemMatch: { id: account.id }
+            }
+        })
+
+        if (permissions.includes(Permission.UpdateMoulinette))
+            can(CaslAction.Update, Moulinette)
+
         /* Project */
         if (permissions.includes(Permission.CreateProject))
             can(CaslAction.Create, Project)
@@ -76,7 +85,7 @@ class CaslAbilityFactory {
         return build({
             detectSubjectType: (subject) => subject.constructor as ExtractSubjectType<Subjects>,
             conditionsMatcher: (conditions) => createQueryTester(conditions, {
-                operations: { $eq }
+                operations: { $eq, $elemMatch }
             })
         })
     }

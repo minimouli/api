@@ -17,6 +17,7 @@ enum Permission {
     DeleteOwnAuthTokens = 'Permission.DeleteOwnAuthTokens',
     DeleteAllAuthTokens = 'Permission.DeleteAllAuthTokens',
     CreateMoulinette = 'Permission.CreateMoulinette',
+    UpdateMoulinette = 'Permission.UpdateMoulinette',
     CreateProject = 'Permission.CreateProject',
     UpdateProject = 'Permission.UpdateProject',
     DeleteProject = 'Permission.DeleteProject'
