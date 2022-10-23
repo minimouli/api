@@ -13,6 +13,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsModule } from './accounts/accounts.module'
 import { AuthModule } from './auth/auth.module'
 import { CaslModule } from './casl/casl.module'
+import { MoulinettesModule } from './moulinettes/moulinettes.module'
 import { ProjectsModule } from './projects/projects.module'
 import { TokensModule } from './tokens/tokens.module'
 
@@ -44,6 +45,7 @@ import { TokensModule } from './tokens/tokens.module'
         AccountsModule,
         AuthModule,
         CaslModule,
+        MoulinettesModule,
         ProjectsModule,
         TokensModule
     ],

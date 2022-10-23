@@ -12,10 +12,11 @@ import { Account } from '../accounts/entities/account.entity'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
 import { AuthToken } from '../tokens/entities/auth-token.entity'
+import { Moulinette } from '../moulinettes/entities/moulinette.entity'
 import { Project } from '../projects/entities/project.entity'
 import type { AbilityClass, ExtractSubjectType, InferSubjects } from '@casl/ability'
 
-type Subjects = InferSubjects<typeof Account | typeof AuthToken | typeof Project>
+type Subjects = InferSubjects<typeof Account | typeof AuthToken | typeof Moulinette | typeof Project>
 type AppAbility = PureAbility<[CaslAction, Subjects]>
 
 @Injectable()
@@ -57,6 +58,10 @@ class CaslAbilityFactory {
 
         if (permissions.includes(Permission.DeleteAllAuthTokens))
             can(CaslAction.Delete, AuthToken)
+
+        /* Moulinette */
+        if (permissions.includes(Permission.CreateMoulinette))
+            can(CaslAction.Create, Moulinette)
 
         /* Project */
         if (permissions.includes(Permission.CreateProject))
