@@ -5,7 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Put,
+    UseGuards
+} from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -21,7 +33,10 @@ import {
 import { MoulinettesService } from './moulinettes.service'
 import { CreateMoulinetteReqDto } from './dto/create-moulinette.req.dto'
 import { GetMoulinetteResDto } from './dto/get-moulinette.res.dto'
+import { GetMoulinetteSourceResDto } from './dto/get-moulinette-source.res.dto'
+import { PostMoulinetteSourceReqDto } from './dto/post-moulinette-source.req.dto'
 import { UpdateMoulinetteReqDto } from './dto/update-moulinette.req.dto'
+import { MoulinetteSourcesService } from './services/moulinette-sources.service'
 import { Account } from '../accounts/entities/account.entity'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { CurrentUser } from '../common/decorators/current-user.decorator'
@@ -33,7 +48,8 @@ import { ErrorResDto } from '../common/dto/error.res.dto'
 class MoulinettesController {
 
     constructor(
-        private readonly moulinettesService: MoulinettesService
+        private readonly moulinettesService: MoulinettesService,
+        private readonly moulinetteSourceService: MoulinetteSourcesService
     ) {}
 
     @Get('/moulinette/:moulinetteId')
@@ -143,6 +159,47 @@ class MoulinettesController {
     })
     async deleteMoulinette(@CurrentUser() currentUser: Account, @Param('moulinetteId') moulinetteId: string): Promise<void> {
         await this.moulinettesService.deleteMoulinetteById(moulinetteId, currentUser)
+    }
+
+    @Put('/moulinette/:moulinetteId/:major.:minor.:patch')
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Post a moulinette source' })
+    @ApiOkResponse({
+        type: GetMoulinetteSourceResDto,
+        description: 'Post a moulinette source'
+    })
+    @ApiBadRequestResponse({
+        type: ErrorResDto,
+        description: 'Bad Request'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    async postMoulinetteSource(
+        @CurrentUser() currentUser: Account,
+        @Param('moulinetteId') moulinetteId: string,
+        @Param('major', ParseIntPipe) majorVersion: number,
+        @Param('minor', ParseIntPipe) minorVersion: number,
+        @Param('patch', ParseIntPipe) patchVersion: number,
+        @Body() body: PostMoulinetteSourceReqDto
+    ): Promise<GetMoulinetteSourceResDto> {
+
+        const moulinetteSource = await this.moulinetteSourceService.postMoulinetteSource(
+            moulinetteId,
+            [majorVersion, minorVersion, patchVersion],
+            body,
+            currentUser
+        )
+
+        return {
+            status: 'success',
+            data: moulinetteSource
+        }
     }
 
 }

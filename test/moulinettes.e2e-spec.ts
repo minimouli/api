@@ -10,6 +10,7 @@ import { Test } from '@nestjs/testing'
 import request from 'supertest'
 import { AppModule } from '../src/app.module'
 import { MoulinettesService } from '../src/moulinettes/moulinettes.service'
+import { MoulinetteSourcesService } from '../src/moulinettes/services/moulinette-sources.service'
 import type { INestApplication } from '@nestjs/common'
 
 /* eslint-disable max-nested-callbacks */
@@ -24,6 +25,9 @@ describe('Moulinettes', () => {
         updateMoulinetteById: () => 'updateMoulinetteById',
         deleteMoulinetteById: () => Promise.resolve()
     }
+    const moulinetteSourcesService = {
+        postMoulinetteSource: () => 'postMoulinetteSource'
+    }
 
     beforeAll(async () => {
 
@@ -32,6 +36,8 @@ describe('Moulinettes', () => {
         })
             .overrideProvider(MoulinettesService)
             .useValue(moulinettesService)
+            .overrideProvider(MoulinetteSourcesService)
+            .useValue(moulinetteSourcesService)
             .compile()
 
         app = moduleRef.createNestApplication()
@@ -157,6 +163,51 @@ describe('Moulinettes', () => {
                 .delete('/moulinette/123')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(204))
+        })
+    })
+
+    describe('PUT /moulinette/:moulinetteId/:major.:minor.:patch', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .put('/moulinette/123/1.2.3')
+            .send({
+                tarball: 'https://example.com/tarball.tar.gz',
+                rules: ['node >= 20'],
+                isDeprecated: false
+            })
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('should return 400 if the body is incomplete', () => request(app.getHttpServer())
+                .put('/moulinette/123/1.2.3')
+                .set('Authorization', `Bearer ${jwt}`)
+                .send({})
+                .expect(400))
+
+            it('should return 200', () => request(app.getHttpServer())
+                .put('/moulinette/123/1.2.3')
+                .set('Authorization', `Bearer ${jwt}`)
+                .send({
+                    tarball: 'https://example.com/tarball.tar.gz',
+                    rules: ['node >= 20'],
+                    isDeprecated: false
+                })
+                .expect(200)
+                .expect({
+                    status: 'success',
+                    data: moulinetteSourcesService.postMoulinetteSource()
+                }))
         })
     })
 })

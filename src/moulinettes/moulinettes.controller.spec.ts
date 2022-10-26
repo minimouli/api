@@ -8,7 +8,9 @@
 import { Test } from '@nestjs/testing'
 import { MoulinettesController } from './moulinettes.controller'
 import { MoulinettesService } from './moulinettes.service'
+import { MoulinetteSourcesService } from './services/moulinette-sources.service'
 import type { CreateMoulinetteReqDto } from './dto/create-moulinette.req.dto'
+import type { PostMoulinetteSourceReqDto } from './dto/post-moulinette-source.req.dto'
 import type { Account } from '../accounts/entities/account.entity'
 
 describe('MoulinettesController', () => {
@@ -20,6 +22,9 @@ describe('MoulinettesController', () => {
         updateMoulinetteById: jest.fn(),
         deleteMoulinetteById: jest.fn()
     }
+    const moulinetteSourcesService = {
+        postMoulinetteSource: jest.fn()
+    }
 
     beforeEach(async () => {
 
@@ -29,6 +34,9 @@ describe('MoulinettesController', () => {
             .useMocker((token) => {
                 if (token === MoulinettesService)
                     return moulinettesService
+
+                if (token === MoulinetteSourcesService)
+                    return moulinetteSourcesService
             })
             .compile()
 
@@ -36,6 +44,7 @@ describe('MoulinettesController', () => {
 
         moulinettesService.createMoulinette.mockReset()
         moulinettesService.updateMoulinetteById.mockReset()
+        moulinetteSourcesService.postMoulinetteSource.mockReset()
     })
 
     describe('getMoulinette', () => {
@@ -105,6 +114,35 @@ describe('MoulinettesController', () => {
             await expect(moulinettesController.deleteMoulinette(currentUser, moulinetteId)).resolves.toBeUndefined()
 
             expect(moulinettesService.deleteMoulinetteById).toHaveBeenCalledWith(moulinetteId, currentUser)
+        })
+    })
+
+    describe('postMoulinetteSource', () => {
+
+        it('should return the correct response', async () => {
+
+            const currentUser = { id: '1' } as Account
+            const moulinetteId = 'moulinette id'
+            const majorVersion = 1
+            const minorVersion = 2
+            const patchVersion = 3
+            const body = {
+                tarball: 'https://example.com/tarball.tar.gz'
+            } as PostMoulinetteSourceReqDto
+            const moulinetteSource = 'moulinette source'
+
+            moulinetteSourcesService.postMoulinetteSource.mockResolvedValue(moulinetteSource)
+
+            await expect(moulinettesController.postMoulinetteSource(
+                currentUser, moulinetteId, majorVersion, minorVersion, patchVersion, body
+            )).resolves.toStrictEqual({
+                status: 'success',
+                data: moulinetteSource
+            })
+
+            expect(moulinetteSourcesService.postMoulinetteSource).toHaveBeenCalledWith(
+                moulinetteId, [majorVersion, minorVersion, patchVersion], body, currentUser
+            )
         })
     })
 })

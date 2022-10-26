@@ -13,10 +13,11 @@ import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
 import { AuthToken } from '../tokens/entities/auth-token.entity'
 import { Moulinette } from '../moulinettes/entities/moulinette.entity'
+import { MoulinetteSource } from '../moulinettes/entities/moulinette-source.entity'
 import { Project } from '../projects/entities/project.entity'
 import type { AbilityClass, ExtractSubjectType, InferSubjects } from '@casl/ability'
 
-type Subjects = InferSubjects<typeof Account | typeof AuthToken | typeof Moulinette | typeof Project>
+type Subjects = InferSubjects<typeof Account | typeof AuthToken | typeof Moulinette | typeof MoulinetteSource | typeof Project>
 type AppAbility = PureAbility<[CaslAction, Subjects]>
 
 @Injectable()
@@ -81,6 +82,25 @@ class CaslAbilityFactory {
 
         if (permissions.includes(Permission.DeleteMoulinette))
             can(CaslAction.Delete, Moulinette)
+
+        /* Moulinette Source */
+        can(CaslAction.Create, MoulinetteSource, {
+            'moulinette.maintainers': {
+                $elemMatch: { id: account.id }
+            }
+        })
+
+        if (permissions.includes(Permission.CreateMoulinetteSource))
+            can(CaslAction.Create, MoulinetteSource)
+
+        can(CaslAction.Update, MoulinetteSource, {
+            'moulinette.maintainers': {
+                $elemMatch: { id: account.id }
+            }
+        })
+
+        if (permissions.includes(Permission.UpdateMoulinetteSource))
+            can(CaslAction.Update, MoulinetteSource)
 
         /* Project */
         if (permissions.includes(Permission.CreateProject))
