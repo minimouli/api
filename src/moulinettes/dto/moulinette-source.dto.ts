@@ -28,9 +28,6 @@ class MoulinetteSourceDto {
     isDeprecated: boolean
 
     @ApiProperty()
-    uri: string
-
-    @ApiProperty()
     updatedAt: string
 
     @ApiProperty()

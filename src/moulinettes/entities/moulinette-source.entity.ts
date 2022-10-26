@@ -56,11 +56,6 @@ class MoulinetteSource {
     @Column()
     isDeprecated: boolean
 
-    @Expose()
-    get uri(): string {
-        return `minimouli:${this.type}:${this.id}`
-    }
-
     @UpdateDateColumn()
     updatedAt: string
 
