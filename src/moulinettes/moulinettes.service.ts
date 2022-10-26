@@ -33,7 +33,14 @@ class MoulinettesService {
 
         const moulinette = await this.moulinetteRepository.findOne({
             where: { id },
-            relations: ['maintainers', 'project', 'sources']
+            relations: ['maintainers', 'project', 'sources'],
+            order: {
+                sources: {
+                    majorVersion: 'DESC',
+                    minorVersion: 'DESC',
+                    patchVersion: 'DESC'
+                }
+            }
         })
 
         if (moulinette === null)
