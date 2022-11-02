@@ -18,6 +18,7 @@ describe('Organizations', () => {
     let jwtService: JwtService
     const organizationsService = {
         createOrganization: () => 'create organization',
+        findOrganizationById: () => 'find organization by id',
         updateOrganizationById: () => 'update organization by id',
         deleteOrganizationById: () => Promise.resolve()
     }
@@ -80,6 +81,17 @@ describe('Organizations', () => {
                     data: organizationsService.createOrganization()
                 }))
         })
+    })
+
+    describe('GET /organization/:organizationId', () => {
+
+        it('should return 200', () => request(app.getHttpServer())
+            .get('/organization/123')
+            .expect(200)
+            .expect({
+                status: 'success',
+                data: organizationsService.findOrganizationById()
+            }))
     })
 
     describe('PATCH /organization/:organizationId', () => {

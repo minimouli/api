@@ -15,6 +15,7 @@ describe('OrganizationsController', () => {
     let organizationsController: OrganizationsController
     const organizationsService = {
         createOrganization: jest.fn(),
+        findOrganizationById: jest.fn(),
         updateOrganizationById: jest.fn(),
         deleteOrganizationById: jest.fn()
     }
@@ -55,6 +56,25 @@ describe('OrganizationsController', () => {
 
             expect(organizationsService.createOrganization).toHaveBeenCalledWith(body, currentUser)
         })
+    })
+
+    describe('getOrganizationById', () => {
+
+        it('should return the correct response', async () => {
+
+            const organizationId = 'organization id'
+            const foundOrganization = 'found organization'
+
+            organizationsService.findOrganizationById.mockResolvedValue(foundOrganization)
+
+            await expect(organizationsController.getOrganizationById(organizationId)).resolves.toStrictEqual({
+                status: 'success',
+                data: foundOrganization
+            })
+
+            expect(organizationsService.findOrganizationById).toHaveBeenCalledWith(organizationId)
+        })
+
     })
 
     describe('updateOrganization', () => {

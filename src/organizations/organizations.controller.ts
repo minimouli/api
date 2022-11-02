@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Delete, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -57,6 +57,26 @@ class OrganizationsController {
     async createOrganization(@CurrentUser() currentUser: Account, @Body() body: CreateOrganizationReqDto): Promise<GetOrganizationResDto> {
 
         const organization = await this.organizationService.createOrganization(body, currentUser)
+
+        return {
+            status: 'success',
+            data: organization
+        }
+    }
+
+    @Get('/organization/:organizationId')
+    @ApiOperation({ summary: 'Get information about an organization' })
+    @ApiOkResponse({
+        type: GetOrganizationResDto,
+        description: 'Get information about an organization'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async getOrganizationById(@Param('organizationId') organizationId: string): Promise<GetOrganizationResDto> {
+
+        const organization = await this.organizationService.findOrganizationById(organizationId)
 
         return {
             status: 'success',

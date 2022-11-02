@@ -91,6 +91,32 @@ describe('OrganizationsService', () => {
         })
     })
 
+    describe('findOrganizationById', () => {
+
+        const id = '1'
+        const foundOrganization = 'found organization'
+
+        it('should throw a NotFoundException if the id is not related to an actual organization', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            organizationRepository.findOneBy.mockResolvedValue(null)
+
+            await expect(organizationsService.findOrganizationById(id)).rejects.toThrow(new NotFoundException())
+
+            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id })
+        })
+
+        it('should return the found organization', async () => {
+
+            organizationRepository.findOneBy.mockResolvedValue(foundOrganization)
+
+            await expect(organizationsService.findOrganizationById(id)).resolves.toStrictEqual(foundOrganization)
+
+            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id })
+        })
+
+    })
+
     describe('updateOrganization', () => {
 
         const subject = { id: '1' } as Organization

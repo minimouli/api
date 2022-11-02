@@ -36,6 +36,16 @@ class OrganizationsService {
         return this.organizationRepository.save(createdOrganization)
     }
 
+    async findOrganizationById(id: string): Promise<Organization> {
+
+        const organization = await this.organizationRepository.findOneBy({ id })
+
+        if (organization === null)
+            throw new NotFoundException()
+
+        return organization
+    }
+
     async updateOrganization(subject: Organization, body: UpdateOrganizationReqDto, initiator: Account): Promise<Organization> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
