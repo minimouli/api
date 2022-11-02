@@ -138,6 +138,42 @@ class MoulinetteSourcesService {
         return foundMoulinetteSource
     }
 
+    async deleteMoulinetteSource(subject: MoulinetteSource, initiator: Account): Promise<void> {
+
+        const ability = this.caslAbilityFactory.createForAccount(initiator)
+
+        if (!ability.can(CaslAction.Delete, subject))
+            throw new ForbiddenException()
+
+        await this.moulinetteSourceRepository.remove(subject)
+    }
+
+    async deleteMoulinetteSourceByVersion(
+        moulinetteId: string,
+        version: [number, number, number],
+        initiator: Account
+    ): Promise<void> {
+
+        const [majorVersion, minorVersion, patchVersion] = version
+
+        const moulinetteSource = await this.moulinetteSourceRepository.findOne({
+            where: {
+                majorVersion,
+                minorVersion,
+                patchVersion,
+                moulinette: {
+                    id: moulinetteId
+                }
+            },
+            relations: ['moulinette', 'moulinette.maintainers']
+        })
+
+        if (moulinetteSource === null)
+            throw new NotFoundException()
+
+        return this.deleteMoulinetteSource(moulinetteSource, initiator)
+    }
+
     createChecksumFromWebFile(url: string): Promise<CreateChecksumFromWebFileResponse> {
 
         return new Promise((resolve) => {

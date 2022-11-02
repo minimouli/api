@@ -21,6 +21,7 @@ enum Permission {
     DeleteMoulinette = 'Permission.DeleteMoulinette',
     CreateMoulinetteSource = 'Permission.CreateMoulinetteSource',
     UpdateMoulinetteSource = 'Permission.UpdateMoulinetteSource',
+    DeleteMoulinetteSource = 'Permission.DeleteMoulinetteSource',
     CreateProject = 'Permission.CreateProject',
     UpdateProject = 'Permission.UpdateProject',
     DeleteProject = 'Permission.DeleteProject'

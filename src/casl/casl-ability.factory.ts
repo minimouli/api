@@ -99,6 +99,15 @@ class CaslAbilityFactory {
             }
         })
 
+        if (permissions.includes(Permission.DeleteMoulinetteSource))
+            can(CaslAction.Delete, MoulinetteSource)
+
+        can(CaslAction.Delete, MoulinetteSource, {
+            'moulinette.maintainers': {
+                $elemMatch: { id: account.id }
+            }
+        })
+
         if (permissions.includes(Permission.UpdateMoulinetteSource))
             can(CaslAction.Update, MoulinetteSource)
 

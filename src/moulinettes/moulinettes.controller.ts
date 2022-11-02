@@ -202,6 +202,39 @@ class MoulinettesController {
         }
     }
 
+    @Delete('/moulinette/:moulinetteId/:major.:minor.:patch')
+    @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Delete a moulinette source' })
+    @ApiNoContentResponse({
+        description: 'Delete a moulinette source'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async deleteMoulinetteSource(
+        @CurrentUser() currentUser: Account,
+        @Param('moulinetteId') moulinetteId: string,
+        @Param('major', ParseIntPipe) majorVersion: number,
+        @Param('minor', ParseIntPipe) minorVersion: number,
+        @Param('patch', ParseIntPipe) patchVersion: number
+    ) {
+        await this.moulinetteSourceService.deleteMoulinetteSourceByVersion(
+            moulinetteId,
+            [majorVersion, minorVersion, patchVersion],
+            currentUser
+        )
+    }
+
 }
 
 export {

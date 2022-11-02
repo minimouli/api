@@ -27,7 +27,9 @@ describe('MoulinetteSourcesService', () => {
     }
     const moulinetteSourceRepository = {
         create: jest.fn(),
+        findOne: jest.fn(),
         findOneBy: jest.fn(),
+        remove: jest.fn(),
         save: jest.fn()
     }
     const httpService = {
@@ -64,7 +66,9 @@ describe('MoulinetteSourcesService', () => {
 
         moulinetteRepository.findOne.mockReset()
         moulinetteSourceRepository.create.mockReset()
+        moulinetteSourceRepository.findOne.mockReset()
         moulinetteSourceRepository.findOneBy.mockReset()
+        moulinetteSourceRepository.remove.mockReset()
         moulinetteSourceRepository.save.mockReset()
         httpService.get.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
@@ -316,6 +320,91 @@ describe('MoulinetteSourcesService', () => {
                 ...body
             })
             expect(moulinetteSourceRepository.findOneBy).toHaveBeenCalledWith({ id: subject.id })
+        })
+    })
+
+    describe('deleteMoulinetteSource', () => {
+
+        const subject = { id: 1 } as MoulinetteSource
+        const initiator = { id: '1' } as Account
+
+        it('should throw a ForbiddenException if the initiator has not the permission to delete moulinette sources', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(false)
+
+            await expect(moulinetteSourcesService.deleteMoulinetteSource(subject, initiator)).rejects.toThrow(new ForbiddenException())
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+        })
+
+        it('should delete the moulinette source', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(true)
+
+            await expect(moulinetteSourcesService.deleteMoulinetteSource(subject, initiator)).resolves.toBeUndefined()
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+            expect(moulinetteSourceRepository.remove).toHaveBeenCalledWith(subject)
+        })
+    })
+
+    describe('deleteMoulinetteSourceByVersion', () => {
+
+        let deleteMoulinetteSource: jest.SpyInstance
+
+        const moulinetteId = '1'
+        const version: [number, number, number] = [1, 2, 3]
+        const [majorVersion, minorVersion, patchVersion] = version
+        const initiator = { id: '2' } as Account
+        const foundMoulinetteSource = 'found moulinette source'
+
+        beforeEach(() => {
+            deleteMoulinetteSource = jest.spyOn(moulinetteSourcesService, 'deleteMoulinetteSource')
+        })
+
+        it('should throw a NotFoundException if moulinette id is not related to a moulinette', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            moulinetteSourceRepository.findOne.mockResolvedValue(null)
+
+            await expect(moulinetteSourcesService.deleteMoulinetteSourceByVersion(moulinetteId, version, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(moulinetteSourceRepository.findOne).toHaveBeenCalledWith({
+                where: {
+                    majorVersion,
+                    minorVersion,
+                    patchVersion,
+                    moulinette: {
+                        id: moulinetteId
+                    }
+                },
+                relations: ['moulinette', 'moulinette.maintainers']
+            })
+        })
+
+        it('should delete the project', async () => {
+
+            moulinetteSourceRepository.findOne.mockResolvedValue(foundMoulinetteSource)
+            deleteMoulinetteSource.mockResolvedValue(Promise.resolve())
+
+            await expect(moulinetteSourcesService.deleteMoulinetteSourceByVersion(moulinetteId, version, initiator)).resolves.toBeUndefined()
+
+            expect(moulinetteSourceRepository.findOne).toHaveBeenCalledWith({
+                where: {
+                    majorVersion,
+                    minorVersion,
+                    patchVersion,
+                    moulinette: {
+                        id: moulinetteId
+                    }
+                },
+                relations: ['moulinette', 'moulinette.maintainers']
+            })
+            expect(deleteMoulinetteSource).toHaveBeenCalledWith(foundMoulinetteSource, initiator)
         })
     })
 

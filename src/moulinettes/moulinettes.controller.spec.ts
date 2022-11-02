@@ -23,7 +23,8 @@ describe('MoulinettesController', () => {
         deleteMoulinetteById: jest.fn()
     }
     const moulinetteSourcesService = {
-        postMoulinetteSource: jest.fn()
+        postMoulinetteSource: jest.fn(),
+        deleteMoulinetteSourceByVersion: jest.fn()
     }
 
     beforeEach(async () => {
@@ -45,6 +46,7 @@ describe('MoulinettesController', () => {
         moulinettesService.createMoulinette.mockReset()
         moulinettesService.updateMoulinetteById.mockReset()
         moulinetteSourcesService.postMoulinetteSource.mockReset()
+        moulinetteSourcesService.deleteMoulinetteSourceByVersion.mockReset()
     })
 
     describe('getMoulinette', () => {
@@ -144,5 +146,26 @@ describe('MoulinettesController', () => {
                 moulinetteId, [majorVersion, minorVersion, patchVersion], body, currentUser
             )
         })
+    })
+
+    describe('deleteMoulinetteSource', () => {
+
+        it('should return the correct response', async () => {
+
+            const currentUser = { id: '1' } as Account
+            const moulinetteId = 'moulinette id'
+            const majorVersion = 1
+            const minorVersion = 2
+            const patchVersion = 3
+
+            await expect(moulinettesController.deleteMoulinetteSource(
+                currentUser, moulinetteId, majorVersion, minorVersion, patchVersion
+            )).resolves.toBeUndefined()
+
+            expect(moulinetteSourcesService.deleteMoulinetteSourceByVersion).toHaveBeenCalledWith(
+                moulinetteId, [majorVersion, minorVersion, patchVersion], currentUser
+            )
+        })
+
     })
 })

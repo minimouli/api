@@ -26,7 +26,8 @@ describe('Moulinettes', () => {
         deleteMoulinetteById: () => Promise.resolve()
     }
     const moulinetteSourcesService = {
-        postMoulinetteSource: () => 'postMoulinetteSource'
+        postMoulinetteSource: () => 'postMoulinetteSource',
+        deleteMoulinetteSourceByVersion: () => Promise.resolve()
     }
 
     beforeAll(async () => {
@@ -159,7 +160,7 @@ describe('Moulinettes', () => {
                 })
             })
 
-            it('should return 200', () => request(app.getHttpServer())
+            it('should return 204', () => request(app.getHttpServer())
                 .delete('/moulinette/123')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(204))
@@ -208,6 +209,31 @@ describe('Moulinettes', () => {
                     status: 'success',
                     data: moulinetteSourcesService.postMoulinetteSource()
                 }))
+        })
+    })
+
+    describe('DELETE /moulinette/:moulinetteId/:major.:minor.:patch', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .delete('/moulinette/123/1.2.3')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('should return 204', () => request(app.getHttpServer())
+                .delete('/moulinette/123/1.2.3')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(204))
         })
     })
 })
