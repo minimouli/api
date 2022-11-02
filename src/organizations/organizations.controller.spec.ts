@@ -15,7 +15,8 @@ describe('OrganizationsController', () => {
     let organizationsController: OrganizationsController
     const organizationsService = {
         createOrganization: jest.fn(),
-        updateOrganizationById: jest.fn()
+        updateOrganizationById: jest.fn(),
+        deleteOrganizationById: jest.fn()
     }
 
     beforeEach(async () => {
@@ -76,6 +77,20 @@ describe('OrganizationsController', () => {
             })
 
             expect(organizationsService.updateOrganizationById).toHaveBeenCalledWith(organizationId, body, currentUser)
+        })
+
+    })
+
+    describe('deleteOrganization', () => {
+
+        it('should return the correct response', async () => {
+
+            const currentUser = { id: '2' } as Account
+            const organizationId = '1'
+
+            await expect(organizationsController.deleteOrganization(currentUser, organizationId)).resolves.toBeUndefined()
+
+            expect(organizationsService.deleteOrganizationById).toHaveBeenCalledWith(organizationId, currentUser)
         })
 
     })

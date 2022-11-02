@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiCreatedResponse,
-    ApiForbiddenResponse,
+    ApiForbiddenResponse, ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -99,6 +99,29 @@ class OrganizationsController {
             status: 'success',
             data: updatedOrganization
         }
+    }
+
+    @Delete('/organization/:organizationId')
+    @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Delete an organization' })
+    @ApiNoContentResponse({
+        description: 'Delete an organization'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async deleteOrganization(@CurrentUser() currentUser: Account, @Param('organizationId') organizationId: string): Promise<void> {
+        await this.organizationService.deleteOrganizationById(organizationId, currentUser)
     }
 
 }

@@ -19,6 +19,7 @@ describe('OrganizationsService', () => {
     let organizationsService: OrganizationsService
     const organizationRepository = {
         create: jest.fn(),
+        remove: jest.fn(),
         findOneBy: jest.fn(),
         save: jest.fn()
     }
@@ -46,6 +47,7 @@ describe('OrganizationsService', () => {
         organizationsService = moduleRef.get(OrganizationsService)
 
         organizationRepository.create.mockReset()
+        organizationRepository.remove.mockReset()
         organizationRepository.findOneBy.mockReset()
         organizationRepository.save.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
@@ -157,6 +159,69 @@ describe('OrganizationsService', () => {
 
             expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
             expect(updateOrganization).toHaveBeenCalledWith(foundOrganization, body, initiator)
+        })
+    })
+
+    describe('deleteOrganization', () => {
+
+        const subject = { id: '1' } as Organization
+        const initiator = { id: '2' } as Account
+
+        it('should throw a ForbiddenException if the initiator has not the permission to delete organizations', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(false)
+
+            await expect(organizationsService.deleteOrganization(subject, initiator)).rejects.toThrow(new ForbiddenException())
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+        })
+
+        it('should delete the organization', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(true)
+
+            await expect(organizationsService.deleteOrganization(subject, initiator)).resolves.toBeUndefined()
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+            expect(organizationRepository.remove).toHaveBeenCalledWith(subject)
+        })
+    })
+
+    describe('deleteProjectById', () => {
+
+        let deleteOrganization: jest.SpyInstance
+
+        const subjectId = 'subject id'
+        const foundOrganization = 'found organization'
+        const initiator = { id: '1' } as Account
+
+        beforeEach(() => {
+            deleteOrganization = jest.spyOn(organizationsService, 'deleteOrganization')
+        })
+
+        it('should throw a NotFoundException if subject id is not related to an actual organization', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            organizationRepository.findOneBy.mockResolvedValue(null)
+
+            await expect(organizationsService.deleteOrganizationById(subjectId, initiator)).rejects.toThrow(new NotFoundException())
+
+            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+        })
+
+        it('should delete the organization', async () => {
+
+            organizationRepository.findOneBy.mockResolvedValue(foundOrganization)
+            deleteOrganization.mockReturnValue(Promise.resolve())
+
+            await expect(organizationsService.deleteOrganizationById(subjectId, initiator)).resolves.toBeUndefined()
+
+            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+            expect(deleteOrganization).toHaveBeenCalledWith(foundOrganization, initiator)
         })
     })
 })

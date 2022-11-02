@@ -59,6 +59,26 @@ class OrganizationsService {
         return this.updateOrganization(organization, body, initiator)
     }
 
+    async deleteOrganization(subject: Organization, initiator: Account): Promise<void> {
+
+        const ability = this.caslAbilityFactory.createForAccount(initiator)
+
+        if (!ability.can(CaslAction.Delete, subject))
+            throw new ForbiddenException()
+
+        await this.organizationRepository.remove(subject)
+    }
+
+    async deleteOrganizationById(subjectId: string, initiator: Account): Promise<void> {
+
+        const subject = await this.organizationRepository.findOneBy({ id: subjectId })
+
+        if (subject === null)
+            throw new NotFoundException()
+
+        await this.deleteOrganization(subject, initiator)
+    }
+
 }
 
 export {
