@@ -64,13 +64,16 @@ class MoulinetteSourcesService {
 
         const [majorVersion, minorVersion, patchVersion] = version
 
-        const moulinetteSource = await this.moulinetteSourceRepository.findOneBy({
-            majorVersion,
-            minorVersion,
-            patchVersion,
-            moulinette: {
-                id: moulinetteId
-            }
+        const moulinetteSource = await this.moulinetteSourceRepository.findOne({
+            where: {
+                majorVersion,
+                minorVersion,
+                patchVersion,
+                moulinette: {
+                    id: moulinetteId
+                }
+            },
+            relations: ['moulinette', 'moulinette.maintainers']
         })
 
         if (moulinetteSource === null)

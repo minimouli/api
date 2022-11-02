@@ -114,7 +114,7 @@ describe('MoulinetteSourcesService', () => {
 
             moulinetteRepository.findOne.mockResolvedValue(foundMoulinette)
             // eslint-disable-next-line unicorn/no-null
-            moulinetteSourceRepository.findOneBy.mockResolvedValue(null)
+            moulinetteSourceRepository.findOne.mockResolvedValue(null)
             createMoulinetteSource.mockResolvedValue(createdMoulinetteSource)
 
             await expect(moulinetteSourcesService.postMoulinetteSource(moulinetteId, version, body, initiator)).resolves.toBe(createdMoulinetteSource)
@@ -123,13 +123,16 @@ describe('MoulinetteSourcesService', () => {
                 where: { id: moulinetteId },
                 relations: ['maintainers']
             })
-            expect(moulinetteSourceRepository.findOneBy).toHaveBeenCalledWith({
-                majorVersion,
-                minorVersion,
-                patchVersion,
-                moulinette: {
-                    id: moulinetteId
-                }
+            expect(moulinetteSourceRepository.findOne).toHaveBeenCalledWith({
+                where: {
+                    majorVersion,
+                    minorVersion,
+                    patchVersion,
+                    moulinette: {
+                        id: moulinetteId
+                    }
+                },
+                relations: ['moulinette', 'moulinette.maintainers']
             })
             expect(createMoulinetteSource).toHaveBeenCalledWith(foundMoulinette, version, body, initiator)
             expect(updateMoulinetteSource).not.toHaveBeenCalled()
@@ -138,7 +141,7 @@ describe('MoulinetteSourcesService', () => {
         it('should update an existing moulinette source if one with the same version exists', async () => {
 
             moulinetteRepository.findOne.mockResolvedValue(foundMoulinette)
-            moulinetteSourceRepository.findOneBy.mockResolvedValue(foundMoulinetteSource)
+            moulinetteSourceRepository.findOne.mockResolvedValue(foundMoulinetteSource)
             updateMoulinetteSource.mockResolvedValue(updatedMoulinetteSource)
 
             await expect(moulinetteSourcesService.postMoulinetteSource(moulinetteId, version, body, initiator)).resolves.toBe(updatedMoulinetteSource)
@@ -147,13 +150,16 @@ describe('MoulinetteSourcesService', () => {
                 where: { id: moulinetteId },
                 relations: ['maintainers']
             })
-            expect(moulinetteSourceRepository.findOneBy).toHaveBeenCalledWith({
-                majorVersion,
-                minorVersion,
-                patchVersion,
-                moulinette: {
-                    id: moulinetteId
-                }
+            expect(moulinetteSourceRepository.findOne).toHaveBeenCalledWith({
+                where: {
+                    majorVersion,
+                    minorVersion,
+                    patchVersion,
+                    moulinette: {
+                        id: moulinetteId
+                    }
+                },
+                relations: ['moulinette', 'moulinette.maintainers']
             })
             expect(createMoulinetteSource).not.toHaveBeenCalled()
             expect(updateMoulinetteSource).toHaveBeenCalledWith(foundMoulinetteSource, body, initiator)
