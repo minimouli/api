@@ -10,6 +10,7 @@ enum EntityType {
     AuthToken = 'auth-token',
     Moulinette = 'moulinette',
     MoulinetteSource = 'moulinette-source',
+    Organization = 'organization',
     Project = 'project'
 }
 

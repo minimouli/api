@@ -14,6 +14,7 @@ import { AccountsModule } from './accounts/accounts.module'
 import { AuthModule } from './auth/auth.module'
 import { CaslModule } from './casl/casl.module'
 import { MoulinettesModule } from './moulinettes/moulinettes.module'
+import { OrganizationsModule } from './organizations/organizations.module'
 import { ProjectsModule } from './projects/projects.module'
 import { TokensModule } from './tokens/tokens.module'
 
@@ -46,6 +47,7 @@ import { TokensModule } from './tokens/tokens.module'
         AuthModule,
         CaslModule,
         MoulinettesModule,
+        OrganizationsModule,
         ProjectsModule,
         TokensModule
     ],
