@@ -123,6 +123,9 @@ class CaslAbilityFactory {
         if (permissions.includes(Permission.CreateOrganization))
             can(CaslAction.Create, Organization)
 
+        if (permissions.includes(Permission.UpdateOrganization))
+            can(CaslAction.Update, Organization)
+
         /* Project */
         if (permissions.includes(Permission.CreateProject))
             can(CaslAction.Create, Project)

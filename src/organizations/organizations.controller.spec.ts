@@ -14,7 +14,8 @@ describe('OrganizationsController', () => {
 
     let organizationsController: OrganizationsController
     const organizationsService = {
-        createOrganization: jest.fn()
+        createOrganization: jest.fn(),
+        updateOrganizationById: jest.fn()
     }
 
     beforeEach(async () => {
@@ -53,5 +54,29 @@ describe('OrganizationsController', () => {
 
             expect(organizationsService.createOrganization).toHaveBeenCalledWith(body, currentUser)
         })
+    })
+
+    describe('updateOrganization', () => {
+
+        it('should return the correct response', async () => {
+
+            const currentUser = { id: '2' } as Account
+            const organizationId = '1'
+            const body = {
+                name: 'name',
+                displayName: 'display name'
+            }
+            const updatedOrganization = 'updated organization'
+
+            organizationsService.updateOrganizationById.mockResolvedValue(updatedOrganization)
+
+            await expect(organizationsController.updateOrganization(currentUser, organizationId, body)).resolves.toStrictEqual({
+                status: 'success',
+                data: updatedOrganization
+            })
+
+            expect(organizationsService.updateOrganizationById).toHaveBeenCalledWith(organizationId, body, currentUser)
+        })
+
     })
 })

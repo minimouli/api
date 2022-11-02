@@ -17,7 +17,8 @@ describe('Organizations', () => {
     let app: INestApplication
     let jwtService: JwtService
     const organizationsService = {
-        createOrganization: () => 'create organization'
+        createOrganization: () => 'create organization',
+        updateOrganizationById: () => 'update organization by id'
     }
 
     beforeAll(async () => {
@@ -76,6 +77,41 @@ describe('Organizations', () => {
                 .expect({
                     status: 'success',
                     data: organizationsService.createOrganization()
+                }))
+        })
+    })
+
+    describe('PATCH /organization/:organizationId', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .patch('/organization/123')
+            .send({
+                name: 'name'
+            })
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('should return 200', () => request(app.getHttpServer())
+                .patch('/organization/123')
+                .set('Authorization', `Bearer ${jwt}`)
+                .send({
+                    name: 'name'
+                })
+                .expect(200)
+                .expect({
+                    status: 'success',
+                    data: organizationsService.updateOrganizationById()
                 }))
         })
     })

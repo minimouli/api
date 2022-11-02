@@ -21,6 +21,7 @@ const AdminPermissions = [
     Permission.UpdateMoulinetteSource,
     Permission.DeleteMoulinetteSource,
     Permission.CreateOrganization,
+    Permission.UpdateOrganization,
     Permission.CreateProject,
     Permission.UpdateProject,
     Permission.DeleteProject
