@@ -5,19 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Expose } from 'class-transformer'
+import { Exclude, Expose } from 'class-transformer'
 import {
     BeforeInsert,
     Column,
     CreateDateColumn,
     Entity,
     ManyToOne,
+    OneToMany,
     PrimaryColumn,
     UpdateDateColumn
 } from 'typeorm'
 import { EntityType } from '../../common/enums/entity-type.enum'
 import { getSecureRandomString } from '../../common/helpers/random.helper'
 import { Organization } from '../../organizations/entities/organization.entity'
+import { Moulinette } from '../../moulinettes/entities/moulinette.entity'
 
 @Entity()
 class Project {
@@ -40,6 +42,10 @@ class Project {
         onDelete: 'CASCADE'
     })
     organization: Organization
+
+    @Exclude()
+    @OneToMany(() => Moulinette, (moulinette) => moulinette.project)
+    moulinettes: Moulinette[]
 
     @Expose()
     get uri(): string {

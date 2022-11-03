@@ -11,11 +11,10 @@ import {
     Column,
     CreateDateColumn,
     Entity,
-    JoinColumn,
     JoinTable,
     ManyToMany,
+    ManyToOne,
     OneToMany,
-    OneToOne,
     PrimaryColumn,
     UpdateDateColumn
 } from 'typeorm'
@@ -33,10 +32,9 @@ class Moulinette {
     @PrimaryColumn()
     id: string
 
-    @OneToOne(() => Project, {
+    @ManyToOne(() => Project, (project) => project.moulinettes, {
         onDelete: 'CASCADE'
     })
-    @JoinColumn()
     project: Project
 
     @OneToMany(() => MoulinetteSource, (source) => source.moulinette)

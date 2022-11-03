@@ -7,9 +7,9 @@
 
 import type { MigrationInterface, QueryRunner } from 'typeorm'
 
-class Init1667503608186 implements MigrationInterface {
+class Init1667505277739 implements MigrationInterface {
 
-    public name = 'Init1667503608186'
+    public name = 'Init1667505277739'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query('CREATE TABLE "auth_token" ("id" character varying NOT NULL, "name" character varying NOT NULL, "lastActive" TIMESTAMP WITH TIME ZONE NOT NULL, "expiresAt" TIMESTAMP WITH TIME ZONE NOT NULL, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "accountId" character varying, CONSTRAINT "PK_4572ff5d1264c4a523f01aa86a0" PRIMARY KEY ("id"))')
@@ -17,7 +17,7 @@ class Init1667503608186 implements MigrationInterface {
         await queryRunner.query('CREATE TABLE "github_credentials" ("id" character varying NOT NULL, "githubId" integer NOT NULL, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "accountId" character varying, CONSTRAINT "REL_450cca434e2b2c896a850adcd3" UNIQUE ("accountId"), CONSTRAINT "PK_c2882693875a52885319e3f7899" PRIMARY KEY ("id"))')
         await queryRunner.query('CREATE TABLE "organization" ("id" character varying NOT NULL, "name" character varying NOT NULL, "displayName" character varying NOT NULL, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_472c1f99a32def1b0abb219cd67" PRIMARY KEY ("id"))')
         await queryRunner.query('CREATE TABLE "project" ("id" character varying NOT NULL, "name" character varying NOT NULL, "displayName" character varying NOT NULL, "cycle" integer NOT NULL, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "organizationId" character varying, CONSTRAINT "PK_4d68b1358bb5b766d3e78f32f57" PRIMARY KEY ("id"))')
-        await queryRunner.query('CREATE TABLE "moulinette" ("id" character varying NOT NULL, "repository" character varying NOT NULL, "isOfficial" boolean NOT NULL, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "projectId" character varying, CONSTRAINT "REL_7b29a3c30032b432ea21ea38d8" UNIQUE ("projectId"), CONSTRAINT "PK_b2c68b4438357bb1dbca06b38f2" PRIMARY KEY ("id"))')
+        await queryRunner.query('CREATE TABLE "moulinette" ("id" character varying NOT NULL, "repository" character varying NOT NULL, "isOfficial" boolean NOT NULL, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "projectId" character varying, CONSTRAINT "PK_b2c68b4438357bb1dbca06b38f2" PRIMARY KEY ("id"))')
         await queryRunner.query('CREATE TABLE "moulinette_source" ("id" SERIAL NOT NULL, "majorVersion" integer NOT NULL, "minorVersion" integer NOT NULL, "patchVersion" integer NOT NULL, "tarball" character varying NOT NULL, "checksum" character varying NOT NULL, "rules" text NOT NULL, "isDeprecated" boolean NOT NULL, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "moulinetteId" character varying, CONSTRAINT "PK_9bbb355c8b0f94813c6c25cda06" PRIMARY KEY ("id"))')
         await queryRunner.query('CREATE TABLE "moulinette_maintainers_account" ("moulinetteId" character varying NOT NULL, "accountId" character varying NOT NULL, CONSTRAINT "PK_feac580f94afc08bcf46c1fbba5" PRIMARY KEY ("moulinetteId", "accountId"))')
         await queryRunner.query('CREATE INDEX "IDX_cc2d8030a8d1783de82d54d693" ON "moulinette_maintainers_account" ("moulinetteId") ')
@@ -54,5 +54,5 @@ class Init1667503608186 implements MigrationInterface {
 }
 
 export {
-    Init1667503608186
+    Init1667505277739
 }
