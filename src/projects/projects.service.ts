@@ -24,7 +24,7 @@ class ProjectsService {
         private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
-    async createProject(name: string, organization: string, initiator: Account): Promise<Project> {
+    async create(name: string, organization: string, initiator: Account): Promise<Project> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -51,7 +51,7 @@ class ProjectsService {
         return this.projectRepository.save(createdProject)
     }
 
-    async findProjectById(id: string): Promise<Project> {
+    async findById(id: string): Promise<Project> {
 
         const project = await this.projectRepository.findOneBy({ id })
 
@@ -61,7 +61,7 @@ class ProjectsService {
         return project
     }
 
-    async updateProject(subject: Project, body: Partial<UpdateProjectReqDto>, initiator: Account): Promise<Project> {
+    async update(subject: Project, body: Partial<UpdateProjectReqDto>, initiator: Account): Promise<Project> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -81,17 +81,17 @@ class ProjectsService {
         return updatedProject
     }
 
-    async updateProjectById(subjectId: string, body: Partial<UpdateProjectReqDto>, initiator: Account): Promise<Project> {
+    async updateById(id: string, body: UpdateProjectReqDto, initiator: Account): Promise<Project> {
 
-        const project = await this.projectRepository.findOneBy({ id: subjectId })
+        const project = await this.projectRepository.findOneBy({ id })
 
         if (project === null)
             throw new NotFoundException()
 
-        return this.updateProject(project, body, initiator)
+        return this.update(project, body, initiator)
     }
 
-    async deleteProject(subject: Project, initiator: Account): Promise<void> {
+    async delete(subject: Project, initiator: Account): Promise<void> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -101,14 +101,14 @@ class ProjectsService {
         await this.projectRepository.remove(subject)
     }
 
-    async deleteProjectById(subjectId: string, initiator: Account): Promise<void> {
+    async deleteById(id: string, initiator: Account): Promise<void> {
 
-        const subject = await this.projectRepository.findOneBy({ id: subjectId })
+        const subject = await this.projectRepository.findOneBy({ id })
 
         if (subject === null)
             throw new NotFoundException()
 
-        await this.deleteProject(subject, initiator)
+        await this.delete(subject, initiator)
     }
 
 }

@@ -14,10 +14,10 @@ describe('ProjectsController', () => {
 
     let projectsController: ProjectsController
     const projectsService = {
-        createProject: jest.fn(),
-        deleteProjectById: jest.fn(),
-        findProjectById: jest.fn(),
-        updateProjectById: jest.fn()
+        create: jest.fn(),
+        deleteById: jest.fn(),
+        findById: jest.fn(),
+        updateById: jest.fn()
     }
 
     beforeEach(async () => {
@@ -33,82 +33,82 @@ describe('ProjectsController', () => {
 
         projectsController = moduleRef.get(ProjectsController)
 
-        projectsService.createProject.mockReset()
-        projectsService.deleteProjectById.mockReset()
-        projectsService.findProjectById.mockReset()
-        projectsService.updateProjectById.mockReset()
+        projectsService.create.mockReset()
+        projectsService.deleteById.mockReset()
+        projectsService.findById.mockReset()
+        projectsService.updateById.mockReset()
     })
 
     describe('getProject', () => {
 
+        const projectId = 'project id'
+        const foundProject = 'found project'
+
         it('should return the correct response', async () => {
 
-            const projectId = 'project id'
-            const project = { id: '1' }
-
-            projectsService.findProjectById.mockResolvedValue(project)
+            projectsService.findById.mockResolvedValue(foundProject)
 
             await expect(projectsController.getProject(projectId)).resolves.toStrictEqual({
                 status: 'success',
-                data: project
+                data: foundProject
             })
 
-            expect(projectsService.findProjectById).toHaveBeenCalledWith(projectId)
+            expect(projectsService.findById).toHaveBeenCalledWith(projectId)
         })
     })
 
     describe('createProject', () => {
 
+        const currentUser = { id: '1' } as Account
+        const body = {
+            name: 'name',
+            organization: 'organization'
+        }
+        const createdProject = 'created project'
+
         it('should return the correct response', async () => {
 
-            const currentUser = { id: '1' } as Account
-            const body = {
-                name: 'name',
-                organization: 'organization'
-            }
-            const project = 'project'
-
-            projectsService.createProject.mockResolvedValue(project)
+            projectsService.create.mockResolvedValue(createdProject)
 
             await expect(projectsController.createProject(currentUser, body)).resolves.toStrictEqual({
                 status: 'success',
-                data: project
+                data: createdProject
             })
 
-            expect(projectsService.createProject).toHaveBeenCalledWith(body.name, body.organization, currentUser)
+            expect(projectsService.create).toHaveBeenCalledWith(body.name, body.organization, currentUser)
         })
     })
 
     describe('updateProjectInformation', () => {
 
+        const currentUser = { id: '1' } as Account
+        const projectId = '2'
+        const body = { name: 'name' }
+        const updatedProject = 'updated project'
+
         it('should return the correct response', async () => {
 
-            const currentUser = { id: '1' } as Account
-            const projectId = '2'
-            const body = { name: 'name' }
-            const project = 'project'
-
-            projectsService.updateProjectById.mockResolvedValue(project)
+            projectsService.updateById.mockResolvedValue(updatedProject)
 
             await expect(projectsController.updateProjectInformation(currentUser, projectId, body)).resolves.toStrictEqual({
                 status: 'success',
-                data: project
+                data: updatedProject
             })
 
-            expect(projectsService.updateProjectById).toHaveBeenCalledWith(projectId, body, currentUser)
+            expect(projectsService.updateById).toHaveBeenCalledWith(projectId, body, currentUser)
         })
     })
 
     describe('deleteProjectById', () => {
 
-        it('should return the correct response', async () => {
+        const currentUser = { id: '1' } as Account
+        const projectId = '2'
 
-            const currentUser = { id: '1' } as Account
-            const projectId = '2'
+        it('should return the correct response', async () => {
 
             await expect(projectsController.deleteProject(currentUser, projectId)).resolves.toBeUndefined()
 
-            expect(projectsService.deleteProjectById).toHaveBeenCalledWith(projectId, currentUser)
+            expect(projectsService.deleteById).toHaveBeenCalledWith(projectId, currentUser)
         })
     })
 })

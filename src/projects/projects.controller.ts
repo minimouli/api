@@ -35,26 +35,6 @@ class ProjectsController {
         private readonly projectsService: ProjectsService
     ) {}
 
-    @Get('/project/:projectId')
-    @ApiOperation({ summary: 'Get information about a project' })
-    @ApiOkResponse({
-        type: GetProjectResDto,
-        description: 'Get information about a project'
-    })
-    @ApiNotFoundResponse({
-        type: ErrorResDto,
-        description: 'Not Found'
-    })
-    async getProject(@Param('projectId') projectId: string): Promise<GetProjectResDto> {
-
-        const project = await this.projectsService.findProjectById(projectId)
-
-        return {
-            status: 'success',
-            data: project
-        }
-    }
-
     @Post('/project')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({ summary: 'Create a new project' })
@@ -76,7 +56,27 @@ class ProjectsController {
     })
     async createProject(@CurrentUser() currentUser: Account, @Body() body: CreateProjectReqDto): Promise<GetProjectResDto> {
 
-        const project = await this.projectsService.createProject(body.name, body.organization, currentUser)
+        const project = await this.projectsService.create(body.name, body.organization, currentUser)
+
+        return {
+            status: 'success',
+            data: project
+        }
+    }
+
+    @Get('/project/:projectId')
+    @ApiOperation({ summary: 'Get information about a project' })
+    @ApiOkResponse({
+        type: GetProjectResDto,
+        description: 'Get information about a project'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async getProject(@Param('projectId') projectId: string): Promise<GetProjectResDto> {
+
+        const project = await this.projectsService.findById(projectId)
 
         return {
             status: 'success',
@@ -113,7 +113,7 @@ class ProjectsController {
         @Body() body: UpdateProjectReqDto
     ): Promise<GetProjectResDto> {
 
-        const updatedProject = await this.projectsService.updateProjectById(projectId, body, currentUser)
+        const updatedProject = await this.projectsService.updateById(projectId, body, currentUser)
 
         return {
             status: 'success',
@@ -141,7 +141,7 @@ class ProjectsController {
         description: 'Not Found'
     })
     async deleteProject(@CurrentUser() currentUser: Account, @Param('projectId') projectId: string): Promise<void> {
-        await this.projectsService.deleteProjectById(projectId, currentUser)
+        await this.projectsService.deleteById(projectId, currentUser)
     }
 
 }

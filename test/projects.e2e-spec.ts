@@ -17,10 +17,10 @@ describe('Projects', () => {
     let app: INestApplication
     let jwtService: JwtService
     const projectsService = {
-        createProject: () => 'createProject',
-        deleteProjectById: () => Promise.resolve(),
-        findProjectById: () => 'findProjectById',
-        updateProjectById: () => 'updateProjectById'
+        create: () => 'create',
+        deleteById: () => Promise.resolve(),
+        findById: () => 'find by id',
+        updateById: () => 'update by id'
     }
 
     beforeAll(async () => {
@@ -47,7 +47,7 @@ describe('Projects', () => {
             .expect(200)
             .expect({
                 status: 'success',
-                data: projectsService.findProjectById()
+                data: projectsService.findById()
             }))
     })
 
@@ -89,7 +89,7 @@ describe('Projects', () => {
                 .expect(201)
                 .expect({
                     status: 'success',
-                    data: projectsService.createProject()
+                    data: projectsService.create()
                 }))
         })
     })
@@ -124,7 +124,7 @@ describe('Projects', () => {
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: projectsService.updateProjectById()
+                    data: projectsService.updateById()
                 }))
         })
     })
@@ -147,7 +147,7 @@ describe('Projects', () => {
                 })
             })
 
-            it('should return 200', () => request(app.getHttpServer())
+            it('should return 204', () => request(app.getHttpServer())
                 .delete('/project/123')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(204))

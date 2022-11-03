@@ -58,14 +58,14 @@ describe('ProjectsService', () => {
         caslAbility.can.mockReset()
     })
 
-    describe('createProject', () => {
+    describe('create', () => {
 
         const name = 'Name'
         const organization = 'Organization'
         const initiator = { id: '1' } as Account
-        const foundProject = { id: '2' } as Project
-        const createdProject = { id: '2' } as Project
-        const savedProject = { id: '3' } as Project
+        const foundProject = 'found project'
+        const createdProject = 'created project'
+        const savedProject = 'saved project'
         const cycle = 2022
 
         it('should throw a ForbiddenException if the initiator has not the permission to create projects', async () => {
@@ -73,7 +73,7 @@ describe('ProjectsService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(projectsService.createProject(name, organization, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(projectsService.create(name, organization, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Create, Project)
@@ -86,7 +86,7 @@ describe('ProjectsService', () => {
             projectRepository.findOneBy.mockResolvedValue(foundProject)
             getCurrentCycleMock.mockReturnValue(cycle)
 
-            await expect(projectsService.createProject(name, organization, initiator)).resolves.toStrictEqual(foundProject)
+            await expect(projectsService.create(name, organization, initiator)).resolves.toStrictEqual(foundProject)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Create, Project)
@@ -107,7 +107,7 @@ describe('ProjectsService', () => {
             projectRepository.save.mockResolvedValue(savedProject)
             getCurrentCycleMock.mockReturnValue(cycle)
 
-            await expect(projectsService.createProject(name, organization, initiator)).resolves.toStrictEqual(savedProject)
+            await expect(projectsService.create(name, organization, initiator)).resolves.toStrictEqual(savedProject)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Create, Project)
@@ -125,17 +125,17 @@ describe('ProjectsService', () => {
         })
     })
 
-    describe('findProjectById', () => {
+    describe('findById', () => {
 
         const id = '1'
         const project = { id: '1' } as Project
 
-        it('should throw a NotFoundException if the id is not related to a project', async () => {
+        it('should throw a NotFoundException if the id does not belong to an existing project', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             projectRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(projectsService.findProjectById(id)).rejects.toThrow(new NotFoundException())
+            await expect(projectsService.findById(id)).rejects.toThrow(NotFoundException)
 
             expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
@@ -144,25 +144,25 @@ describe('ProjectsService', () => {
 
             projectRepository.findOneBy.mockResolvedValue(project)
 
-            await expect(projectsService.findProjectById(id)).resolves.toStrictEqual(project)
+            await expect(projectsService.findById(id)).resolves.toStrictEqual(project)
 
             expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
     })
 
-    describe('updateProject', () => {
+    describe('update', () => {
 
         const subject = { id: '1' } as Project
-        const initiator = { id: '2' } as Account
-        const foundProject = { id: '3' } as Project
         const body = { name: 'name' }
+        const initiator = { id: '2' } as Account
+        const foundProject = 'found project'
 
         it('it should throw a ForbiddenException if the initiator has not the permission to update projects', async () => {
 
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(projectsService.updateProject(subject, body, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(projectsService.update(subject, body, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -175,7 +175,7 @@ describe('ProjectsService', () => {
             // eslint-disable-next-line unicorn/no-null
             projectRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(projectsService.updateProject(subject, body, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(projectsService.update(subject, body, initiator)).rejects.toThrow(NotFoundException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -192,7 +192,7 @@ describe('ProjectsService', () => {
             caslAbility.can.mockReturnValue(true)
             projectRepository.findOneBy.mockResolvedValue(foundProject)
 
-            await expect(projectsService.updateProject(subject, body, initiator)).resolves.toStrictEqual(foundProject)
+            await expect(projectsService.update(subject, body, initiator)).resolves.toStrictEqual(foundProject)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -204,26 +204,26 @@ describe('ProjectsService', () => {
         })
     })
 
-    describe('updateProjectById', () => {
+    describe('updateById', () => {
 
-        let updateProject: jest.SpyInstance
+        let updateSpy: jest.SpyInstance
 
         const subjectId = 'subject id'
-        const initiator = { id: '1' } as Account
-        const foundProject = { id: '2' } as Project
-        const updatedProject = { id: '3' } as Project
         const body = { name: 'name' }
+        const initiator = { id: '1' } as Account
+        const foundProject = 'found project'
+        const updatedProject = 'updated project'
 
         beforeEach(() => {
-            updateProject = jest.spyOn(projectsService, 'updateProject')
+            updateSpy = jest.spyOn(projectsService, 'update')
         })
 
-        it('should throw a NotFoundException if the project is not found', async () => {
+        it('should throw a NotFoundException if id does not belong to an existing project', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             projectRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(projectsService.updateProjectById(subjectId, body, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(projectsService.updateById(subjectId, body, initiator)).rejects.toThrow(NotFoundException)
 
             expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
         })
@@ -231,16 +231,16 @@ describe('ProjectsService', () => {
         it('should return the updated project', async () => {
 
             projectRepository.findOneBy.mockResolvedValue(foundProject)
-            updateProject.mockResolvedValue(updatedProject)
+            updateSpy.mockResolvedValue(updatedProject)
 
-            await expect(projectsService.updateProjectById(subjectId, body, initiator)).resolves.toStrictEqual(updatedProject)
+            await expect(projectsService.updateById(subjectId, body, initiator)).resolves.toStrictEqual(updatedProject)
 
             expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
-            expect(updateProject).toHaveBeenCalledWith(foundProject, body, initiator)
+            expect(updateSpy).toHaveBeenCalledWith(foundProject, body, initiator)
         })
     })
 
-    describe('deleteProject', () => {
+    describe('delete', () => {
 
         const subject = { id: '1' } as Project
         const initiator = { id: '2' } as Account
@@ -250,7 +250,7 @@ describe('ProjectsService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(projectsService.deleteProject(subject, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(projectsService.delete(subject, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
@@ -261,7 +261,7 @@ describe('ProjectsService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
 
-            await expect(projectsService.deleteProject(subject, initiator)).resolves.toBeUndefined()
+            await expect(projectsService.delete(subject, initiator)).resolves.toBeUndefined()
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
@@ -269,37 +269,37 @@ describe('ProjectsService', () => {
         })
     })
 
-    describe('deleteProjectById', () => {
+    describe('deleteById', () => {
 
-        let deleteProject: jest.SpyInstance
+        let deleteSpy: jest.SpyInstance
 
-        const subjectId = 'subject id'
-        const project = { id: '1' } as Project
+        const id = 'id'
         const initiator = { id: '2' } as Account
+        const foundProject = { id: '1' } as Project
 
         beforeEach(() => {
-            deleteProject = jest.spyOn(projectsService, 'deleteProject')
+            deleteSpy = jest.spyOn(projectsService, 'delete')
         })
 
-        it('should throw a NotFoundException if subject id is not related to a project', async () => {
+        it('should throw a NotFoundException if id does not belong to an existing project', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             projectRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(projectsService.deleteProjectById(subjectId, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(projectsService.deleteById(id, initiator)).rejects.toThrow(NotFoundException)
 
-            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
 
         it('should delete the project', async () => {
 
-            projectRepository.findOneBy.mockResolvedValue(project)
-            deleteProject.mockReturnValue(Promise.resolve())
+            projectRepository.findOneBy.mockResolvedValue(foundProject)
+            deleteSpy.mockReturnValue(Promise.resolve())
 
-            await expect(projectsService.deleteProjectById(subjectId, initiator)).resolves.toBeUndefined()
+            await expect(projectsService.deleteById(id, initiator)).resolves.toBeUndefined()
 
-            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
-            expect(deleteProject).toHaveBeenCalledWith(project, initiator)
+            expect(projectRepository.findOneBy).toHaveBeenCalledWith({ id })
+            expect(deleteSpy).toHaveBeenCalledWith(foundProject, initiator)
         })
     })
 })
