@@ -24,7 +24,7 @@ class OrganizationsService {
         private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
-    async createOrganization(body: CreateOrganizationReqDto, initiator: Account): Promise<Organization> {
+    async create(body: CreateOrganizationReqDto, initiator: Account): Promise<Organization> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -36,7 +36,7 @@ class OrganizationsService {
         return this.organizationRepository.save(createdOrganization)
     }
 
-    async findOrganizationById(id: string): Promise<Organization> {
+    async findById(id: string): Promise<Organization> {
 
         const organization = await this.organizationRepository.findOneBy({ id })
 
@@ -46,7 +46,7 @@ class OrganizationsService {
         return organization
     }
 
-    async updateOrganization(subject: Organization, body: UpdateOrganizationReqDto, initiator: Account): Promise<Organization> {
+    async update(subject: Organization, body: UpdateOrganizationReqDto, initiator: Account): Promise<Organization> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -59,17 +59,17 @@ class OrganizationsService {
         })
     }
 
-    async updateOrganizationById(subjectId: string, body: UpdateOrganizationReqDto, initiator: Account): Promise<Organization> {
+    async updateById(id: string, body: UpdateOrganizationReqDto, initiator: Account): Promise<Organization> {
 
-        const organization = await this.organizationRepository.findOneBy({ id: subjectId })
+        const organization = await this.organizationRepository.findOneBy({ id })
 
         if (organization === null)
             throw new NotFoundException()
 
-        return this.updateOrganization(organization, body, initiator)
+        return this.update(organization, body, initiator)
     }
 
-    async deleteOrganization(subject: Organization, initiator: Account): Promise<void> {
+    async delete(subject: Organization, initiator: Account): Promise<void> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -79,14 +79,14 @@ class OrganizationsService {
         await this.organizationRepository.remove(subject)
     }
 
-    async deleteOrganizationById(subjectId: string, initiator: Account): Promise<void> {
+    async deleteById(id: string, initiator: Account): Promise<void> {
 
-        const subject = await this.organizationRepository.findOneBy({ id: subjectId })
+        const subject = await this.organizationRepository.findOneBy({ id })
 
         if (subject === null)
             throw new NotFoundException()
 
-        await this.deleteOrganization(subject, initiator)
+        await this.delete(subject, initiator)
     }
 
 }

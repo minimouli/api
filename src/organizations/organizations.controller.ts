@@ -56,7 +56,7 @@ class OrganizationsController {
     })
     async createOrganization(@CurrentUser() currentUser: Account, @Body() body: CreateOrganizationReqDto): Promise<GetOrganizationResDto> {
 
-        const organization = await this.organizationService.createOrganization(body, currentUser)
+        const organization = await this.organizationService.create(body, currentUser)
 
         return {
             status: 'success',
@@ -76,7 +76,7 @@ class OrganizationsController {
     })
     async getOrganizationById(@Param('organizationId') organizationId: string): Promise<GetOrganizationResDto> {
 
-        const organization = await this.organizationService.findOrganizationById(organizationId)
+        const organization = await this.organizationService.findById(organizationId)
 
         return {
             status: 'success',
@@ -113,7 +113,7 @@ class OrganizationsController {
         @Body() body: UpdateOrganizationReqDto
     ): Promise<GetOrganizationResDto> {
 
-        const updatedOrganization = await this.organizationService.updateOrganizationById(organizationId, body, currentUser)
+        const updatedOrganization = await this.organizationService.updateById(organizationId, body, currentUser)
 
         return {
             status: 'success',
@@ -141,7 +141,7 @@ class OrganizationsController {
         description: 'Not Found'
     })
     async deleteOrganization(@CurrentUser() currentUser: Account, @Param('organizationId') organizationId: string): Promise<void> {
-        await this.organizationService.deleteOrganizationById(organizationId, currentUser)
+        await this.organizationService.deleteById(organizationId, currentUser)
     }
 
 }

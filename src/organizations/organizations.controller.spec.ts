@@ -14,10 +14,10 @@ describe('OrganizationsController', () => {
 
     let organizationsController: OrganizationsController
     const organizationsService = {
-        createOrganization: jest.fn(),
-        findOrganizationById: jest.fn(),
-        updateOrganizationById: jest.fn(),
-        deleteOrganizationById: jest.fn()
+        create: jest.fn(),
+        deleteById: jest.fn(),
+        findById: jest.fn(),
+        updateById: jest.fn()
     }
 
     beforeEach(async () => {
@@ -33,85 +33,85 @@ describe('OrganizationsController', () => {
 
         organizationsController = moduleRef.get(OrganizationsController)
 
-        organizationsService.createOrganization.mockReset()
+        organizationsService.create.mockReset()
+        organizationsService.deleteById.mockReset()
+        organizationsService.findById.mockReset()
+        organizationsService.updateById.mockReset()
     })
 
     describe('createOrganization', () => {
 
+        const currentUser = { id: '1' } as Account
+        const body = {
+            name: 'name',
+            displayName: 'display name'
+        }
+        const createdOrganization = 'created organization'
+
         it('should return the correct response', async () => {
 
-            const currentUser = { id: '1' } as Account
-            const body = {
-                name: 'name',
-                displayName: 'display name'
-            }
-            const createdOrganization = 'created organization'
-
-            organizationsService.createOrganization.mockResolvedValue(createdOrganization)
+            organizationsService.create.mockResolvedValue(createdOrganization)
 
             await expect(organizationsController.createOrganization(currentUser, body)).resolves.toStrictEqual({
                 status: 'success',
                 data: createdOrganization
             })
 
-            expect(organizationsService.createOrganization).toHaveBeenCalledWith(body, currentUser)
+            expect(organizationsService.create).toHaveBeenCalledWith(body, currentUser)
         })
     })
 
     describe('getOrganizationById', () => {
 
+        const organizationId = 'organization id'
+        const foundOrganization = 'found organization'
+
         it('should return the correct response', async () => {
 
-            const organizationId = 'organization id'
-            const foundOrganization = 'found organization'
-
-            organizationsService.findOrganizationById.mockResolvedValue(foundOrganization)
+            organizationsService.findById.mockResolvedValue(foundOrganization)
 
             await expect(organizationsController.getOrganizationById(organizationId)).resolves.toStrictEqual({
                 status: 'success',
                 data: foundOrganization
             })
 
-            expect(organizationsService.findOrganizationById).toHaveBeenCalledWith(organizationId)
+            expect(organizationsService.findById).toHaveBeenCalledWith(organizationId)
         })
-
     })
 
     describe('updateOrganization', () => {
 
+        const currentUser = { id: '2' } as Account
+        const organizationId = '1'
+        const body = {
+            name: 'name',
+            displayName: 'display name'
+        }
+        const updatedOrganization = 'updated organization'
+
         it('should return the correct response', async () => {
 
-            const currentUser = { id: '2' } as Account
-            const organizationId = '1'
-            const body = {
-                name: 'name',
-                displayName: 'display name'
-            }
-            const updatedOrganization = 'updated organization'
-
-            organizationsService.updateOrganizationById.mockResolvedValue(updatedOrganization)
+            organizationsService.updateById.mockResolvedValue(updatedOrganization)
 
             await expect(organizationsController.updateOrganization(currentUser, organizationId, body)).resolves.toStrictEqual({
                 status: 'success',
                 data: updatedOrganization
             })
 
-            expect(organizationsService.updateOrganizationById).toHaveBeenCalledWith(organizationId, body, currentUser)
+            expect(organizationsService.updateById).toHaveBeenCalledWith(organizationId, body, currentUser)
         })
-
     })
 
     describe('deleteOrganization', () => {
 
-        it('should return the correct response', async () => {
+        const currentUser = { id: '2' } as Account
+        const organizationId = '1'
 
-            const currentUser = { id: '2' } as Account
-            const organizationId = '1'
+        it('should return the correct response', async () => {
 
             await expect(organizationsController.deleteOrganization(currentUser, organizationId)).resolves.toBeUndefined()
 
-            expect(organizationsService.deleteOrganizationById).toHaveBeenCalledWith(organizationId, currentUser)
+            expect(organizationsService.deleteById).toHaveBeenCalledWith(organizationId, currentUser)
         })
-
     })
 })

@@ -17,10 +17,10 @@ describe('Organizations', () => {
     let app: INestApplication
     let jwtService: JwtService
     const organizationsService = {
-        createOrganization: () => 'create organization',
-        findOrganizationById: () => 'find organization by id',
-        updateOrganizationById: () => 'update organization by id',
-        deleteOrganizationById: () => Promise.resolve()
+        create: () => 'create',
+        deleteById: () => Promise.resolve(),
+        findById: () => 'find by id',
+        updateById: () => 'update by id'
     }
 
     beforeAll(async () => {
@@ -78,7 +78,7 @@ describe('Organizations', () => {
                 .expect(201)
                 .expect({
                     status: 'success',
-                    data: organizationsService.createOrganization()
+                    data: organizationsService.create()
                 }))
         })
     })
@@ -90,7 +90,7 @@ describe('Organizations', () => {
             .expect(200)
             .expect({
                 status: 'success',
-                data: organizationsService.findOrganizationById()
+                data: organizationsService.findById()
             }))
     })
 
@@ -124,7 +124,7 @@ describe('Organizations', () => {
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: organizationsService.updateOrganizationById()
+                    data: organizationsService.updateById()
                 }))
         })
     })
@@ -147,7 +147,7 @@ describe('Organizations', () => {
                 })
             })
 
-            it('should return 200', () => request(app.getHttpServer())
+            it('should return 204', () => request(app.getHttpServer())
                 .delete('/organization/123')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(204))

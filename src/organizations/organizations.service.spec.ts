@@ -19,8 +19,8 @@ describe('OrganizationsService', () => {
     let organizationsService: OrganizationsService
     const organizationRepository = {
         create: jest.fn(),
-        remove: jest.fn(),
         findOneBy: jest.fn(),
+        remove: jest.fn(),
         save: jest.fn()
     }
     const caslAbilityFactory = {
@@ -47,14 +47,14 @@ describe('OrganizationsService', () => {
         organizationsService = moduleRef.get(OrganizationsService)
 
         organizationRepository.create.mockReset()
-        organizationRepository.remove.mockReset()
         organizationRepository.findOneBy.mockReset()
+        organizationRepository.remove.mockReset()
         organizationRepository.save.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
         caslAbility.can.mockReset()
     })
 
-    describe('createOrganization', () => {
+    describe('create', () => {
 
         const body = {
             name: 'name',
@@ -69,7 +69,7 @@ describe('OrganizationsService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(organizationsService.createOrganization(body, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(organizationsService.create(body, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Create, Organization)
@@ -82,7 +82,7 @@ describe('OrganizationsService', () => {
             organizationRepository.create.mockReturnValue(createdOrganization)
             organizationRepository.save.mockResolvedValue(savedOrganization)
 
-            await expect(organizationsService.createOrganization(body, initiator)).resolves.toBe(savedOrganization)
+            await expect(organizationsService.create(body, initiator)).resolves.toBe(savedOrganization)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Create, Organization)
@@ -91,17 +91,17 @@ describe('OrganizationsService', () => {
         })
     })
 
-    describe('findOrganizationById', () => {
+    describe('findById', () => {
 
-        const id = '1'
+        const id = 'id'
         const foundOrganization = 'found organization'
 
-        it('should throw a NotFoundException if the id is not related to an actual organization', async () => {
+        it('should throw a NotFoundException if the id does not belong to an existing organization', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             organizationRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(organizationsService.findOrganizationById(id)).rejects.toThrow(new NotFoundException())
+            await expect(organizationsService.findById(id)).rejects.toThrow(NotFoundException)
 
             expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
@@ -110,14 +110,14 @@ describe('OrganizationsService', () => {
 
             organizationRepository.findOneBy.mockResolvedValue(foundOrganization)
 
-            await expect(organizationsService.findOrganizationById(id)).resolves.toStrictEqual(foundOrganization)
+            await expect(organizationsService.findById(id)).resolves.toStrictEqual(foundOrganization)
 
             expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
 
     })
 
-    describe('updateOrganization', () => {
+    describe('update', () => {
 
         const subject = { id: '1' } as Organization
         const body = { name: 'name' }
@@ -129,7 +129,7 @@ describe('OrganizationsService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(organizationsService.updateOrganization(subject, body, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(organizationsService.update(subject, body, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -141,7 +141,7 @@ describe('OrganizationsService', () => {
             caslAbility.can.mockReturnValue(true)
             organizationRepository.save.mockResolvedValue(savedOrganization)
 
-            await expect(organizationsService.updateOrganization(subject, body, initiator)).resolves.toBe(savedOrganization)
+            await expect(organizationsService.update(subject, body, initiator)).resolves.toBe(savedOrganization)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -152,43 +152,43 @@ describe('OrganizationsService', () => {
         })
     })
 
-    describe('updateOrganizationById', () => {
+    describe('updateById', () => {
 
-        let updateOrganization: jest.SpyInstance
+        let updateSpy: jest.SpyInstance
 
-        const subjectId = '1'
+        const id = '1'
         const body = { name: 'name' }
         const initiator = { id: '2' } as Account
         const foundOrganization = { id: '3' } as Organization
         const updatedOrganization = 'updated organization'
 
         beforeEach(() => {
-            updateOrganization = jest.spyOn(organizationsService, 'updateOrganization')
+            updateSpy = jest.spyOn(organizationsService, 'update')
         })
 
-        it('should throw a NotFoundException if the organization id is not related to an actual organization', async () => {
+        it('should throw a NotFoundException if the id does not belong to an existing organization', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             organizationRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(organizationsService.updateOrganizationById(subjectId, body, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(organizationsService.updateById(id, body, initiator)).rejects.toThrow(NotFoundException)
 
-            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
 
         it('should return the updated project', async () => {
 
             organizationRepository.findOneBy.mockResolvedValue(foundOrganization)
-            updateOrganization.mockResolvedValue(updatedOrganization)
+            updateSpy.mockResolvedValue(updatedOrganization)
 
-            await expect(organizationsService.updateOrganizationById(subjectId, body, initiator)).resolves.toBe(updatedOrganization)
+            await expect(organizationsService.updateById(id, body, initiator)).resolves.toBe(updatedOrganization)
 
-            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
-            expect(updateOrganization).toHaveBeenCalledWith(foundOrganization, body, initiator)
+            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id })
+            expect(updateSpy).toHaveBeenCalledWith(foundOrganization, body, initiator)
         })
     })
 
-    describe('deleteOrganization', () => {
+    describe('delete', () => {
 
         const subject = { id: '1' } as Organization
         const initiator = { id: '2' } as Account
@@ -198,7 +198,7 @@ describe('OrganizationsService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(organizationsService.deleteOrganization(subject, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(organizationsService.delete(subject, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
@@ -209,7 +209,7 @@ describe('OrganizationsService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
 
-            await expect(organizationsService.deleteOrganization(subject, initiator)).resolves.toBeUndefined()
+            await expect(organizationsService.delete(subject, initiator)).resolves.toBeUndefined()
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
@@ -217,37 +217,37 @@ describe('OrganizationsService', () => {
         })
     })
 
-    describe('deleteProjectById', () => {
+    describe('deleteById', () => {
 
-        let deleteOrganization: jest.SpyInstance
+        let deleteSpy: jest.SpyInstance
 
-        const subjectId = 'subject id'
+        const id = 'id'
         const foundOrganization = 'found organization'
         const initiator = { id: '1' } as Account
 
         beforeEach(() => {
-            deleteOrganization = jest.spyOn(organizationsService, 'deleteOrganization')
+            deleteSpy = jest.spyOn(organizationsService, 'delete')
         })
 
-        it('should throw a NotFoundException if subject id is not related to an actual organization', async () => {
+        it('should throw a NotFoundException if id does not belong to an existing organization', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             organizationRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(organizationsService.deleteOrganizationById(subjectId, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(organizationsService.deleteById(id, initiator)).rejects.toThrow(NotFoundException)
 
-            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
 
         it('should delete the organization', async () => {
 
             organizationRepository.findOneBy.mockResolvedValue(foundOrganization)
-            deleteOrganization.mockReturnValue(Promise.resolve())
+            deleteSpy.mockReturnValue(Promise.resolve())
 
-            await expect(organizationsService.deleteOrganizationById(subjectId, initiator)).resolves.toBeUndefined()
+            await expect(organizationsService.deleteById(id, initiator)).resolves.toBeUndefined()
 
-            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
-            expect(deleteOrganization).toHaveBeenCalledWith(foundOrganization, initiator)
+            expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id })
+            expect(deleteSpy).toHaveBeenCalledWith(foundOrganization, initiator)
         })
     })
 })
