@@ -19,7 +19,7 @@ import { Moulinette } from '../entities/moulinette.entity'
 import { MoulinetteSource } from '../entities/moulinette-source.entity'
 import { CaslAbilityFactory } from '../../casl/casl-ability.factory'
 import { CaslAction } from '../../common/enums/casl-action.enum'
-import type { PostMoulinetteSourceReqDto } from '../dto/post-moulinette-source.req.dto'
+import type { PutMoulinetteSourceReqDto } from '../dto/put-moulinette-source.req.dto'
 import type { BinaryLike } from 'node:crypto'
 import type { Account } from '../../accounts/entities/account.entity'
 
@@ -47,10 +47,10 @@ class MoulinetteSourcesService {
         private readonly httpService: HttpService
     ) {}
 
-    async postMoulinetteSource(
+    async put(
         moulinetteId: string,
         version: [number, number, number],
-        body: PostMoulinetteSourceReqDto,
+        body: PutMoulinetteSourceReqDto,
         initiator: Account
     ) {
 
@@ -77,15 +77,15 @@ class MoulinetteSourcesService {
         })
 
         if (moulinetteSource === null)
-            return this.createMoulinetteSource(moulinette, version, body, initiator)
+            return this.create(moulinette, version, body, initiator)
 
-        return this.updateMoulinetteSource(moulinetteSource, body, initiator)
+        return this.update(moulinetteSource, body, initiator)
     }
 
-    async createMoulinetteSource(
+    async create(
         moulinette: Moulinette,
         [majorVersion, minorVersion, patchVersion]: [number, number, number],
-        body: PostMoulinetteSourceReqDto,
+        body: PutMoulinetteSourceReqDto,
         initiator: Account
     ): Promise<MoulinetteSource> {
 
@@ -111,9 +111,9 @@ class MoulinetteSourcesService {
         return this.moulinetteSourceRepository.save(moulinetteSource)
     }
 
-    async updateMoulinetteSource(
+    async update(
         subject: MoulinetteSource,
-        body: PostMoulinetteSourceReqDto,
+        body: PutMoulinetteSourceReqDto,
         initiator: Account
     ): Promise<MoulinetteSource> {
 
@@ -141,7 +141,7 @@ class MoulinetteSourcesService {
         return foundMoulinetteSource
     }
 
-    async deleteMoulinetteSource(subject: MoulinetteSource, initiator: Account): Promise<void> {
+    async delete(subject: MoulinetteSource, initiator: Account): Promise<void> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -151,7 +151,7 @@ class MoulinetteSourcesService {
         await this.moulinetteSourceRepository.remove(subject)
     }
 
-    async deleteMoulinetteSourceByVersion(
+    async deleteByVersion(
         moulinetteId: string,
         version: [number, number, number],
         initiator: Account
@@ -174,7 +174,7 @@ class MoulinetteSourcesService {
         if (moulinetteSource === null)
             throw new NotFoundException()
 
-        return this.deleteMoulinetteSource(moulinetteSource, initiator)
+        return this.delete(moulinetteSource, initiator)
     }
 
     createChecksumFromWebFile(url: string): Promise<CreateChecksumFromWebFileResponse> {
@@ -192,7 +192,7 @@ class MoulinetteSourcesService {
                 .subscribe({
                     next: ({ data }) => hash.update(data),
                     error: () => resolve({
-                        error: 'Unable to create the checksum from the given tarball',
+                        error: 'Unable to create checksum from the given tarball',
                         checksum: undefined
                     }),
                     complete: () => resolve({

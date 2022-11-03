@@ -70,52 +70,7 @@ describe('MoulinettesService', () => {
         caslAbility.can.mockReset()
     })
 
-    describe('findMoulinetteById', () => {
-
-        const id = '1'
-        const moulinette = { id: '1' } as Moulinette
-
-        it('should throw a NotFoundException if the id is not related to a moulinette', async () => {
-
-            // eslint-disable-next-line unicorn/no-null
-            moulinetteRepository.findOne.mockResolvedValue(null)
-
-            await expect(moulinettesService.findMoulinetteById(id)).rejects.toThrow(new NotFoundException())
-
-            expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
-                where: { id },
-                relations: ['maintainers', 'project', 'sources'],
-                order: {
-                    sources: {
-                        majorVersion: 'DESC',
-                        minorVersion: 'DESC',
-                        patchVersion: 'DESC'
-                    }
-                }
-            })
-        })
-
-        it('should return the moulinette found', async () => {
-
-            moulinetteRepository.findOne.mockResolvedValue(moulinette)
-
-            await expect(moulinettesService.findMoulinetteById(id)).resolves.toStrictEqual(moulinette)
-
-            expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
-                where: { id },
-                relations: ['maintainers', 'project', 'sources'],
-                order: {
-                    sources: {
-                        majorVersion: 'DESC',
-                        minorVersion: 'DESC',
-                        patchVersion: 'DESC'
-                    }
-                }
-            })
-        })
-    })
-
-    describe('createMoulinette', () => {
+    describe('create', () => {
 
         const body = {
             project: 'project',
@@ -135,7 +90,7 @@ describe('MoulinettesService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(moulinettesService.createMoulinette(body, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(moulinettesService.create(body, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Create, Moulinette)
@@ -148,7 +103,7 @@ describe('MoulinettesService', () => {
             // eslint-disable-next-line unicorn/no-null
             projectRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(moulinettesService.createMoulinette(body, initiator)).rejects.toThrow(
+            await expect(moulinettesService.create(body, initiator)).rejects.toThrow(
                 new BadRequestException('The specified project id does not belong to an existing project')
             )
 
@@ -165,7 +120,7 @@ describe('MoulinettesService', () => {
             // eslint-disable-next-line unicorn/no-null
             accountRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(moulinettesService.createMoulinette(body, initiator)).rejects.toThrow(
+            await expect(moulinettesService.create(body, initiator)).rejects.toThrow(
                 new BadRequestException('A least one of the specified maintainer ids does not belong to an existing account')
             )
 
@@ -186,7 +141,7 @@ describe('MoulinettesService', () => {
             accountRepository.findOneBy.mockResolvedValueOnce(maintainer1)
             accountRepository.findOneBy.mockResolvedValueOnce(maintainer2)
 
-            await expect(moulinettesService.createMoulinette(body, initiator)).resolves.toBe(savedMoulinette)
+            await expect(moulinettesService.create(body, initiator)).resolves.toBe(savedMoulinette)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Create, Moulinette)
@@ -203,7 +158,52 @@ describe('MoulinettesService', () => {
         })
     })
 
-    describe('updateMoulinette', () => {
+    describe('findById', () => {
+
+        const id = '1'
+        const foundMoulinette = 'found moulinette'
+
+        it('should throw a NotFoundException if the id does not belong to an existing moulinette', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            moulinetteRepository.findOne.mockResolvedValue(null)
+
+            await expect(moulinettesService.findById(id)).rejects.toThrow(NotFoundException)
+
+            expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
+                where: { id },
+                relations: ['maintainers', 'project', 'sources'],
+                order: {
+                    sources: {
+                        majorVersion: 'DESC',
+                        minorVersion: 'DESC',
+                        patchVersion: 'DESC'
+                    }
+                }
+            })
+        })
+
+        it('should return the found moulinette', async () => {
+
+            moulinetteRepository.findOne.mockResolvedValue(foundMoulinette)
+
+            await expect(moulinettesService.findById(id)).resolves.toStrictEqual(foundMoulinette)
+
+            expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
+                where: { id },
+                relations: ['maintainers', 'project', 'sources'],
+                order: {
+                    sources: {
+                        majorVersion: 'DESC',
+                        minorVersion: 'DESC',
+                        patchVersion: 'DESC'
+                    }
+                }
+            })
+        })
+    })
+
+    describe('update', () => {
 
         const subject = {
             id: '1',
@@ -223,7 +223,7 @@ describe('MoulinettesService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(moulinettesService.updateMoulinette(subject, body, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(moulinettesService.update(subject, body, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -236,7 +236,7 @@ describe('MoulinettesService', () => {
             // eslint-disable-next-line unicorn/no-null
             accountRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(moulinettesService.updateMoulinette(subject, body, initiator)).rejects.toThrow(
+            await expect(moulinettesService.update(subject, body, initiator)).rejects.toThrow(
                 new BadRequestException('A least one of the specified maintainer ids does not belong to an existing account')
             )
 
@@ -253,7 +253,7 @@ describe('MoulinettesService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
 
-            await moulinettesService.updateMoulinette(subject, bodyWithoutMaintainers, initiator)
+            await moulinettesService.update(subject, bodyWithoutMaintainers, initiator)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -274,7 +274,7 @@ describe('MoulinettesService', () => {
             // eslint-disable-next-line unicorn/no-null
             moulinetteRepository.findOne.mockResolvedValue(null)
 
-            await expect(moulinettesService.updateMoulinette(subject, body, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(moulinettesService.update(subject, body, initiator)).rejects.toThrow(new NotFoundException())
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -299,7 +299,7 @@ describe('MoulinettesService', () => {
             accountRepository.findOneBy.mockResolvedValueOnce(maintainer2)
             moulinetteRepository.findOne.mockResolvedValue(foundMoulinette)
 
-            await expect(moulinettesService.updateMoulinette(subject, body, initiator)).resolves.toBe(foundMoulinette)
+            await expect(moulinettesService.update(subject, body, initiator)).resolves.toBe(foundMoulinette)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -317,29 +317,29 @@ describe('MoulinettesService', () => {
         })
     })
 
-    describe('updateMoulinetteById', () => {
+    describe('updateById', () => {
 
-        let updateMoulinette: jest.SpyInstance
+        let updateSpy: jest.SpyInstance
 
-        const subjectId = 'subject id'
+        const id = 'id'
         const initiator = { id: '1' } as Account
         const foundMoulinette = 'found moulinette'
         const updatedMoulinette = 'updated moulinette'
         const body = { repository: 'repository' } as UpdateMoulinetteReqDto
 
         beforeEach(() => {
-            updateMoulinette = jest.spyOn(moulinettesService, 'updateMoulinette')
+            updateSpy = jest.spyOn(moulinettesService, 'update')
         })
 
-        it('should throw a NotFoundException if the moulinette is not found', async () => {
+        it('should throw a NotFoundException if the id does not belong to an existing moulinette', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             moulinetteRepository.findOne.mockResolvedValue(null)
 
-            await expect(moulinettesService.updateMoulinetteById(subjectId, body, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(moulinettesService.updateById(id, body, initiator)).rejects.toThrow(NotFoundException)
 
             expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
-                where: { id: subjectId },
+                where: { id },
                 relations: ['maintainers']
             })
         })
@@ -347,19 +347,19 @@ describe('MoulinettesService', () => {
         it('should return the updated moulinette', async () => {
 
             moulinetteRepository.findOne.mockResolvedValue(foundMoulinette)
-            updateMoulinette.mockResolvedValue(updatedMoulinette)
+            updateSpy.mockResolvedValue(updatedMoulinette)
 
-            await expect(moulinettesService.updateMoulinetteById(subjectId, body, initiator)).resolves.toBe(updatedMoulinette)
+            await expect(moulinettesService.updateById(id, body, initiator)).resolves.toBe(updatedMoulinette)
 
             expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
-                where: { id: subjectId },
+                where: { id },
                 relations: ['maintainers']
             })
-            expect(updateMoulinette).toHaveBeenCalledWith(foundMoulinette, body, initiator)
+            expect(updateSpy).toHaveBeenCalledWith(foundMoulinette, body, initiator)
         })
     })
 
-    describe('deleteMoulinette', () => {
+    describe('delete', () => {
 
         const subject = { id: '1' } as Moulinette
         const initiator = { id: '2' } as Account
@@ -369,18 +369,18 @@ describe('MoulinettesService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(moulinettesService.deleteMoulinette(subject, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(moulinettesService.delete(subject, initiator)).rejects.toThrow(new ForbiddenException())
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
         })
 
-        it('should delete the moulinettes', async () => {
+        it('should delete the moulinette', async () => {
 
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
 
-            await expect(moulinettesService.deleteMoulinette(subject, initiator)).resolves.toBeUndefined()
+            await expect(moulinettesService.delete(subject, initiator)).resolves.toBeUndefined()
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
@@ -388,43 +388,43 @@ describe('MoulinettesService', () => {
         })
     })
 
-    describe('deleteMoulinetteById', () => {
+    describe('deleteById', () => {
 
-        let deleteMoulinette: jest.SpyInstance
+        let deleteSpy: jest.SpyInstance
 
-        const subjectId = 'subject id'
-        const moulinette = { id: '1' } as Moulinette
+        const id = 'id'
         const initiator = { id: '2' } as Account
+        const foundMoulinette = { id: '1' } as Moulinette
 
         beforeEach(() => {
-            deleteMoulinette = jest.spyOn(moulinettesService, 'deleteMoulinette')
+            deleteSpy = jest.spyOn(moulinettesService, 'delete')
         })
 
-        it('should throw a NotFoundException if subject id is not related to a project', async () => {
+        it('should throw a NotFoundException if the id does not belong to an existing moulinette', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             moulinetteRepository.findOne.mockResolvedValue(null)
 
-            await expect(moulinettesService.deleteMoulinetteById(subjectId, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(moulinettesService.deleteById(id, initiator)).rejects.toThrow(NotFoundException)
 
             expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
-                where: { id: subjectId },
+                where: { id },
                 relations: ['maintainers']
             })
         })
 
-        it('should delete the project', async () => {
+        it('should delete the moulinette', async () => {
 
-            moulinetteRepository.findOne.mockResolvedValue(moulinette)
-            deleteMoulinette.mockReturnValue(Promise.resolve())
+            moulinetteRepository.findOne.mockResolvedValue(foundMoulinette)
+            deleteSpy.mockReturnValue(Promise.resolve())
 
-            await expect(moulinettesService.deleteMoulinetteById(subjectId, initiator)).resolves.toBeUndefined()
+            await expect(moulinettesService.deleteById(id, initiator)).resolves.toBeUndefined()
 
             expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
-                where: { id: subjectId },
+                where: { id },
                 relations: ['maintainers']
             })
-            expect(deleteMoulinette).toHaveBeenCalledWith(moulinette, initiator)
+            expect(deleteSpy).toHaveBeenCalledWith(foundMoulinette, initiator)
         })
     })
 })

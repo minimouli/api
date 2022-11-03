@@ -8,7 +8,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsArray, IsBoolean, IsString, IsUrl } from 'class-validator'
 
-class PostMoulinetteSourceReqDto {
+class PutMoulinetteSourceReqDto {
 
     @ApiProperty()
     @IsString()
@@ -29,5 +29,5 @@ class PostMoulinetteSourceReqDto {
 }
 
 export {
-    PostMoulinetteSourceReqDto
+    PutMoulinetteSourceReqDto
 }

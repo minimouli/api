@@ -29,27 +29,7 @@ class MoulinettesService {
         private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
-    async findMoulinetteById(id: string): Promise<Moulinette> {
-
-        const moulinette = await this.moulinetteRepository.findOne({
-            where: { id },
-            relations: ['maintainers', 'project', 'sources'],
-            order: {
-                sources: {
-                    majorVersion: 'DESC',
-                    minorVersion: 'DESC',
-                    patchVersion: 'DESC'
-                }
-            }
-        })
-
-        if (moulinette === null)
-            throw new NotFoundException()
-
-        return moulinette
-    }
-
-    async createMoulinette(body: CreateMoulinetteReqDto, initiator: Account): Promise<Moulinette> {
+    async create(body: CreateMoulinetteReqDto, initiator: Account): Promise<Moulinette> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -79,7 +59,27 @@ class MoulinettesService {
         return this.moulinetteRepository.save(createdMoulinette)
     }
 
-    async updateMoulinette(subject: Moulinette, body: UpdateMoulinetteReqDto, initiator: Account): Promise<Moulinette> {
+    async findById(id: string): Promise<Moulinette> {
+
+        const moulinette = await this.moulinetteRepository.findOne({
+            where: { id },
+            relations: ['maintainers', 'project', 'sources'],
+            order: {
+                sources: {
+                    majorVersion: 'DESC',
+                    minorVersion: 'DESC',
+                    patchVersion: 'DESC'
+                }
+            }
+        })
+
+        if (moulinette === null)
+            throw new NotFoundException()
+
+        return moulinette
+    }
+
+    async update(subject: Moulinette, body: UpdateMoulinetteReqDto, initiator: Account): Promise<Moulinette> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -111,20 +111,20 @@ class MoulinettesService {
         return updatedMoulinette
     }
 
-    async updateMoulinetteById(subjectId: string, body: UpdateMoulinetteReqDto, initiator: Account): Promise<Moulinette> {
+    async updateById(id: string, body: UpdateMoulinetteReqDto, initiator: Account): Promise<Moulinette> {
 
         const moulinette = await this.moulinetteRepository.findOne({
-            where: { id: subjectId },
+            where: { id },
             relations: ['maintainers']
         })
 
         if (moulinette === null)
             throw new NotFoundException()
 
-        return this.updateMoulinette(moulinette, body, initiator)
+        return this.update(moulinette, body, initiator)
     }
 
-    async deleteMoulinette(subject: Moulinette, initiator: Account): Promise<void> {
+    async delete(subject: Moulinette, initiator: Account): Promise<void> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -134,17 +134,17 @@ class MoulinettesService {
         await this.moulinetteRepository.remove(subject)
     }
 
-    async deleteMoulinetteById(subjectId: string, initiator: Account): Promise<void> {
+    async deleteById(id: string, initiator: Account): Promise<void> {
 
-        const subject = await this.moulinetteRepository.findOne({
-            where: { id: subjectId },
+        const moulinette = await this.moulinetteRepository.findOne({
+            where: { id },
             relations: ['maintainers']
         })
 
-        if (subject === null)
+        if (moulinette === null)
             throw new NotFoundException()
 
-        await this.deleteMoulinette(subject, initiator)
+        await this.delete(moulinette, initiator)
     }
 }
 

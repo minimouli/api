@@ -13,21 +13,19 @@ import { MoulinettesService } from '../src/moulinettes/moulinettes.service'
 import { MoulinetteSourcesService } from '../src/moulinettes/services/moulinette-sources.service'
 import type { INestApplication } from '@nestjs/common'
 
-/* eslint-disable max-nested-callbacks */
-
 describe('Moulinettes', () => {
 
     let app: INestApplication
     let jwtService: JwtService
     const moulinettesService = {
-        findMoulinetteById: () => 'findMoulinetteById',
-        createMoulinette: () => 'createMoulinette',
-        updateMoulinetteById: () => 'updateMoulinetteById',
-        deleteMoulinetteById: () => Promise.resolve()
+        create: () => 'create',
+        deleteById: () => Promise.resolve(),
+        findById: () => 'find by id',
+        updateById: () => 'update by id'
     }
     const moulinetteSourcesService = {
-        postMoulinetteSource: () => 'postMoulinetteSource',
-        deleteMoulinetteSourceByVersion: () => Promise.resolve()
+        deleteByVersion: () => Promise.resolve(),
+        put: () => 'put'
     }
 
     beforeAll(async () => {
@@ -56,7 +54,7 @@ describe('Moulinettes', () => {
             .expect(200)
             .expect({
                 status: 'success',
-                data: moulinettesService.findMoulinetteById()
+                data: moulinettesService.findById()
             }))
     })
 
@@ -102,7 +100,7 @@ describe('Moulinettes', () => {
                 .expect(201)
                 .expect({
                     status: 'success',
-                    data: moulinettesService.createMoulinette()
+                    data: moulinettesService.create()
                 }))
         })
     })
@@ -137,7 +135,7 @@ describe('Moulinettes', () => {
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: moulinettesService.updateMoulinetteById()
+                    data: moulinettesService.updateById()
                 }))
         })
     })
@@ -207,7 +205,7 @@ describe('Moulinettes', () => {
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: moulinetteSourcesService.postMoulinetteSource()
+                    data: moulinetteSourcesService.put()
                 }))
         })
     })

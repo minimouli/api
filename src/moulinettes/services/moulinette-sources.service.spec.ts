@@ -17,7 +17,7 @@ import { MoulinetteSource } from '../entities/moulinette-source.entity'
 import { CaslAbilityFactory } from '../../casl/casl-ability.factory'
 import { CaslAction } from '../../common/enums/casl-action.enum'
 import type { Account } from '../../accounts/entities/account.entity'
-import type { PostMoulinetteSourceReqDto } from '../dto/post-moulinette-source.req.dto'
+import type { PutMoulinetteSourceReqDto } from '../dto/put-moulinette-source.req.dto'
 
 describe('MoulinetteSourcesService', () => {
 
@@ -75,17 +75,17 @@ describe('MoulinetteSourcesService', () => {
         caslAbility.can.mockReset()
     })
 
-    describe('postMoulinetteSource', () => {
+    describe('put', () => {
 
-        let createMoulinetteSource: jest.SpyInstance
-        let updateMoulinetteSource: jest.SpyInstance
+        let createSpy: jest.SpyInstance
+        let updateSpy: jest.SpyInstance
 
         const moulinetteId = '1'
         const version: [number, number, number] = [1, 2, 3]
         const [majorVersion, minorVersion, patchVersion] = version
         const body = {
             tarball: 'https://example.com/tarball.tar.gz'
-        } as PostMoulinetteSourceReqDto
+        } as PutMoulinetteSourceReqDto
         const initiator = { id: '2' } as Account
         const foundMoulinette = 'found moulinette'
         const foundMoulinetteSource = 'found moulinette source'
@@ -93,8 +93,8 @@ describe('MoulinetteSourcesService', () => {
         const updatedMoulinetteSource = 'updated moulinette source'
 
         beforeEach(() => {
-            createMoulinetteSource = jest.spyOn(moulinetteSourcesService, 'createMoulinetteSource')
-            updateMoulinetteSource = jest.spyOn(moulinetteSourcesService, 'updateMoulinetteSource')
+            createSpy = jest.spyOn(moulinetteSourcesService, 'create')
+            updateSpy = jest.spyOn(moulinetteSourcesService, 'update')
         })
 
         it('should throw a NotFoundException if the moulinette id does not belong to an existing moulinette', async () => {
@@ -102,7 +102,7 @@ describe('MoulinetteSourcesService', () => {
             // eslint-disable-next-line unicorn/no-null
             moulinetteRepository.findOne.mockResolvedValue(null)
 
-            await expect(moulinetteSourcesService.postMoulinetteSource(moulinetteId, version, body, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(moulinetteSourcesService.put(moulinetteId, version, body, initiator)).rejects.toThrow(NotFoundException)
 
             expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
                 where: { id: moulinetteId },
@@ -115,9 +115,9 @@ describe('MoulinetteSourcesService', () => {
             moulinetteRepository.findOne.mockResolvedValue(foundMoulinette)
             // eslint-disable-next-line unicorn/no-null
             moulinetteSourceRepository.findOne.mockResolvedValue(null)
-            createMoulinetteSource.mockResolvedValue(createdMoulinetteSource)
+            createSpy.mockResolvedValue(createdMoulinetteSource)
 
-            await expect(moulinetteSourcesService.postMoulinetteSource(moulinetteId, version, body, initiator)).resolves.toBe(createdMoulinetteSource)
+            await expect(moulinetteSourcesService.put(moulinetteId, version, body, initiator)).resolves.toBe(createdMoulinetteSource)
 
             expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
                 where: { id: moulinetteId },
@@ -134,17 +134,17 @@ describe('MoulinetteSourcesService', () => {
                 },
                 relations: ['moulinette', 'moulinette.maintainers']
             })
-            expect(createMoulinetteSource).toHaveBeenCalledWith(foundMoulinette, version, body, initiator)
-            expect(updateMoulinetteSource).not.toHaveBeenCalled()
+            expect(createSpy).toHaveBeenCalledWith(foundMoulinette, version, body, initiator)
+            expect(updateSpy).not.toHaveBeenCalled()
         })
 
         it('should update an existing moulinette source if one with the same version exists', async () => {
 
             moulinetteRepository.findOne.mockResolvedValue(foundMoulinette)
             moulinetteSourceRepository.findOne.mockResolvedValue(foundMoulinetteSource)
-            updateMoulinetteSource.mockResolvedValue(updatedMoulinetteSource)
+            updateSpy.mockResolvedValue(updatedMoulinetteSource)
 
-            await expect(moulinetteSourcesService.postMoulinetteSource(moulinetteId, version, body, initiator)).resolves.toBe(updatedMoulinetteSource)
+            await expect(moulinetteSourcesService.put(moulinetteId, version, body, initiator)).resolves.toBe(updatedMoulinetteSource)
 
             expect(moulinetteRepository.findOne).toHaveBeenCalledWith({
                 where: { id: moulinetteId },
@@ -161,21 +161,21 @@ describe('MoulinetteSourcesService', () => {
                 },
                 relations: ['moulinette', 'moulinette.maintainers']
             })
-            expect(createMoulinetteSource).not.toHaveBeenCalled()
-            expect(updateMoulinetteSource).toHaveBeenCalledWith(foundMoulinetteSource, body, initiator)
+            expect(createSpy).not.toHaveBeenCalled()
+            expect(updateSpy).toHaveBeenCalledWith(foundMoulinetteSource, body, initiator)
         })
     })
 
     describe('createMoulinetteSource', () => {
 
-        let createChecksumFromWebFile: jest.SpyInstance
+        let createChecksumFromWebFileSpy: jest.SpyInstance
 
         const moulinette = { id: '1' } as Moulinette
         const version: [number, number, number] = [1, 2, 3]
         const [majorVersion, minorVersion, patchVersion] = version
         const body = {
             tarball: 'https://example.com/tarball.tar.gz'
-        } as PostMoulinetteSourceReqDto
+        } as PutMoulinetteSourceReqDto
         const initiator = { id: '2' } as Account
         const createdMoulinetteSource = 'created moulinette source'
         const savedMoulinetteSource = 'saved moulinette source'
@@ -183,32 +183,32 @@ describe('MoulinetteSourcesService', () => {
         const error = 'error'
 
         beforeEach(() => {
-            createChecksumFromWebFile = jest.spyOn(moulinetteSourcesService, 'createChecksumFromWebFile')
+            createChecksumFromWebFileSpy = jest.spyOn(moulinetteSourcesService, 'createChecksumFromWebFile')
         })
 
         it('should throw a BadRequestRequestException if the creation of the hash fails', async () => {
 
-            createChecksumFromWebFile.mockResolvedValue({ checksum: undefined, error })
+            createChecksumFromWebFileSpy.mockResolvedValue({ checksum: undefined, error })
 
-            await expect(moulinetteSourcesService.createMoulinetteSource(moulinette, version, body, initiator)).rejects.toThrow(
+            await expect(moulinetteSourcesService.create(moulinette, version, body, initiator)).rejects.toThrow(
                 new BadRequestException(error)
             )
 
-            expect(createChecksumFromWebFile).toHaveBeenCalledWith(body.tarball)
+            expect(createChecksumFromWebFileSpy).toHaveBeenCalledWith(body.tarball)
         })
 
         it('should throw a ForbiddenException if the initiator has not the permission to create moulinette sources', async () => {
 
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
-            createChecksumFromWebFile.mockResolvedValue({ checksum, error: undefined })
+            createChecksumFromWebFileSpy.mockResolvedValue({ checksum, error: undefined })
             moulinetteSourceRepository.create.mockReturnValue(createdMoulinetteSource)
 
-            await expect(moulinetteSourcesService.createMoulinetteSource(moulinette, version, body, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(moulinetteSourcesService.create(moulinette, version, body, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Create, createdMoulinetteSource)
-            expect(createChecksumFromWebFile).toHaveBeenCalledWith(body.tarball)
+            expect(createChecksumFromWebFileSpy).toHaveBeenCalledWith(body.tarball)
             expect(moulinetteSourceRepository.create).toHaveBeenCalledWith({
                 majorVersion,
                 minorVersion,
@@ -223,15 +223,15 @@ describe('MoulinetteSourcesService', () => {
 
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
-            createChecksumFromWebFile.mockResolvedValue({ checksum, error: undefined })
+            createChecksumFromWebFileSpy.mockResolvedValue({ checksum, error: undefined })
             moulinetteSourceRepository.create.mockReturnValue(createdMoulinetteSource)
             moulinetteSourceRepository.save.mockResolvedValue(savedMoulinetteSource)
 
-            await expect(moulinetteSourcesService.createMoulinetteSource(moulinette, version, body, initiator)).resolves.toBe(savedMoulinetteSource)
+            await expect(moulinetteSourcesService.create(moulinette, version, body, initiator)).resolves.toBe(savedMoulinetteSource)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Create, createdMoulinetteSource)
-            expect(createChecksumFromWebFile).toHaveBeenCalledWith(body.tarball)
+            expect(createChecksumFromWebFileSpy).toHaveBeenCalledWith(body.tarball)
             expect(moulinetteSourceRepository.create).toHaveBeenCalledWith({
                 majorVersion,
                 minorVersion,
@@ -244,21 +244,21 @@ describe('MoulinetteSourcesService', () => {
         })
     })
 
-    describe('updateMoulinetteSource', () => {
+    describe('update', () => {
 
-        let createChecksumFromWebFile: jest.SpyInstance
+        let createChecksumFromWebFileSpy: jest.SpyInstance
 
         const subject = { id: 1 } as MoulinetteSource
         const body = {
             tarball: 'https://example.com/tarball.tar.gz'
-        } as PostMoulinetteSourceReqDto
+        } as PutMoulinetteSourceReqDto
         const initiator = { id: '1' } as Account
         const foundMoulinetteSource = 'found moulinette source'
         const checksum = 'checksum'
         const error = 'error'
 
         beforeEach(() => {
-            createChecksumFromWebFile = jest.spyOn(moulinetteSourcesService, 'createChecksumFromWebFile')
+            createChecksumFromWebFileSpy = jest.spyOn(moulinetteSourcesService, 'createChecksumFromWebFile')
         })
 
         it('should throw a ForbiddenException if the initiator has not the permission to update moulinette sources', async () => {
@@ -266,7 +266,7 @@ describe('MoulinetteSourcesService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(moulinetteSourcesService.updateMoulinetteSource(subject, body, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(moulinetteSourcesService.update(subject, body, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -276,30 +276,30 @@ describe('MoulinetteSourcesService', () => {
 
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
-            createChecksumFromWebFile.mockResolvedValue({ error, checksum: undefined })
+            createChecksumFromWebFileSpy.mockResolvedValue({ error, checksum: undefined })
 
-            await expect(moulinetteSourcesService.updateMoulinetteSource(subject, body, initiator)).rejects.toThrow(
+            await expect(moulinetteSourcesService.update(subject, body, initiator)).rejects.toThrow(
                 new BadRequestException(error)
             )
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
-            expect(createChecksumFromWebFile).toHaveBeenCalledWith(body.tarball)
+            expect(createChecksumFromWebFileSpy).toHaveBeenCalledWith(body.tarball)
         })
 
         it('should throw a NotFoundException if the updated moulinette source is not found', async () => {
 
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
-            createChecksumFromWebFile.mockResolvedValue({ checksum, error: undefined })
+            createChecksumFromWebFileSpy.mockResolvedValue({ checksum, error: undefined })
             // eslint-disable-next-line unicorn/no-null
             moulinetteSourceRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(moulinetteSourcesService.updateMoulinetteSource(subject, body, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(moulinetteSourcesService.update(subject, body, initiator)).rejects.toThrow(NotFoundException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
-            expect(createChecksumFromWebFile).toHaveBeenCalledWith(body.tarball)
+            expect(createChecksumFromWebFileSpy).toHaveBeenCalledWith(body.tarball)
             expect(moulinetteSourceRepository.save).toHaveBeenCalledWith({
                 ...subject,
                 checksum,
@@ -312,14 +312,14 @@ describe('MoulinetteSourcesService', () => {
 
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
-            createChecksumFromWebFile.mockResolvedValue({ checksum, error: undefined })
+            createChecksumFromWebFileSpy.mockResolvedValue({ checksum, error: undefined })
             moulinetteSourceRepository.findOneBy.mockResolvedValue(foundMoulinetteSource)
 
-            await expect(moulinetteSourcesService.updateMoulinetteSource(subject, body, initiator)).resolves.toBe(foundMoulinetteSource)
+            await expect(moulinetteSourcesService.update(subject, body, initiator)).resolves.toBe(foundMoulinetteSource)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
-            expect(createChecksumFromWebFile).toHaveBeenCalledWith(body.tarball)
+            expect(createChecksumFromWebFileSpy).toHaveBeenCalledWith(body.tarball)
             expect(moulinetteSourceRepository.save).toHaveBeenCalledWith({
                 ...subject,
                 checksum,
@@ -329,7 +329,7 @@ describe('MoulinetteSourcesService', () => {
         })
     })
 
-    describe('deleteMoulinetteSource', () => {
+    describe('delete', () => {
 
         const subject = { id: 1 } as MoulinetteSource
         const initiator = { id: '1' } as Account
@@ -339,7 +339,7 @@ describe('MoulinetteSourcesService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(moulinetteSourcesService.deleteMoulinetteSource(subject, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(moulinetteSourcesService.delete(subject, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
@@ -350,7 +350,7 @@ describe('MoulinetteSourcesService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
 
-            await expect(moulinetteSourcesService.deleteMoulinetteSource(subject, initiator)).resolves.toBeUndefined()
+            await expect(moulinetteSourcesService.delete(subject, initiator)).resolves.toBeUndefined()
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
@@ -358,9 +358,9 @@ describe('MoulinetteSourcesService', () => {
         })
     })
 
-    describe('deleteMoulinetteSourceByVersion', () => {
+    describe('deleteByVersion', () => {
 
-        let deleteMoulinetteSource: jest.SpyInstance
+        let deleteSpy: jest.SpyInstance
 
         const moulinetteId = '1'
         const version: [number, number, number] = [1, 2, 3]
@@ -369,7 +369,7 @@ describe('MoulinetteSourcesService', () => {
         const foundMoulinetteSource = 'found moulinette source'
 
         beforeEach(() => {
-            deleteMoulinetteSource = jest.spyOn(moulinetteSourcesService, 'deleteMoulinetteSource')
+            deleteSpy = jest.spyOn(moulinetteSourcesService, 'delete')
         })
 
         it('should throw a NotFoundException if moulinette id is not related to a moulinette', async () => {
@@ -377,7 +377,7 @@ describe('MoulinetteSourcesService', () => {
             // eslint-disable-next-line unicorn/no-null
             moulinetteSourceRepository.findOne.mockResolvedValue(null)
 
-            await expect(moulinetteSourcesService.deleteMoulinetteSourceByVersion(moulinetteId, version, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(moulinetteSourcesService.deleteByVersion(moulinetteId, version, initiator)).rejects.toThrow(NotFoundException)
 
             expect(moulinetteSourceRepository.findOne).toHaveBeenCalledWith({
                 where: {
@@ -395,9 +395,9 @@ describe('MoulinetteSourcesService', () => {
         it('should delete the project', async () => {
 
             moulinetteSourceRepository.findOne.mockResolvedValue(foundMoulinetteSource)
-            deleteMoulinetteSource.mockResolvedValue(Promise.resolve())
+            deleteSpy.mockResolvedValue(Promise.resolve())
 
-            await expect(moulinetteSourcesService.deleteMoulinetteSourceByVersion(moulinetteId, version, initiator)).resolves.toBeUndefined()
+            await expect(moulinetteSourcesService.deleteByVersion(moulinetteId, version, initiator)).resolves.toBeUndefined()
 
             expect(moulinetteSourceRepository.findOne).toHaveBeenCalledWith({
                 where: {
@@ -410,7 +410,7 @@ describe('MoulinetteSourcesService', () => {
                 },
                 relations: ['moulinette', 'moulinette.maintainers']
             })
-            expect(deleteMoulinetteSource).toHaveBeenCalledWith(foundMoulinetteSource, initiator)
+            expect(deleteSpy).toHaveBeenCalledWith(foundMoulinetteSource, initiator)
         })
     })
 
@@ -424,7 +424,7 @@ describe('MoulinetteSourcesService', () => {
             httpService.get.mockReturnValue(observer)
 
             await expect(moulinetteSourcesService.createChecksumFromWebFile(url)).resolves.toStrictEqual({
-                error: 'Unable to create the checksum from the given tarball',
+                error: 'Unable to create checksum from the given tarball',
                 checksum: undefined
             })
 

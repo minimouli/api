@@ -34,7 +34,7 @@ import { MoulinettesService } from './moulinettes.service'
 import { CreateMoulinetteReqDto } from './dto/create-moulinette.req.dto'
 import { GetMoulinetteResDto } from './dto/get-moulinette.res.dto'
 import { GetMoulinetteSourceResDto } from './dto/get-moulinette-source.res.dto'
-import { PostMoulinetteSourceReqDto } from './dto/post-moulinette-source.req.dto'
+import { PutMoulinetteSourceReqDto } from './dto/put-moulinette-source.req.dto'
 import { UpdateMoulinetteReqDto } from './dto/update-moulinette.req.dto'
 import { MoulinetteSourcesService } from './services/moulinette-sources.service'
 import { Account } from '../accounts/entities/account.entity'
@@ -64,7 +64,7 @@ class MoulinettesController {
     })
     async getMoulinette(@Param('moulinetteId') moulinetteId: string): Promise<GetMoulinetteResDto> {
 
-        const moulinette = await this.moulinettesService.findMoulinetteById(moulinetteId)
+        const moulinette = await this.moulinettesService.findById(moulinetteId)
 
         return {
             status: 'success',
@@ -93,7 +93,7 @@ class MoulinettesController {
     })
     async createMoulinette(@CurrentUser() currentUser: Account, @Body() body: CreateMoulinetteReqDto): Promise<GetMoulinetteResDto> {
 
-        const moulinette = await this.moulinettesService.createMoulinette(body, currentUser)
+        const moulinette = await this.moulinettesService.create(body, currentUser)
 
         return {
             status: 'success',
@@ -130,7 +130,7 @@ class MoulinettesController {
         @Body() body: UpdateMoulinetteReqDto
     ): Promise<GetMoulinetteResDto> {
 
-        const updatedMoulinette = await this.moulinettesService.updateMoulinetteById(moulinetteId, body, currentUser)
+        const updatedMoulinette = await this.moulinettesService.updateById(moulinetteId, body, currentUser)
 
         return {
             status: 'success',
@@ -158,15 +158,15 @@ class MoulinettesController {
         description: 'Not Found'
     })
     async deleteMoulinette(@CurrentUser() currentUser: Account, @Param('moulinetteId') moulinetteId: string): Promise<void> {
-        await this.moulinettesService.deleteMoulinetteById(moulinetteId, currentUser)
+        await this.moulinettesService.deleteById(moulinetteId, currentUser)
     }
 
     @Put('/moulinette/:moulinetteId/:major.:minor.:patch')
     @UseGuards(JwtAuthGuard)
-    @ApiOperation({ summary: 'Post a moulinette source' })
+    @ApiOperation({ summary: 'Put a moulinette source' })
     @ApiOkResponse({
         type: GetMoulinetteSourceResDto,
-        description: 'Post a moulinette source'
+        description: 'Put a moulinette source'
     })
     @ApiBadRequestResponse({
         type: ErrorResDto,
@@ -180,16 +180,16 @@ class MoulinettesController {
         type: ErrorResDto,
         description: 'Forbidden'
     })
-    async postMoulinetteSource(
+    async putMoulinetteSource(
         @CurrentUser() currentUser: Account,
         @Param('moulinetteId') moulinetteId: string,
         @Param('major', ParseIntPipe) majorVersion: number,
         @Param('minor', ParseIntPipe) minorVersion: number,
         @Param('patch', ParseIntPipe) patchVersion: number,
-        @Body() body: PostMoulinetteSourceReqDto
+        @Body() body: PutMoulinetteSourceReqDto
     ): Promise<GetMoulinetteSourceResDto> {
 
-        const moulinetteSource = await this.moulinetteSourceService.postMoulinetteSource(
+        const moulinetteSource = await this.moulinetteSourceService.put(
             moulinetteId,
             [majorVersion, minorVersion, patchVersion],
             body,
@@ -228,7 +228,7 @@ class MoulinettesController {
         @Param('minor', ParseIntPipe) minorVersion: number,
         @Param('patch', ParseIntPipe) patchVersion: number
     ) {
-        await this.moulinetteSourceService.deleteMoulinetteSourceByVersion(
+        await this.moulinetteSourceService.deleteByVersion(
             moulinetteId,
             [majorVersion, minorVersion, patchVersion],
             currentUser

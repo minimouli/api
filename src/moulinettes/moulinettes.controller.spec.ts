@@ -10,21 +10,21 @@ import { MoulinettesController } from './moulinettes.controller'
 import { MoulinettesService } from './moulinettes.service'
 import { MoulinetteSourcesService } from './services/moulinette-sources.service'
 import type { CreateMoulinetteReqDto } from './dto/create-moulinette.req.dto'
-import type { PostMoulinetteSourceReqDto } from './dto/post-moulinette-source.req.dto'
+import type { PutMoulinetteSourceReqDto } from './dto/put-moulinette-source.req.dto'
 import type { Account } from '../accounts/entities/account.entity'
 
 describe('MoulinettesController', () => {
 
     let moulinettesController: MoulinettesController
     const moulinettesService = {
-        findMoulinetteById: jest.fn(),
-        createMoulinette: jest.fn(),
-        updateMoulinetteById: jest.fn(),
-        deleteMoulinetteById: jest.fn()
+        create: jest.fn(),
+        deleteById: jest.fn(),
+        findById: jest.fn(),
+        updateById: jest.fn()
     }
     const moulinetteSourcesService = {
-        postMoulinetteSource: jest.fn(),
-        deleteMoulinetteSourceByVersion: jest.fn()
+        deleteByVersion: jest.fn(),
+        put: jest.fn()
     }
 
     beforeEach(async () => {
@@ -43,106 +43,108 @@ describe('MoulinettesController', () => {
 
         moulinettesController = moduleRef.get(MoulinettesController)
 
-        moulinettesService.createMoulinette.mockReset()
-        moulinettesService.updateMoulinetteById.mockReset()
-        moulinetteSourcesService.postMoulinetteSource.mockReset()
-        moulinetteSourcesService.deleteMoulinetteSourceByVersion.mockReset()
+        moulinettesService.create.mockReset()
+        moulinettesService.deleteById.mockReset()
+        moulinettesService.findById.mockReset()
+        moulinettesService.updateById.mockReset()
+        moulinetteSourcesService.deleteByVersion.mockReset()
+        moulinetteSourcesService.put.mockReset()
     })
 
     describe('getMoulinette', () => {
 
+        const id = '1'
+        const foundMoulinette = 'found moulinette'
+
         it('should return the correct response', async () => {
 
-            const id = '1'
-            const moulinette = 'moulinette'
-
-            moulinettesService.findMoulinetteById.mockResolvedValue(moulinette)
+            moulinettesService.findById.mockResolvedValue(foundMoulinette)
 
             await expect(moulinettesController.getMoulinette(id)).resolves.toStrictEqual({
                 status: 'success',
-                data: moulinette
+                data: foundMoulinette
             })
 
-            expect(moulinettesService.findMoulinetteById).toHaveBeenCalledWith(id)
+            expect(moulinettesService.findById).toHaveBeenCalledWith(id)
         })
     })
 
     describe('createMoulinette', () => {
 
+        const currentUser = { id: '1' } as Account
+        const body = { project: 'project' } as CreateMoulinetteReqDto
+        const createdMoulinette = 'created moulinette'
+
         it('should return the correct response', async () => {
 
-            const currentUser = { id: '1' } as Account
-            const body = { project: 'project' } as CreateMoulinetteReqDto
-            const moulinette = 'moulinette'
-
-            moulinettesService.createMoulinette.mockResolvedValue(moulinette)
+            moulinettesService.create.mockResolvedValue(createdMoulinette)
 
             await expect(moulinettesController.createMoulinette(currentUser, body)).resolves.toStrictEqual({
                 status: 'success',
-                data: moulinette
+                data: createdMoulinette
             })
 
-            expect(moulinettesService.createMoulinette).toHaveBeenCalledWith(body, currentUser)
+            expect(moulinettesService.create).toHaveBeenCalledWith(body, currentUser)
         })
     })
 
     describe('updateMoulinetteInformation', () => {
 
+        const currentUser = { id: '1' } as Account
+        const moulinetteId = 'moulinette id'
+        const body = { project: 'project' } as CreateMoulinetteReqDto
+        const updatedMoulinette = 'updated moulinette'
+
         it('should return the correct response', async () => {
 
-            const currentUser = { id: '1' } as Account
-            const moulinetteId = 'moulinette id'
-            const body = { project: 'project' } as CreateMoulinetteReqDto
-            const moulinette = 'moulinette'
-
-            moulinettesService.updateMoulinetteById.mockResolvedValue(moulinette)
+            moulinettesService.updateById.mockResolvedValue(updatedMoulinette)
 
             await expect(moulinettesController.updateMoulinetteInformation(currentUser, moulinetteId, body)).resolves.toStrictEqual({
                 status: 'success',
-                data: moulinette
+                data: updatedMoulinette
             })
 
-            expect(moulinettesService.updateMoulinetteById).toHaveBeenCalledWith(moulinetteId, body, currentUser)
+            expect(moulinettesService.updateById).toHaveBeenCalledWith(moulinetteId, body, currentUser)
         })
     })
 
     describe('deleteMoulinette', () => {
 
-        it('should return the correct response', async () => {
+        const currentUser = { id: '1' } as Account
+        const moulinetteId = 'moulinette id'
 
-            const currentUser = { id: '1' } as Account
-            const moulinetteId = 'moulinette id'
+        it('should return the correct response', async () => {
 
             await expect(moulinettesController.deleteMoulinette(currentUser, moulinetteId)).resolves.toBeUndefined()
 
-            expect(moulinettesService.deleteMoulinetteById).toHaveBeenCalledWith(moulinetteId, currentUser)
+            expect(moulinettesService.deleteById).toHaveBeenCalledWith(moulinetteId, currentUser)
         })
     })
 
-    describe('postMoulinetteSource', () => {
+    describe('putMoulinetteSource', () => {
+
+        const currentUser = { id: '1' } as Account
+        const moulinetteId = 'moulinette id'
+        const majorVersion = 1
+        const minorVersion = 2
+        const patchVersion = 3
+        const body = {
+            tarball: 'https://example.com/tarball.tar.gz'
+        } as PutMoulinetteSourceReqDto
+        const putMoulinetteSource = 'put moulinette source'
 
         it('should return the correct response', async () => {
 
-            const currentUser = { id: '1' } as Account
-            const moulinetteId = 'moulinette id'
-            const majorVersion = 1
-            const minorVersion = 2
-            const patchVersion = 3
-            const body = {
-                tarball: 'https://example.com/tarball.tar.gz'
-            } as PostMoulinetteSourceReqDto
-            const moulinetteSource = 'moulinette source'
+            moulinetteSourcesService.put.mockResolvedValue(putMoulinetteSource)
 
-            moulinetteSourcesService.postMoulinetteSource.mockResolvedValue(moulinetteSource)
-
-            await expect(moulinettesController.postMoulinetteSource(
+            await expect(moulinettesController.putMoulinetteSource(
                 currentUser, moulinetteId, majorVersion, minorVersion, patchVersion, body
             )).resolves.toStrictEqual({
                 status: 'success',
-                data: moulinetteSource
+                data: putMoulinetteSource
             })
 
-            expect(moulinetteSourcesService.postMoulinetteSource).toHaveBeenCalledWith(
+            expect(moulinetteSourcesService.put).toHaveBeenCalledWith(
                 moulinetteId, [majorVersion, minorVersion, patchVersion], body, currentUser
             )
         })
@@ -150,22 +152,21 @@ describe('MoulinettesController', () => {
 
     describe('deleteMoulinetteSource', () => {
 
-        it('should return the correct response', async () => {
+        const currentUser = { id: '1' } as Account
+        const moulinetteId = 'moulinette id'
+        const majorVersion = 1
+        const minorVersion = 2
+        const patchVersion = 3
 
-            const currentUser = { id: '1' } as Account
-            const moulinetteId = 'moulinette id'
-            const majorVersion = 1
-            const minorVersion = 2
-            const patchVersion = 3
+        it('should return the correct response', async () => {
 
             await expect(moulinettesController.deleteMoulinetteSource(
                 currentUser, moulinetteId, majorVersion, minorVersion, patchVersion
             )).resolves.toBeUndefined()
 
-            expect(moulinetteSourcesService.deleteMoulinetteSourceByVersion).toHaveBeenCalledWith(
+            expect(moulinetteSourcesService.deleteByVersion).toHaveBeenCalledWith(
                 moulinetteId, [majorVersion, minorVersion, patchVersion], currentUser
             )
         })
-
     })
 })
