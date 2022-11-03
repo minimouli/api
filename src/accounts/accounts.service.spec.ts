@@ -15,11 +15,8 @@ import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { DefaultPermissions } from '../common/configs/permissions.config'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
-import { getRandomString } from '../common/helpers/random.helper'
-import { LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/string.helper'
 
 jest.mock('./helpers/name.helper')
-jest.mock('../common/helpers/random.helper')
 
 describe('AccountService', () => {
 
@@ -38,7 +35,6 @@ describe('AccountService', () => {
     }
     const validateNicknameMock = validateNickname as jest.Mock
     const validateUsernameMock = validateUsername as jest.Mock
-    const getRandomStringMock = getRandomString as jest.Mock
 
     beforeEach(async () => {
 
@@ -64,7 +60,6 @@ describe('AccountService', () => {
         caslAbility.can.mockReset()
         validateNicknameMock.mockReset()
         validateUsernameMock.mockReset()
-        getRandomStringMock.mockReset()
     })
 
     describe('create', () => {
@@ -73,66 +68,62 @@ describe('AccountService', () => {
         const username = 'username'
         const email = 'email'
         const permissions = [Permission.UpdateOwnAccount]
-        const createdAccount = { id: '1' } as Account
-        const savedAccount = { id: '2' } as Account
+        const createdAccount = 'created account'
+        const savedAccount = 'saved account'
 
         it('should return the created account with default permissions', async () => {
 
             accountRepository.create.mockReturnValue(createdAccount)
-            accountRepository.save.mockResolvedValue(savedAccount)
-            getRandomStringMock.mockReturnValue(username)
+            accountRepository.save.mockReturnValue(savedAccount)
 
-            await expect(accountsService.create(nickname, email)).resolves.toStrictEqual(savedAccount)
+            await expect(accountsService.create(nickname, username, email)).resolves.toBe(savedAccount)
 
             expect(accountRepository.create).toHaveBeenCalledWith({
-                username,
                 nickname,
+                username,
                 email,
                 permissions: DefaultPermissions
             })
             expect(accountRepository.save).toHaveBeenCalledWith(createdAccount)
-            expect(getRandomStringMock).toHaveBeenCalledWith(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)
         })
 
         it('should return the created account with specified permissions', async () => {
 
             accountRepository.create.mockReturnValue(createdAccount)
-            accountRepository.save.mockResolvedValue(savedAccount)
-            getRandomStringMock.mockReturnValue(username)
+            accountRepository.save.mockReturnValue(savedAccount)
 
-            await expect(accountsService.create(nickname, email, permissions)).resolves.toStrictEqual(savedAccount)
+            await expect(accountsService.create(nickname, username, email, permissions)).resolves.toBe(savedAccount)
 
             expect(accountRepository.create).toHaveBeenCalledWith({
-                username,
                 nickname,
+                username,
                 email,
                 permissions
             })
             expect(accountRepository.save).toHaveBeenCalledWith(createdAccount)
-            expect(getRandomStringMock).toHaveBeenCalledWith(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)
         })
     })
 
-    describe('findAccountById', () => {
+    describe('findById', () => {
 
-        const id = '1'
-        const account = { id: '1' } as Account
+        const id = 'id'
+        const foundAccount = 'found account'
 
-        it('should throw a NotFoundException if the id is not related to an account', async () => {
+        it('should throw a NotFoundException if the id does not belong to an existing account', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             accountRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(accountsService.findAccountById(id)).rejects.toThrow(new NotFoundException())
+            await expect(accountsService.findById(id)).rejects.toThrow(NotFoundException)
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
 
-        it('should return the account found', async () => {
+        it('should return the found account', async () => {
 
-            accountRepository.findOneBy.mockResolvedValue(account)
+            accountRepository.findOneBy.mockResolvedValue(foundAccount)
 
-            await expect(accountsService.findAccountById(id)).resolves.toStrictEqual(account)
+            await expect(accountsService.findById(id)).resolves.toStrictEqual(foundAccount)
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
@@ -140,18 +131,20 @@ describe('AccountService', () => {
 
     describe('updateAccount', () => {
 
-        let isTheUsernameAvailable: jest.SpyInstance
+        let isTheUsernameAvailableSpy: jest.SpyInstance
+        let findByIdSpy: jest.SpyInstance
 
         const subject = { id: '1' } as Account
-        const initiator = { id: '2' } as Account
-        const updatedAccount = { id: '3' } as Account
         const body = {
             nickname: 'nickname',
             username: 'username'
         }
+        const initiator = { id: '2' } as Account
+        const foundAccount = 'found account'
 
         beforeEach(() => {
-            isTheUsernameAvailable = jest.spyOn(accountsService, 'isTheUsernameAvailable')
+            isTheUsernameAvailableSpy = jest.spyOn(accountsService, 'isTheUsernameAvailable')
+            findByIdSpy = jest.spyOn(accountsService, 'findById')
         })
 
         it('it should throw a ForbiddenException if the initiator has not the permission to update accounts', async () => {
@@ -159,7 +152,7 @@ describe('AccountService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(accountsService.updateAccount(subject, body, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(accountsService.update(subject, body, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -174,7 +167,7 @@ describe('AccountService', () => {
             validateNicknameMock.mockReturnValue(errors)
             validateUsernameMock.mockReturnValue([])
 
-            await expect(accountsService.updateAccount(subject, body, initiator)).rejects.toThrow(new BadRequestException(errors))
+            await expect(accountsService.update(subject, body, initiator)).rejects.toThrow(new BadRequestException(errors))
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -190,7 +183,7 @@ describe('AccountService', () => {
             validateNicknameMock.mockReturnValue([])
             validateUsernameMock.mockReturnValue(errors)
 
-            await expect(accountsService.updateAccount(subject, body, initiator)).rejects.toThrow(new BadRequestException(errors))
+            await expect(accountsService.update(subject, body, initiator)).rejects.toThrow(new BadRequestException(errors))
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
@@ -203,9 +196,9 @@ describe('AccountService', () => {
             caslAbility.can.mockReturnValue(true)
             validateNicknameMock.mockReturnValue([])
             validateUsernameMock.mockReturnValue([])
-            isTheUsernameAvailable.mockResolvedValue(false)
+            isTheUsernameAvailableSpy.mockResolvedValue(false)
 
-            await expect(accountsService.updateAccount(subject, body, initiator)).rejects.toThrow(
+            await expect(accountsService.update(subject, body, initiator)).rejects.toThrow(
                 new BadRequestException('The username is already taken by another user')
             )
 
@@ -213,27 +206,7 @@ describe('AccountService', () => {
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
             expect(validateNicknameMock).toHaveBeenCalledWith(body.nickname)
             expect(validateUsernameMock).toHaveBeenCalledWith(body.username)
-            expect(isTheUsernameAvailable).toHaveBeenCalledWith(body.username)
-        })
-
-        it('should throw a NotFoundException the the updated is not found', async () => {
-
-            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
-            caslAbility.can.mockReturnValue(true)
-            validateNicknameMock.mockReturnValue([])
-            validateUsernameMock.mockReturnValue([])
-            isTheUsernameAvailable.mockResolvedValue(true)
-            // eslint-disable-next-line unicorn/no-null
-            accountRepository.findOneBy.mockResolvedValue(null)
-
-            await expect(accountsService.updateAccount(subject, body, initiator)).rejects.toThrow(new NotFoundException())
-
-            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
-            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
-            expect(validateNicknameMock).toHaveBeenCalledWith(body.nickname)
-            expect(validateUsernameMock).toHaveBeenCalledWith(body.username)
-            expect(isTheUsernameAvailable).toHaveBeenCalledWith(body.username)
-            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subject.id })
+            expect(isTheUsernameAvailableSpy).toHaveBeenCalledWith(body.username)
         })
 
         it('should return the updated account', async () => {
@@ -242,66 +215,71 @@ describe('AccountService', () => {
             caslAbility.can.mockReturnValue(true)
             validateNicknameMock.mockReturnValue([])
             validateUsernameMock.mockReturnValue([])
-            isTheUsernameAvailable.mockResolvedValue(true)
-            accountRepository.findOneBy.mockResolvedValue(updatedAccount)
+            isTheUsernameAvailableSpy.mockResolvedValue(true)
+            findByIdSpy.mockResolvedValue(foundAccount)
 
-            await expect(accountsService.updateAccount(subject, body, initiator)).resolves.toStrictEqual(updatedAccount)
+            await expect(accountsService.update(subject, body, initiator)).resolves.toStrictEqual(foundAccount)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Update, subject)
             expect(validateNicknameMock).toHaveBeenCalledWith(body.nickname)
             expect(validateUsernameMock).toHaveBeenCalledWith(body.username)
-            expect(isTheUsernameAvailable).toHaveBeenCalledWith(body.username)
-            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subject.id })
+            expect(isTheUsernameAvailableSpy).toHaveBeenCalledWith(body.username)
+            expect(accountRepository.save).toHaveBeenCalledWith({
+                ...subject,
+                ...body
+            })
+            expect(findByIdSpy).toHaveBeenCalledWith(subject.id)
         })
     })
 
-    describe('updateAccountById', () => {
+    describe('updateById', () => {
 
-        let updateAccount: jest.SpyInstance
+        let updateSpy: jest.SpyInstance
 
-        const subjectId = 'subject id'
-        const account = { id: '1' } as Account
-        const initiator = { id: '2' } as Account
-        const updatedAccount = { id: '3' } as Account
-        const body = { nickname: 'nickname' }
+        const id = 'id'
+        const body = {
+            nickname: 'nickname'
+        }
+        const initiator = { id: '1' } as Account
+        const foundAccount = 'found account'
+        const updatedAccount = 'updated account'
 
         beforeEach(() => {
-            updateAccount = jest.spyOn(accountsService, 'updateAccount')
+            updateSpy = jest.spyOn(accountsService, 'update')
         })
 
-        it('should throw a NotFoundException if the account is not found', async () => {
+        it('should throw a NotFoundException if the id does not belong to an existing account', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             accountRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(accountsService.updateAccountById(subjectId, body, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(accountsService.updateById(id, body, initiator)).rejects.toThrow(NotFoundException)
 
-            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
 
         it('should return the updated account', async () => {
 
-            accountRepository.findOneBy.mockResolvedValue(account)
-            updateAccount.mockResolvedValue(updatedAccount)
+            accountRepository.findOneBy.mockResolvedValue(foundAccount)
+            updateSpy.mockResolvedValue(updatedAccount)
 
-            await expect(accountsService.updateAccountById(subjectId, body, initiator)).resolves.toStrictEqual(updatedAccount)
+            await expect(accountsService.updateById(id, body, initiator)).resolves.toStrictEqual(updatedAccount)
 
-            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
-            expect(updateAccount).toHaveBeenCalledWith(account, body, initiator)
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id })
+            expect(updateSpy).toHaveBeenCalledWith(foundAccount, body, initiator)
         })
     })
 
-    describe('updateAccountPermissionsById', () => {
+    describe('updatePermissions', () => {
 
-        const subjectId = 'subject id'
+        const subject = { id: '1' } as Account
         const permissions = [Permission.ReadAllAccounts]
         const initiator = {
             id: '1',
             permissions: [Permission.UpdateAccountPermissions]
         } as Account
-        const foundAccount = { id: '1' } as Account
-        const updatedAccount = { id: '2' } as Account
+        const updatedAccount = 'updated account'
 
         it('should throw a ForbiddenException if the initiator has not the permission to update account permissions', async () => {
 
@@ -310,46 +288,61 @@ describe('AccountService', () => {
                 permissions: [] as Permission[]
             } as Account
 
-            await expect(accountsService.updateAccountPermissionsById(subjectId, permissions, initiatorWithoutPermissions)).rejects.toThrow(new ForbiddenException())
-        })
-
-        it('should throw a NotFoundException if the account is not found', async () => {
-
-            // eslint-disable-next-line unicorn/no-null
-            accountRepository.findOneBy.mockResolvedValueOnce(null)
-
-            await expect(accountsService.updateAccountPermissionsById(subjectId, permissions, initiator)).rejects.toThrow(new NotFoundException())
-
-            expect(accountRepository.findOneBy).toHaveBeenNthCalledWith(1, {
-                id: subjectId
-            })
-        })
-
-        it('should throw a NotFoundException if the updated account is not found', async () => {
-
-            accountRepository.findOneBy.mockResolvedValueOnce(foundAccount)
-            // eslint-disable-next-line unicorn/no-null
-            accountRepository.findOneBy.mockResolvedValueOnce(null)
-
-            await expect(accountsService.updateAccountPermissionsById(subjectId, permissions, initiator)).rejects.toThrow(new NotFoundException())
-
-            expect(accountRepository.findOneBy).toHaveBeenNthCalledWith(1, { id: subjectId })
-            expect(accountRepository.findOneBy).toHaveBeenNthCalledWith(2, { id: subjectId })
+            await expect(accountsService.updatePermissions(subject, permissions, initiatorWithoutPermissions)).rejects.toThrow(ForbiddenException)
         })
 
         it('should return the updated account', async () => {
 
-            accountRepository.findOneBy.mockResolvedValueOnce(foundAccount)
-            accountRepository.findOneBy.mockResolvedValueOnce(updatedAccount)
+            accountRepository.save.mockResolvedValue(updatedAccount)
 
-            await expect(accountsService.updateAccountPermissionsById(subjectId, permissions, initiator)).resolves.toStrictEqual(updatedAccount)
+            await expect(accountsService.updatePermissions(subject, permissions, initiator)).resolves.toBe(updatedAccount)
 
-            expect(accountRepository.findOneBy).toHaveBeenNthCalledWith(1, { id: subjectId })
-            expect(accountRepository.findOneBy).toHaveBeenNthCalledWith(2, { id: subjectId })
+            expect(accountRepository.save).toHaveBeenCalledWith({
+                ...subject,
+                permissions
+            })
         })
     })
 
-    describe('deleteAccount', () => {
+    describe('updatePermissionsByAccountId', () => {
+
+        let updatePermissionsSpy: jest.SpyInstance
+
+        const id = 'id'
+        const permissions = [Permission.ReadAllAccounts]
+        const initiator = {
+            id: '1'
+        } as Account
+        const foundAccount = 'found account'
+        const updatedAccount = 'updated account'
+
+        beforeEach(() => {
+            updatePermissionsSpy = jest.spyOn(accountsService, 'updatePermissions')
+        })
+
+        it('should throw a NotFoundException if the id does not belong to an existing account', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            accountRepository.findOneBy.mockResolvedValue(null)
+
+            await expect(accountsService.updatePermissionsByAccountId(id, permissions, initiator)).rejects.toThrow(NotFoundException)
+
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id })
+        })
+
+        it('should return the updated account', async () => {
+
+            accountRepository.findOneBy.mockResolvedValue(foundAccount)
+            updatePermissionsSpy.mockResolvedValue(updatedAccount)
+
+            await expect(accountsService.updatePermissionsByAccountId(id, permissions, initiator)).resolves.toBe(updatedAccount)
+
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id })
+            expect(updatePermissionsSpy).toHaveBeenCalledWith(foundAccount, permissions, initiator)
+        })
+    })
+
+    describe('delete', () => {
 
         const subject = { id: '1' } as Account
         const initiator = { id: '2' } as Account
@@ -359,7 +352,7 @@ describe('AccountService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(false)
 
-            await expect(accountsService.deleteAccount(subject, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(accountsService.delete(subject, initiator)).rejects.toThrow(ForbiddenException)
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
@@ -370,7 +363,7 @@ describe('AccountService', () => {
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
             caslAbility.can.mockReturnValue(true)
 
-            await expect(accountsService.deleteAccount(subject, initiator)).resolves.toBeUndefined()
+            await expect(accountsService.delete(subject, initiator)).resolves.toBeUndefined()
 
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
@@ -378,37 +371,37 @@ describe('AccountService', () => {
         })
     })
 
-    describe('deleteAccountById', () => {
+    describe('deleteById', () => {
 
-        let deleteAccount: jest.SpyInstance
+        let deleteSpy: jest.SpyInstance
 
-        const subjectId = 'subject id'
+        const id = 'id'
         const subject = { id: '1' } as Account
         const initiator = { id: '2' } as Account
 
         beforeEach(() => {
-            deleteAccount = jest.spyOn(accountsService, 'deleteAccount')
+            deleteSpy = jest.spyOn(accountsService, 'delete')
         })
 
-        it('should throw a NotFoundException if subject id is not related to an account', async () => {
+        it('should throw a NotFoundException if the id does not belong to an existing account', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             accountRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(accountsService.deleteAccountById(subjectId, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(accountsService.deleteById(id, initiator)).rejects.toThrow(NotFoundException)
 
-            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
 
-        it('should delete the account by subject id', async () => {
+        it('should delete the account by id', async () => {
 
             accountRepository.findOneBy.mockResolvedValue(subject)
-            deleteAccount.mockReturnValue(Promise.resolve())
+            deleteSpy.mockReturnValue(Promise.resolve())
 
-            await expect(accountsService.deleteAccountById(subjectId, initiator)).resolves.toBeUndefined()
+            await expect(accountsService.deleteById(id, initiator)).resolves.toBeUndefined()
 
-            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id: subjectId })
-            expect(deleteAccount).toHaveBeenCalledWith(subject, initiator)
+            expect(accountRepository.findOneBy).toHaveBeenCalledWith({ id })
+            expect(deleteSpy).toHaveBeenCalledWith(subject, initiator)
         })
     })
 

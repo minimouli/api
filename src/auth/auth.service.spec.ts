@@ -13,6 +13,10 @@ import { GithubCredentials } from './entities/github-credentials.entity'
 import { GithubApiService } from './services/github-api.service'
 import { GithubCredentialsService } from './services/github-credentials.service'
 import { AccountsService } from '../accounts/accounts.service'
+import { getRandomString } from '../common/helpers/random.helper'
+import { LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/string.helper'
+
+jest.mock('../common/helpers/random.helper')
 
 describe('AuthService', () => {
 
@@ -31,6 +35,7 @@ describe('AuthService', () => {
     const accountsService = {
         create: jest.fn()
     }
+    const getRandomStringMock = getRandomString as jest.Mock
 
     beforeEach(async () => {
 
@@ -60,6 +65,7 @@ describe('AuthService', () => {
         githubApiService.getUserPrimaryEmail.mockReset()
         githubCredentialsService.create.mockReset()
         accountsService.create.mockReset()
+        getRandomStringMock.mockReset()
     })
 
     describe('signupWithGithub', () => {
@@ -95,6 +101,7 @@ describe('AuthService', () => {
         it('should create the newly created account', async () => {
 
             const account = 'account'
+            const username = 'username'
 
             githubApiService.consumeCodeForAccessToken.mockResolvedValue(accessToken)
             githubApiService.getUserProfile.mockResolvedValue(userProfile)
@@ -102,6 +109,7 @@ describe('AuthService', () => {
             githubCredentialsRepository.findOne.mockResolvedValue(null)
             githubApiService.getUserPrimaryEmail.mockResolvedValue(primaryEmail)
             accountsService.create.mockResolvedValue(account)
+            getRandomStringMock.mockReturnValue(username)
 
             await expect(authService.signupWithGithub(code)).resolves.toBe(account)
 
@@ -112,8 +120,9 @@ describe('AuthService', () => {
                 relations: ['account']
             })
             expect(githubApiService.getUserPrimaryEmail).toHaveBeenCalledWith(accessToken)
-            expect(accountsService.create).toHaveBeenCalledWith(userProfile.name, primaryEmail)
+            expect(accountsService.create).toHaveBeenCalledWith(userProfile.name, username, primaryEmail)
             expect(githubCredentialsService.create).toHaveBeenCalledWith(userProfile.id, account)
+            expect(getRandomStringMock).toHaveBeenCalledWith(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)
         })
     })
 

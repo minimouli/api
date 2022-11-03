@@ -14,8 +14,6 @@ import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { DefaultPermissions } from '../common/configs/permissions.config'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
-import { getRandomString } from '../common/helpers/random.helper'
-import { LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/string.helper'
 import type { UpdateAccountReqDto } from './dto/update-account.req.dto'
 
 @Injectable()
@@ -27,10 +25,10 @@ class AccountsService {
         private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
-    async create(nickname: string, email: string, permissions = DefaultPermissions): Promise<Account> {
+    async create(nickname: string, username: string, email: string, permissions = DefaultPermissions): Promise<Account> {
 
         const account = this.accountRepository.create({
-            username: getRandomString(16, `${LOWER_CASE_ALPHA}${NUMERIC}`),
+            username,
             nickname,
             email,
             permissions
@@ -39,7 +37,7 @@ class AccountsService {
         return this.accountRepository.save(account)
     }
 
-    async findAccountById(id: string): Promise<Account> {
+    async findById(id: string): Promise<Account> {
 
         const account = await this.accountRepository.findOneBy({ id })
 
@@ -49,7 +47,7 @@ class AccountsService {
         return account
     }
 
-    async updateAccount(subject: Account, body: Partial<UpdateAccountReqDto>, initiator: Account): Promise<Account> {
+    async update(subject: Account, body: UpdateAccountReqDto, initiator: Account): Promise<Account> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -80,48 +78,41 @@ class AccountsService {
             ...body
         })
 
-        const updatedAccount = await this.accountRepository.findOneBy({ id: subject.id })
-
-        if (updatedAccount === null)
-            throw new NotFoundException()
-
-        return updatedAccount
+        return this.findById(subject.id)
     }
 
-    async updateAccountById(subjectId: string, body: Partial<UpdateAccountReqDto>, initiator: Account): Promise<Account> {
+    async updateById(id: string, body: UpdateAccountReqDto, initiator: Account): Promise<Account> {
 
-        const account = await this.accountRepository.findOneBy({ id: subjectId })
+        const account = await this.accountRepository.findOneBy({ id })
 
         if (account === null)
             throw new NotFoundException()
 
-        return this.updateAccount(account, body, initiator)
+        return this.update(account, body, initiator)
     }
 
-    async updateAccountPermissionsById(subjectId: string, permissions: Permission[], initiator: Account): Promise<Account> {
+    async updatePermissions(subject: Account, permissions: Permission[], initiator: Account): Promise<Account> {
 
         if (!initiator.permissions.includes(Permission.UpdateAccountPermissions))
             throw new ForbiddenException()
 
-        const account = await this.accountRepository.findOneBy({ id: subjectId })
+        return this.accountRepository.save({
+            ...subject,
+            permissions
+        })
+    }
+
+    async updatePermissionsByAccountId(id: string, permissions: Permission[], initiator: Account): Promise<Account> {
+
+        const account = await this.accountRepository.findOneBy({ id })
 
         if (account === null)
             throw new NotFoundException()
 
-        await this.accountRepository.save({
-            ...account,
-            permissions
-        })
-
-        const updatedAccount = await this.accountRepository.findOneBy({ id: subjectId })
-
-        if (updatedAccount === null)
-            throw new NotFoundException()
-
-        return updatedAccount
+        return this.updatePermissions(account, permissions, initiator)
     }
 
-    async deleteAccount(subject: Account, initiator: Account): Promise<void> {
+    async delete(subject: Account, initiator: Account): Promise<void> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
@@ -131,14 +122,14 @@ class AccountsService {
         await this.accountRepository.remove(subject)
     }
 
-    async deleteAccountById(subjectId: string, initiator: Account): Promise<void> {
+    async deleteById(id: string, initiator: Account): Promise<void> {
 
-        const subject = await this.accountRepository.findOneBy({ id: subjectId })
+        const subject = await this.accountRepository.findOneBy({ id })
 
         if (subject === null)
             throw new NotFoundException()
 
-        await this.deleteAccount(subject, initiator)
+        await this.delete(subject, initiator)
     }
 
     async isTheUsernameAvailable(username: string): Promise<boolean> {

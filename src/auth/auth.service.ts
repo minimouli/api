@@ -12,6 +12,8 @@ import { GithubApiService } from './services/github-api.service'
 import { GithubCredentialsService } from './services/github-credentials.service'
 import { GithubCredentials } from './entities/github-credentials.entity'
 import { AccountsService } from '../accounts/accounts.service'
+import { getRandomString } from '../common/helpers/random.helper'
+import { LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/string.helper'
 import type { Account } from '../accounts/entities/account.entity'
 
 @Injectable()
@@ -38,8 +40,9 @@ class AuthService {
         if (credentials)
             return credentials.account
 
+        const username = getRandomString(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)
         const email = await this.githubApiService.getUserPrimaryEmail(accessToken)
-        const account = await this.accountsService.create(userProfile.name, email)
+        const account = await this.accountsService.create(userProfile.name, username, email)
 
         await this.githubCredentialsService.create(userProfile.id, account)
 

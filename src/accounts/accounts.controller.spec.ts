@@ -16,12 +16,12 @@ describe('AccountsController', () => {
 
     let accountsController: AccountsController
     const accountsService = {
-        deleteAccount: jest.fn(),
-        deleteAccountById: jest.fn(),
-        findAccountById: jest.fn(),
-        updateAccount: jest.fn(),
-        updateAccountById: jest.fn(),
-        updateAccountPermissionsById: jest.fn()
+        delete: jest.fn(),
+        deleteById: jest.fn(),
+        findById: jest.fn(),
+        update: jest.fn(),
+        updateById: jest.fn(),
+        updatePermissionsByAccountId: jest.fn()
     }
     const caslAbilityFactory = {
         createForAccount: jest.fn()
@@ -30,7 +30,7 @@ describe('AccountsController', () => {
     beforeEach(async () => {
 
         const moduleRef = await Test.createTestingModule({
-            providers: [AccountsController]
+            controllers: [AccountsController]
         })
             .useMocker((token) => {
                 if (token === AccountsService)
@@ -43,127 +43,127 @@ describe('AccountsController', () => {
 
         accountsController = moduleRef.get(AccountsController)
 
-        accountsService.deleteAccount.mockReset()
-        accountsService.deleteAccountById.mockReset()
-        accountsService.findAccountById.mockReset()
-        accountsService.updateAccount.mockReset()
-        accountsService.updateAccountById.mockReset()
-        accountsService.updateAccountPermissionsById.mockReset()
+        accountsService.delete.mockReset()
+        accountsService.deleteById.mockReset()
+        accountsService.findById.mockReset()
+        accountsService.update.mockReset()
+        accountsService.updateById.mockReset()
+        accountsService.updatePermissionsByAccountId.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
     })
 
     describe('getCurrentUserProfile', () => {
 
-        it('should return the correct response', () => {
+        const user = { id: '1' } as Account
 
-            const user = { id: '1' } as Account
-
-            expect(accountsController.getCurrentUserProfile(user)).toStrictEqual({
+        it('should return the correct response', () => expect(accountsController.getCurrentUserProfile(user))
+            .toStrictEqual({
                 status: 'success',
                 data: user
-            })
-        })
+            }))
     })
 
     describe('getUserProfile', () => {
 
+        const accountId = 'account id'
+        const foundUser = 'found user'
+
         it('should return the correct response', async () => {
 
-            const accountId = 'account id'
-            const user = { id: '1' } as Account
-
-            accountsService.findAccountById.mockResolvedValue(user)
+            accountsService.findById.mockResolvedValue(foundUser)
 
             await expect(accountsController.getUserProfile(accountId)).resolves.toStrictEqual({
                 status: 'success',
-                data: user
+                data: foundUser
             })
 
-            expect(accountsService.findAccountById).toHaveBeenCalledWith(accountId)
+            expect(accountsService.findById).toHaveBeenCalledWith(accountId)
         })
     })
 
     describe('updateCurrentUserProfile', () => {
 
+        const currentUser = { id: '1' } as Account
+        const body = { nickname: 'nickname' }
+        const updatedAccount = 'updated account'
+
         it('should return the correct response', async () => {
 
-            const currentUser = { id: '1' } as Account
-            const body = { nickname: 'nickname' }
-            const updatedAccount = { id: '2' } as Account
-
-            accountsService.updateAccount.mockResolvedValue(updatedAccount)
+            accountsService.update.mockResolvedValue(updatedAccount)
 
             await expect(accountsController.updateCurrentUserProfile(currentUser, body)).resolves.toStrictEqual({
                 status: 'success',
                 data: updatedAccount
             })
 
-            expect(accountsService.updateAccount).toHaveBeenCalledWith(currentUser, body, currentUser)
+            expect(accountsService.update).toHaveBeenCalledWith(currentUser, body, currentUser)
         })
     })
 
     describe('updateUserProfile', () => {
 
+        const currentUser = { id: '1' } as Account
+        const accountId = 'account id'
+        const body = { nickname: 'nickname' }
+        const updatedAccount = 'updated account'
+
         it('should return the correct response', async () => {
 
-            const currentUser = { id: '1' } as Account
-            const accountId = 'account id'
-            const body = { nickname: 'nickname' }
-            const updatedAccount = { id: '2' } as Account
-
-            accountsService.updateAccountById.mockResolvedValue(updatedAccount)
+            accountsService.updateById.mockResolvedValue(updatedAccount)
 
             await expect(accountsController.updateUserProfile(currentUser, accountId, body)).resolves.toStrictEqual({
                 status: 'success',
                 data: updatedAccount
             })
 
-            expect(accountsService.updateAccountById).toHaveBeenCalledWith(accountId, body, currentUser)
+            expect(accountsService.updateById).toHaveBeenCalledWith(accountId, body, currentUser)
         })
     })
 
     describe('updateUserPermissions', () => {
 
+        const currentUser = { id: '1' } as Account
+        const accountId = 'account id'
+        const updatedAccount = 'updated account'
+        const body = {
+            permissions: [Permission.ReadAllAccounts]
+        }
+
         it('should return the correct response', async () => {
 
-            const currentUser = { id: '1' } as Account
-            const updatedAccount = { id: '2' } as Account
-            const accountId = 'account id'
-            const body = { permissions: [Permission.ReadAllAccounts] }
-
-            accountsService.updateAccountPermissionsById.mockResolvedValue(updatedAccount)
+            accountsService.updatePermissionsByAccountId.mockResolvedValue(updatedAccount)
 
             await expect(accountsController.updateUserPermissions(currentUser, accountId, body)).resolves.toStrictEqual({
                 status: 'success',
                 data: updatedAccount
             })
 
-            expect(accountsService.updateAccountPermissionsById).toHaveBeenCalledWith(accountId, body.permissions, currentUser)
+            expect(accountsService.updatePermissionsByAccountId).toHaveBeenCalledWith(accountId, body.permissions, currentUser)
         })
     })
 
     describe('deleteCurrentUserAccount', () => {
 
-        it('should return the correct response', async () => {
+        const currentUser = { id: '1' } as Account
 
-            const currentUser = { id: '1' } as Account
+        it('should return the correct response', async () => {
 
             await expect(accountsController.deleteCurrentUserAccount(currentUser)).resolves.toBeUndefined()
 
-            expect(accountsService.deleteAccount).toHaveBeenCalledWith(currentUser, currentUser)
+            expect(accountsService.delete).toHaveBeenCalledWith(currentUser, currentUser)
         })
     })
 
     describe('deleteUserAccount', () => {
 
-        it('should return the correct response', async () => {
+        const currentUser = { id: '1' } as Account
+        const accountId = 'account id'
 
-            const currentUser = { id: '1' } as Account
-            const accountId = 'account id'
+        it('should return the correct response', async () => {
 
             await expect(accountsController.deleteUserAccount(currentUser, accountId)).resolves.toBeUndefined()
 
-            expect(accountsService.deleteAccountById).toHaveBeenCalledWith(accountId, currentUser)
+            expect(accountsService.deleteById).toHaveBeenCalledWith(accountId, currentUser)
         })
     })
 })

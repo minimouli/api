@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-/* eslint-disable max-nested-callbacks */
-
 import { JwtService } from '@nestjs/jwt'
 import { Test } from '@nestjs/testing'
 import request from 'supertest'
@@ -19,12 +17,12 @@ describe('Accounts', () => {
     let app: INestApplication
     let jwtService: JwtService
     const accountsService = {
-        deleteAccount: () => Promise.resolve(),
-        deleteAccountById: () => Promise.resolve(),
-        findAccountById: () => 'findAccountById',
-        updateAccount: () => 'updateAccount',
-        updateAccountById: () => 'updateAccountById',
-        updateAccountPermissionsById: () => 'updateAccountPermissionsById'
+        delete: () => Promise.resolve(),
+        deleteById: () => Promise.resolve(),
+        findById: () => 'find by id',
+        update: () => 'update',
+        updateById: () => 'update by id',
+        updatePermissionsByAccountId: () => 'update permissions by account id'
     }
 
     beforeAll(async () => {
@@ -93,7 +91,7 @@ describe('Accounts', () => {
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: accountsService.findAccountById()
+                    data: accountsService.findById()
                 }))
         })
     })
@@ -122,7 +120,7 @@ describe('Accounts', () => {
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: accountsService.updateAccount()
+                    data: accountsService.update()
                 }))
         })
     })
@@ -151,7 +149,7 @@ describe('Accounts', () => {
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: accountsService.updateAccountById()
+                    data: accountsService.updateById()
                 }))
         })
     })
@@ -189,7 +187,7 @@ describe('Accounts', () => {
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: accountsService.updateAccountPermissionsById()
+                    data: accountsService.updatePermissionsByAccountId()
                 }))
         })
     })
