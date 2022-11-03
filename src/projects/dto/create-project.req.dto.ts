@@ -6,7 +6,7 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger'
-import { IsString, Length } from 'class-validator'
+import { IsNumber, IsString, Length } from 'class-validator'
 
 class CreateProjectReqDto {
 
@@ -14,6 +14,15 @@ class CreateProjectReqDto {
     @IsString()
     @Length(1, 32)
     name: string
+
+    @ApiProperty()
+    @IsString()
+    @Length(1, 32)
+    displayName: string
+
+    @ApiProperty()
+    @IsNumber()
+    cycle: number
 
     @ApiProperty()
     @IsString()

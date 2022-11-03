@@ -10,7 +10,8 @@ import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiCreatedResponse,
-    ApiForbiddenResponse, ApiNoContentResponse,
+    ApiForbiddenResponse,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -56,7 +57,7 @@ class ProjectsController {
     })
     async createProject(@CurrentUser() currentUser: Account, @Body() body: CreateProjectReqDto): Promise<GetProjectResDto> {
 
-        const project = await this.projectsService.create(body.name, body.organization, currentUser)
+        const project = await this.projectsService.create(body, currentUser)
 
         return {
             status: 'success',

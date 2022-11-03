@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { PartialType } from '@nestjs/swagger'
+import { OmitType, PartialType } from '@nestjs/swagger'
 import { CreateProjectReqDto } from './create-project.req.dto'
 
-class UpdateProjectReqDto extends PartialType(CreateProjectReqDto) {}
+class UpdateProjectReqDto extends PartialType(OmitType(CreateProjectReqDto, ['organization'] as const)) {}
 
 export {
     UpdateProjectReqDto

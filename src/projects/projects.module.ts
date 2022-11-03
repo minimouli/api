@@ -11,15 +11,15 @@ import { ProjectsController } from './projects.controller'
 import { ProjectsService } from './projects.service'
 import { Project } from './entities/project.entity'
 import { CaslModule } from '../casl/casl.module'
+import { Organization } from '../organizations/entities/organization.entity'
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Project]),
+        TypeOrmModule.forFeature([Organization, Project]),
         CaslModule
     ],
     controllers: [ProjectsController],
-    providers: [ProjectsService],
-    exports: [ProjectsService]
+    providers: [ProjectsService]
 })
 class ProjectsModule {}
 

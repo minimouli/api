@@ -84,6 +84,8 @@ describe('Projects', () => {
                 .set('Authorization', `Bearer ${jwt}`)
                 .send({
                     name: 'name',
+                    displayName: 'display name',
+                    cycle: 2022,
                     organization: 'organization'
                 })
                 .expect(201)

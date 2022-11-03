@@ -6,9 +6,18 @@
  */
 
 import { Expose } from 'class-transformer'
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm'
+import {
+    BeforeInsert,
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryColumn,
+    UpdateDateColumn
+} from 'typeorm'
 import { EntityType } from '../../common/enums/entity-type.enum'
 import { getSecureRandomString } from '../../common/helpers/random.helper'
+import { Organization } from '../../organizations/entities/organization.entity'
 
 @Entity()
 class Project {
@@ -22,10 +31,15 @@ class Project {
     name: string
 
     @Column()
-    organization: string
+    displayName: string
 
     @Column()
     cycle: number
+
+    @ManyToOne(() => Organization, (organization) => organization.projects, {
+        onDelete: 'CASCADE'
+    })
+    organization: Organization
 
     @Expose()
     get uri(): string {
@@ -41,8 +55,6 @@ class Project {
     @BeforeInsert()
     beforeInsert() {
         this.id = getSecureRandomString(16)
-        this.name = this.name.toLowerCase()
-        this.organization = this.organization.toLowerCase()
     }
 
 }

@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm'
-import { Expose } from 'class-transformer'
+import { BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm'
+import { Exclude, Expose } from 'class-transformer'
 import { EntityType } from '../../common/enums/entity-type.enum'
 import { getSecureRandomString } from '../../common/helpers/random.helper'
+import { Project } from '../../projects/entities/project.entity'
 
 @Entity()
 class Organization {
@@ -24,6 +25,10 @@ class Organization {
     @Column()
     displayName: string
 
+    @Exclude()
+    @OneToMany(() => Project, (project) => project.organization)
+    projects: Project[]
+
     @Expose()
     get uri(): string {
         return `minimouli:${this.type}:${this.id}`
@@ -38,7 +43,6 @@ class Organization {
     @BeforeInsert()
     beforeInsert() {
         this.id = getSecureRandomString(16)
-        this.name = this.name.toLowerCase()
     }
 
 }

@@ -7,6 +7,8 @@
 
 import { ApiProperty } from '@nestjs/swagger'
 import { EntityType } from '../../common/enums/entity-type.enum'
+import { OrganizationDto } from '../../organizations/dto/organization.dto'
+import { Organization } from '../../organizations/entities/organization.entity'
 
 class ProjectDto {
 
@@ -17,10 +19,15 @@ class ProjectDto {
     name: string
 
     @ApiProperty()
-    organization: string
+    displayName: string
 
     @ApiProperty()
     cycle: number
+
+    @ApiProperty({
+        type: OrganizationDto
+    })
+    organization: Organization
 
     @ApiProperty()
     uri: string

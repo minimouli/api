@@ -8,6 +8,7 @@
 import { Test } from '@nestjs/testing'
 import { ProjectsController } from './projects.controller'
 import { ProjectsService } from './projects.service'
+import type { CreateProjectReqDto } from './dto/create-project.req.dto'
 import type { Account } from '../accounts/entities/account.entity'
 
 describe('ProjectsController', () => {
@@ -39,6 +40,27 @@ describe('ProjectsController', () => {
         projectsService.updateById.mockReset()
     })
 
+    describe('createProject', () => {
+
+        const currentUser = { id: '1' } as Account
+        const body = {
+            name: 'name'
+        } as CreateProjectReqDto
+        const createdProject = 'created project'
+
+        it('should return the correct response', async () => {
+
+            projectsService.create.mockResolvedValue(createdProject)
+
+            await expect(projectsController.createProject(currentUser, body)).resolves.toStrictEqual({
+                status: 'success',
+                data: createdProject
+            })
+
+            expect(projectsService.create).toHaveBeenCalledWith(body, currentUser)
+        })
+    })
+
     describe('getProject', () => {
 
         const projectId = 'project id'
@@ -54,28 +76,6 @@ describe('ProjectsController', () => {
             })
 
             expect(projectsService.findById).toHaveBeenCalledWith(projectId)
-        })
-    })
-
-    describe('createProject', () => {
-
-        const currentUser = { id: '1' } as Account
-        const body = {
-            name: 'name',
-            organization: 'organization'
-        }
-        const createdProject = 'created project'
-
-        it('should return the correct response', async () => {
-
-            projectsService.create.mockResolvedValue(createdProject)
-
-            await expect(projectsController.createProject(currentUser, body)).resolves.toStrictEqual({
-                status: 'success',
-                data: createdProject
-            })
-
-            expect(projectsService.create).toHaveBeenCalledWith(body.name, body.organization, currentUser)
         })
     })
 

@@ -5,13 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Project } from './entities/project.entity'
-import { getCurrentCycle } from './helpers/cycle.helper'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
+import { Organization } from '../organizations/entities/organization.entity'
+import type { CreateProjectReqDto } from './dto/create-project.req.dto'
 import type { UpdateProjectReqDto } from './dto/update-project.req.dto'
 import type { Account } from '../accounts/entities/account.entity'
 
@@ -19,33 +20,30 @@ import type { Account } from '../accounts/entities/account.entity'
 class ProjectsService {
 
     constructor(
+        @InjectRepository(Organization)
+        private readonly organizationRepository: Repository<Organization>,
         @InjectRepository(Project)
         private readonly projectRepository: Repository<Project>,
         private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
-    async create(name: string, organization: string, initiator: Account): Promise<Project> {
+    async create(body: CreateProjectReqDto, initiator: Account): Promise<Project> {
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
 
         if (!ability.can(CaslAction.Create, Project))
             throw new ForbiddenException()
 
-        const cycle = getCurrentCycle()
-
-        const foundProject = await this.projectRepository.findOneBy({
-            name: name.toLowerCase(),
-            organization: organization.toLowerCase(),
-            cycle
+        const organization = await this.organizationRepository.findOneBy({
+            id: body.organization
         })
 
-        if (foundProject !== null)
-            return foundProject
+        if (organization === null)
+            throw new BadRequestException('The specified organization id does not belong to an existing organization')
 
         const createdProject = this.projectRepository.create({
-            name,
-            organization,
-            cycle
+            ...body,
+            organization
         })
 
         return this.projectRepository.save(createdProject)
@@ -53,7 +51,10 @@ class ProjectsService {
 
     async findById(id: string): Promise<Project> {
 
-        const project = await this.projectRepository.findOneBy({ id })
+        const project = await this.projectRepository.findOne({
+            where: { id },
+            relations: ['organization']
+        })
 
         if (project === null)
             throw new NotFoundException()
