@@ -8,6 +8,7 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
+import { buildPaginator } from 'typeorm-cursor-pagination'
 import { ProjectsService } from './projects.service'
 import { Project } from './entities/project.entity'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
@@ -15,6 +16,8 @@ import { CaslAction } from '../common/enums/casl-action.enum'
 import { Organization } from '../organizations/entities/organization.entity'
 import type { CreateProjectReqDto } from './dto/create-project.req.dto'
 import type { Account } from '../accounts/entities/account.entity'
+
+jest.mock('typeorm-cursor-pagination')
 
 describe('ProjectsService', () => {
 
@@ -24,6 +27,7 @@ describe('ProjectsService', () => {
     }
     const projectRepository = {
         create: jest.fn(),
+        createQueryBuilder: jest.fn(),
         findOne: jest.fn(),
         findOneBy: jest.fn(),
         remove: jest.fn(),
@@ -35,6 +39,13 @@ describe('ProjectsService', () => {
     const caslAbility = {
         can: jest.fn()
     }
+    const queryBuilder = {
+        leftJoinAndSelect: jest.fn()
+    }
+    const paginator = {
+        paginate: jest.fn()
+    }
+    const buildPaginatorMock = buildPaginator as jest.Mock
 
     beforeEach(async () => {
 
@@ -57,12 +68,16 @@ describe('ProjectsService', () => {
 
         organizationRepository.findOneBy.mockReset()
         projectRepository.create.mockReset()
+        projectRepository.createQueryBuilder.mockReset()
         projectRepository.findOne.mockReset()
         projectRepository.findOneBy.mockReset()
         projectRepository.remove.mockReset()
         projectRepository.save.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
         caslAbility.can.mockReset()
+        queryBuilder.leftJoinAndSelect.mockReset()
+        paginator.paginate.mockReset()
+        buildPaginatorMock.mockReset()
     })
 
     describe('create', () => {
@@ -151,6 +166,36 @@ describe('ProjectsService', () => {
                 where: { id },
                 relations: ['organization']
             })
+        })
+    })
+
+    describe('list', () => {
+
+        const query = {
+            limit: 20
+        }
+        const pagingResult = 'paging result'
+
+        it('should return the pagination', async () => {
+
+            projectRepository.createQueryBuilder.mockReturnValue(queryBuilder)
+            queryBuilder.leftJoinAndSelect.mockReturnValue(queryBuilder)
+            paginator.paginate.mockResolvedValue(pagingResult)
+            buildPaginatorMock.mockReturnValue(paginator)
+
+            await expect(projectsService.list(query)).resolves.toBe(pagingResult)
+
+            expect(projectRepository.createQueryBuilder).toHaveBeenCalledWith('project')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('project.organization', 'organization')
+            expect(buildPaginatorMock).toHaveBeenCalledWith({
+                entity: Project,
+                paginationKeys: ['id'],
+                query: {
+                    ...query,
+                    order: 'ASC'
+                }
+            })
+            expect(paginator.paginate).toHaveBeenCalledWith(queryBuilder)
         })
     })
 

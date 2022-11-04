@@ -8,11 +8,14 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { buildPaginator } from 'typeorm-cursor-pagination'
 import { Project } from './entities/project.entity'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Organization } from '../organizations/entities/organization.entity'
+import type { PagingResult } from 'typeorm-cursor-pagination'
 import type { CreateProjectReqDto } from './dto/create-project.req.dto'
+import type { GetProjectsQueryDto } from './dto/get-projects.query.dto'
 import type { UpdateProjectReqDto } from './dto/update-project.req.dto'
 import type { Account } from '../accounts/entities/account.entity'
 
@@ -60,6 +63,23 @@ class ProjectsService {
             throw new NotFoundException()
 
         return project
+    }
+
+    async list(query: GetProjectsQueryDto): Promise<PagingResult<Project>> {
+
+        const queryBuilder = this.projectRepository.createQueryBuilder('project')
+            .leftJoinAndSelect('project.organization', 'organization')
+
+        const paginator = buildPaginator({
+            entity: Project,
+            paginationKeys: ['id'],
+            query: {
+                ...query,
+                order: 'ASC'
+            }
+        })
+
+        return paginator.paginate(queryBuilder)
     }
 
     async update(subject: Project, body: Partial<UpdateProjectReqDto>, initiator: Account): Promise<Project> {

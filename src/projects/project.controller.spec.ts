@@ -18,6 +18,7 @@ describe('ProjectsController', () => {
         create: jest.fn(),
         deleteById: jest.fn(),
         findById: jest.fn(),
+        list: jest.fn(),
         updateById: jest.fn()
     }
 
@@ -37,6 +38,7 @@ describe('ProjectsController', () => {
         projectsService.create.mockReset()
         projectsService.deleteById.mockReset()
         projectsService.findById.mockReset()
+        projectsService.list.mockReset()
         projectsService.updateById.mockReset()
     })
 
@@ -109,6 +111,35 @@ describe('ProjectsController', () => {
             await expect(projectsController.deleteProject(currentUser, projectId)).resolves.toBeUndefined()
 
             expect(projectsService.deleteById).toHaveBeenCalledWith(projectId, currentUser)
+        })
+    })
+
+    describe('listProjects', () => {
+
+        const query = {
+            limit: 20
+        }
+        const pagingResult = {
+            data: ['item'],
+            cursor: {
+                beforeCursor: 'before cursor',
+                afterCursor: 'after cursor'
+            }
+        }
+
+        it('should return the correct response', async () => {
+
+            projectsService.list.mockResolvedValue(pagingResult)
+
+            await expect(projectsController.listProjects(query)).resolves.toStrictEqual({
+                status: 'success',
+                data: {
+                    items: pagingResult.data,
+                    ...pagingResult.cursor
+                }
+            })
+
+            expect(projectsService.list).toHaveBeenCalledWith(query)
         })
     })
 })
