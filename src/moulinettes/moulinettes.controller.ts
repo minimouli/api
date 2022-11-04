@@ -16,6 +16,7 @@ import {
     Patch,
     Post,
     Put,
+    Query,
     UseGuards
 } from '@nestjs/common'
 import {
@@ -27,12 +28,15 @@ import {
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
+    ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse
 } from '@nestjs/swagger'
 import { MoulinettesService } from './moulinettes.service'
 import { CreateMoulinetteReqDto } from './dto/create-moulinette.req.dto'
 import { GetMoulinetteResDto } from './dto/get-moulinette.res.dto'
+import { GetMoulinettesResDto } from './dto/get-moulinettes.res.dto'
+import { GetMoulinettesQueryDto } from './dto/get-moulinettes.query.dto'
 import { GetMoulinetteSourceResDto } from './dto/get-moulinette-source.res.dto'
 import { PutMoulinetteSourceReqDto } from './dto/put-moulinette-source.req.dto'
 import { UpdateMoulinetteReqDto } from './dto/update-moulinette.req.dto'
@@ -233,6 +237,64 @@ class MoulinettesController {
             [majorVersion, minorVersion, patchVersion],
             currentUser
         )
+    }
+
+    @Get('/moulinettes')
+    @ApiOperation({ summary: 'List moulinettes' })
+    @ApiQuery({
+        name: 'limit',
+        type: Number,
+        required: false
+    })
+    @ApiQuery({
+        name: 'beforeCursor',
+        type: String,
+        required: false
+    })
+    @ApiQuery({
+        name: 'afterCursor',
+        type: String,
+        required: false
+    })
+    @ApiQuery({
+        name: 'isOfficial',
+        type: Boolean,
+        required: false
+    })
+    @ApiQuery({
+        name: 'projectName',
+        type: String,
+        required: false
+    })
+    @ApiQuery({
+        name: 'projectCycle',
+        type: Number,
+        required: false
+    })
+    @ApiQuery({
+        name: 'organizationName',
+        type: String,
+        required: false
+    })
+    @ApiOkResponse({
+        type: GetMoulinettesResDto,
+        description: 'List moulinettes'
+    })
+    @ApiBadRequestResponse({
+        type: ErrorResDto,
+        description: 'Bad Request'
+    })
+    async listMoulinettes(@Query() query: GetMoulinettesQueryDto): Promise<GetMoulinettesResDto> {
+
+        const { cursor, data } = await this.moulinettesService.list(query)
+
+        return {
+            status: 'success',
+            data: {
+                items: data,
+                ...cursor
+            }
+        }
     }
 
 }

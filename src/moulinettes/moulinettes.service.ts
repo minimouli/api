@@ -8,12 +8,15 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { buildPaginator } from 'typeorm-cursor-pagination'
 import { Moulinette } from './entities/moulinette.entity'
 import { Account } from '../accounts/entities/account.entity'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Project } from '../projects/entities/project.entity'
+import type { PagingResult } from 'typeorm-cursor-pagination'
 import type { CreateMoulinetteReqDto } from './dto/create-moulinette.req.dto'
+import type { GetMoulinettesQueryDto } from './dto/get-moulinettes.query.dto'
 import type { UpdateMoulinetteReqDto } from './dto/update-moulinette.req.dto'
 
 @Injectable()
@@ -77,6 +80,37 @@ class MoulinettesService {
             throw new NotFoundException()
 
         return moulinette
+    }
+
+    async list(query: GetMoulinettesQueryDto): Promise<PagingResult<Moulinette>> {
+
+        const queryBuilder = this.moulinetteRepository.createQueryBuilder('moulinette')
+            .leftJoinAndSelect('moulinette.maintainers', 'maintainer')
+            .leftJoinAndSelect('moulinette.project', 'project')
+            .leftJoinAndSelect('project.organization', 'organization')
+
+        if (query.isOfficial !== undefined)
+            queryBuilder.andWhere('moulinette.isOfficial = :isOfficial', { isOfficial: query.isOfficial })
+
+        if (query.projectName !== undefined)
+            queryBuilder.andWhere('project.name = :projectName', { projectName: query.projectName })
+
+        if (query.projectCycle !== undefined)
+            queryBuilder.andWhere('project.cycle = :projectCycle', { projectCycle: query.projectCycle })
+
+        if (query.organizationName !== undefined)
+            queryBuilder.andWhere('organization.name = :organizationName', { organizationName: query.organizationName })
+
+        const paginator = buildPaginator({
+            entity: Moulinette,
+            paginationKeys: ['id'],
+            query: {
+                ...query,
+                order: 'ASC'
+            }
+        })
+
+        return paginator.paginate(queryBuilder)
     }
 
     async update(subject: Moulinette, body: UpdateMoulinetteReqDto, initiator: Account): Promise<Moulinette> {

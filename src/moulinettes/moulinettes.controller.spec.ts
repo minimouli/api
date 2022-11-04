@@ -20,6 +20,7 @@ describe('MoulinettesController', () => {
         create: jest.fn(),
         deleteById: jest.fn(),
         findById: jest.fn(),
+        list: jest.fn(),
         updateById: jest.fn()
     }
     const moulinetteSourcesService = {
@@ -46,6 +47,7 @@ describe('MoulinettesController', () => {
         moulinettesService.create.mockReset()
         moulinettesService.deleteById.mockReset()
         moulinettesService.findById.mockReset()
+        moulinettesService.list.mockReset()
         moulinettesService.updateById.mockReset()
         moulinetteSourcesService.deleteByVersion.mockReset()
         moulinetteSourcesService.put.mockReset()
@@ -161,12 +163,41 @@ describe('MoulinettesController', () => {
         it('should return the correct response', async () => {
 
             await expect(moulinettesController.deleteMoulinetteSource(
-                currentUser, moulinetteId, majorVersion, minorVersion, patchVersion
+                 currentUser, moulinetteId, majorVersion, minorVersion, patchVersion
             )).resolves.toBeUndefined()
 
             expect(moulinetteSourcesService.deleteByVersion).toHaveBeenCalledWith(
                 moulinetteId, [majorVersion, minorVersion, patchVersion], currentUser
             )
+        })
+    })
+
+    describe('listMoulinettes', () => {
+
+        const query = {
+            limit: 20
+        }
+        const pagingResult = {
+            data: ['item'],
+            cursor: {
+                beforeCursor: 'before cursor',
+                afterCursor: 'after cursor'
+            }
+        }
+
+        it('should return the correct response', async () => {
+
+            moulinettesService.list.mockResolvedValue(pagingResult)
+
+            await expect(moulinettesController.listMoulinettes(query)).resolves.toStrictEqual({
+                status: 'success',
+                data: {
+                    items: pagingResult.data,
+                    ...pagingResult.cursor
+                }
+            })
+
+            expect(moulinettesService.list).toHaveBeenCalledWith(query)
         })
     })
 })

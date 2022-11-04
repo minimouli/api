@@ -21,6 +21,13 @@ describe('Moulinettes', () => {
         create: () => 'create',
         deleteById: () => Promise.resolve(),
         findById: () => 'find by id',
+        list: () => ({
+            data: ['item'],
+            cursor: {
+                beforeCursor: 'before cursor',
+                afterCursor: 'after cursor'
+            }
+        }),
         updateById: () => 'update by id'
     }
     const moulinetteSourcesService = {
@@ -233,5 +240,48 @@ describe('Moulinettes', () => {
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(204))
         })
+    })
+
+    describe('GET /moulinettes', () => {
+
+        it('should return 400 if the limit query parameter is less than 1', () => request(app.getHttpServer())
+            .get('/moulinettes')
+            .query({
+                limit: 0
+            })
+            .expect(400))
+
+        it('should return 400 if the limit query parameter is more than 100', () => request(app.getHttpServer())
+            .get('/moulinettes')
+            .query({
+                limit: 101
+            })
+            .expect(400))
+
+        it('should return 400 if the limit query parameter is not a number', () => request(app.getHttpServer())
+            .get('/moulinettes')
+            .query({
+                limit: 'not a number'
+            })
+            .expect(400))
+
+        it('should return 400 if the projectCycle query parameter is not a number', () => request(app.getHttpServer())
+            .get('/moulinettes')
+            .query({
+                projectCycle: 'not a number'
+            })
+            .expect(400))
+
+        it('should return 200', () => request(app.getHttpServer())
+            .get('/moulinettes')
+            .expect(200)
+            .expect({
+                status: 'success',
+                data: {
+                    items: ['item'],
+                    beforeCursor: 'before cursor',
+                    afterCursor: 'after cursor'
+                }
+            }))
     })
 })

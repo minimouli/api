@@ -8,6 +8,7 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
+import { buildPaginator } from 'typeorm-cursor-pagination'
 import { MoulinettesService } from './moulinettes.service'
 import { Moulinette } from './entities/moulinette.entity'
 import { Account } from '../accounts/entities/account.entity'
@@ -15,6 +16,8 @@ import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Project } from '../projects/entities/project.entity'
 import type { UpdateMoulinetteReqDto } from './dto/update-moulinette.req.dto'
+
+jest.mock('typeorm-cursor-pagination')
 
 describe('MoulinettesService', () => {
 
@@ -24,6 +27,7 @@ describe('MoulinettesService', () => {
     }
     const moulinetteRepository = {
         create: jest.fn(),
+        createQueryBuilder: jest.fn(),
         findOne: jest.fn(),
         remove: jest.fn(),
         save: jest.fn()
@@ -37,6 +41,14 @@ describe('MoulinettesService', () => {
     const caslAbility = {
         can: jest.fn()
     }
+    const queryBuilder = {
+        andWhere: jest.fn(),
+        leftJoinAndSelect: jest.fn()
+    }
+    const paginator = {
+        paginate: jest.fn()
+    }
+    const buildPaginatorMock = buildPaginator as jest.Mock
 
     beforeEach(async () => {
 
@@ -62,12 +74,17 @@ describe('MoulinettesService', () => {
 
         accountRepository.findOneBy.mockReset()
         moulinetteRepository.create.mockReset()
+        moulinetteRepository.createQueryBuilder.mockReset()
         moulinetteRepository.findOne.mockReset()
         moulinetteRepository.remove.mockReset()
         moulinetteRepository.save.mockReset()
         projectRepository.findOneBy.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
         caslAbility.can.mockReset()
+        queryBuilder.andWhere.mockReset()
+        queryBuilder.leftJoinAndSelect.mockReset()
+        paginator.paginate.mockReset()
+        buildPaginatorMock.mockReset()
     })
 
     describe('create', () => {
@@ -200,6 +217,207 @@ describe('MoulinettesService', () => {
                     }
                 }
             })
+        })
+    })
+
+    describe('list', () => {
+
+        const pagingResult = 'paging result'
+
+        it('should perform the query without condition', async () => {
+
+            const query = {
+                limit: 20
+            }
+
+            moulinetteRepository.createQueryBuilder.mockReturnValue(queryBuilder)
+            queryBuilder.andWhere.mockReturnValue(queryBuilder)
+            queryBuilder.leftJoinAndSelect.mockReturnValue(queryBuilder)
+            paginator.paginate.mockResolvedValue(pagingResult)
+            buildPaginatorMock.mockReturnValue(paginator)
+
+            await expect(moulinettesService.list(query)).resolves.toBe(pagingResult)
+
+            expect(moulinetteRepository.createQueryBuilder).toHaveBeenCalledWith('moulinette')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(1, 'moulinette.maintainers', 'maintainer')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(2, 'moulinette.project', 'project')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(3, 'project.organization', 'organization')
+            expect(queryBuilder.andWhere).not.toHaveBeenCalled()
+            expect(buildPaginatorMock).toHaveBeenCalledWith({
+                entity: Moulinette,
+                paginationKeys: ['id'],
+                query: {
+                    ...query,
+                    order: 'ASC'
+                }
+            })
+            expect(paginator.paginate).toHaveBeenCalledWith(queryBuilder)
+        })
+
+        it('should perform the query with condition on official status', async () => {
+
+            const query = {
+                limit: 20,
+                isOfficial: true
+            }
+
+            moulinetteRepository.createQueryBuilder.mockReturnValue(queryBuilder)
+            queryBuilder.andWhere.mockReturnValue(queryBuilder)
+            queryBuilder.leftJoinAndSelect.mockReturnValue(queryBuilder)
+            paginator.paginate.mockResolvedValue(pagingResult)
+            buildPaginatorMock.mockReturnValue(paginator)
+
+            await expect(moulinettesService.list(query)).resolves.toBe(pagingResult)
+
+            expect(moulinetteRepository.createQueryBuilder).toHaveBeenCalledWith('moulinette')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(1, 'moulinette.maintainers', 'maintainer')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(2, 'moulinette.project', 'project')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(3, 'project.organization', 'organization')
+            expect(queryBuilder.andWhere).toHaveBeenCalledWith('moulinette.isOfficial = :isOfficial', { isOfficial: query.isOfficial })
+            expect(queryBuilder.andWhere).toHaveBeenCalledTimes(1)
+            expect(buildPaginatorMock).toHaveBeenCalledWith({
+                entity: Moulinette,
+                paginationKeys: ['id'],
+                query: {
+                    ...query,
+                    order: 'ASC'
+                }
+            })
+            expect(paginator.paginate).toHaveBeenCalledWith(queryBuilder)
+        })
+
+        it('should perform the query with condition on project name', async () => {
+
+            const query = {
+                limit: 20,
+                projectName: 'project name'
+            }
+
+            moulinetteRepository.createQueryBuilder.mockReturnValue(queryBuilder)
+            queryBuilder.andWhere.mockReturnValue(queryBuilder)
+            queryBuilder.leftJoinAndSelect.mockReturnValue(queryBuilder)
+            paginator.paginate.mockResolvedValue(pagingResult)
+            buildPaginatorMock.mockReturnValue(paginator)
+
+            await expect(moulinettesService.list(query)).resolves.toBe(pagingResult)
+
+            expect(moulinetteRepository.createQueryBuilder).toHaveBeenCalledWith('moulinette')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(1, 'moulinette.maintainers', 'maintainer')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(2, 'moulinette.project', 'project')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(3, 'project.organization', 'organization')
+            expect(queryBuilder.andWhere).toHaveBeenCalledWith('project.name = :projectName', { projectName: query.projectName })
+            expect(queryBuilder.andWhere).toHaveBeenCalledTimes(1)
+            expect(buildPaginatorMock).toHaveBeenCalledWith({
+                entity: Moulinette,
+                paginationKeys: ['id'],
+                query: {
+                    ...query,
+                    order: 'ASC'
+                }
+            })
+            expect(paginator.paginate).toHaveBeenCalledWith(queryBuilder)
+        })
+
+        it('should perform the query with condition on project cycle', async () => {
+
+            const query = {
+                limit: 20,
+                projectCycle: 2022
+            }
+
+            moulinetteRepository.createQueryBuilder.mockReturnValue(queryBuilder)
+            queryBuilder.andWhere.mockReturnValue(queryBuilder)
+            queryBuilder.leftJoinAndSelect.mockReturnValue(queryBuilder)
+            paginator.paginate.mockResolvedValue(pagingResult)
+            buildPaginatorMock.mockReturnValue(paginator)
+
+            await expect(moulinettesService.list(query)).resolves.toBe(pagingResult)
+
+            expect(moulinetteRepository.createQueryBuilder).toHaveBeenCalledWith('moulinette')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(1, 'moulinette.maintainers', 'maintainer')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(2, 'moulinette.project', 'project')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(3, 'project.organization', 'organization')
+            expect(queryBuilder.andWhere).toHaveBeenCalledWith('project.cycle = :projectCycle', { projectCycle: query.projectCycle })
+            expect(queryBuilder.andWhere).toHaveBeenCalledTimes(1)
+            expect(buildPaginatorMock).toHaveBeenCalledWith({
+                entity: Moulinette,
+                paginationKeys: ['id'],
+                query: {
+                    ...query,
+                    order: 'ASC'
+                }
+            })
+            expect(paginator.paginate).toHaveBeenCalledWith(queryBuilder)
+        })
+
+        it('should perform the query with condition on organization name', async () => {
+
+            const query = {
+                limit: 20,
+                organizationName: 'organization name'
+            }
+
+            moulinetteRepository.createQueryBuilder.mockReturnValue(queryBuilder)
+            queryBuilder.andWhere.mockReturnValue(queryBuilder)
+            queryBuilder.leftJoinAndSelect.mockReturnValue(queryBuilder)
+            paginator.paginate.mockResolvedValue(pagingResult)
+            buildPaginatorMock.mockReturnValue(paginator)
+
+            await expect(moulinettesService.list(query)).resolves.toBe(pagingResult)
+
+            expect(moulinetteRepository.createQueryBuilder).toHaveBeenCalledWith('moulinette')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(1, 'moulinette.maintainers', 'maintainer')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(2, 'moulinette.project', 'project')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(3, 'project.organization', 'organization')
+            expect(queryBuilder.andWhere).toHaveBeenCalledWith('organization.name = :organizationName', { organizationName: query.organizationName })
+            expect(queryBuilder.andWhere).toHaveBeenCalledTimes(1)
+            expect(buildPaginatorMock).toHaveBeenCalledWith({
+                entity: Moulinette,
+                paginationKeys: ['id'],
+                query: {
+                    ...query,
+                    order: 'ASC'
+                }
+            })
+            expect(paginator.paginate).toHaveBeenCalledWith(queryBuilder)
+        })
+
+        it('should perform the query with every conditions', async () => {
+
+            const query = {
+                limit: 20,
+                isOfficial: true,
+                projectName: 'project name',
+                projectCycle: 2022,
+                organizationName: 'organization name'
+            }
+
+            moulinetteRepository.createQueryBuilder.mockReturnValue(queryBuilder)
+            queryBuilder.andWhere.mockReturnValue(queryBuilder)
+            queryBuilder.leftJoinAndSelect.mockReturnValue(queryBuilder)
+            paginator.paginate.mockResolvedValue(pagingResult)
+            buildPaginatorMock.mockReturnValue(paginator)
+
+            await expect(moulinettesService.list(query)).resolves.toBe(pagingResult)
+
+            expect(moulinetteRepository.createQueryBuilder).toHaveBeenCalledWith('moulinette')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(1, 'moulinette.maintainers', 'maintainer')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(2, 'moulinette.project', 'project')
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenNthCalledWith(3, 'project.organization', 'organization')
+            expect(queryBuilder.andWhere).toHaveBeenCalledWith('moulinette.isOfficial = :isOfficial', { isOfficial: query.isOfficial })
+            expect(queryBuilder.andWhere).toHaveBeenCalledWith('project.name = :projectName', { projectName: query.projectName })
+            expect(queryBuilder.andWhere).toHaveBeenCalledWith('project.cycle = :projectCycle', { projectCycle: query.projectCycle })
+            expect(queryBuilder.andWhere).toHaveBeenCalledWith('organization.name = :organizationName', { organizationName: query.organizationName })
+            expect(queryBuilder.andWhere).toHaveBeenCalledTimes(4)
+            expect(buildPaginatorMock).toHaveBeenCalledWith({
+                entity: Moulinette,
+                paginationKeys: ['id'],
+                query: {
+                    ...query,
+                    order: 'ASC'
+                }
+            })
+            expect(paginator.paginate).toHaveBeenCalledWith(queryBuilder)
         })
     })
 
