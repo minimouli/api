@@ -5,21 +5,35 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    Param,
+    Patch,
+    Post,
+    Query,
+    UseGuards
+} from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiCreatedResponse,
-    ApiForbiddenResponse, ApiNoContentResponse,
+    ApiForbiddenResponse,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiOperation,
+    ApiOperation, ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse
 } from '@nestjs/swagger'
 import { OrganizationsService } from './organizations.service'
 import { CreateOrganizationReqDto } from './dto/create-organization.req.dto'
 import { GetOrganizationResDto } from './dto/get-organization.res.dto'
+import { GetOrganizationsResDto } from './dto/get-organizations.res.dto'
+import { GetOrganizationsQueryDto } from './dto/get-organizations.query.dto'
 import { UpdateOrganizationReqDto } from './dto/update-organization.req.dto'
 import { Account } from '../accounts/entities/account.entity'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
@@ -142,6 +156,44 @@ class OrganizationsController {
     })
     async deleteOrganization(@CurrentUser() currentUser: Account, @Param('organizationId') organizationId: string): Promise<void> {
         await this.organizationService.deleteById(organizationId, currentUser)
+    }
+
+    @Get('/organizations')
+    @ApiOperation({ summary: 'List organizations' })
+    @ApiQuery({
+        name: 'limit',
+        type: Number,
+        required: false
+    })
+    @ApiQuery({
+        name: 'beforeCursor',
+        type: String,
+        required: false
+    })
+    @ApiQuery({
+        name: 'afterCursor',
+        type: String,
+        required: false
+    })
+    @ApiOkResponse({
+        type: GetOrganizationsResDto,
+        description: 'List organizations'
+    })
+    @ApiBadRequestResponse({
+        type: ErrorResDto,
+        description: 'Bad Request'
+    })
+    async listOrganizations(@Query() query: GetOrganizationsQueryDto): Promise<GetOrganizationsResDto> {
+
+        const { cursor, data } = await this.organizationService.list(query)
+
+        return {
+            status: 'success',
+            data: {
+                items: data,
+                ...cursor
+            }
+        }
     }
 
 }

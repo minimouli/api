@@ -8,10 +8,13 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { buildPaginator } from 'typeorm-cursor-pagination'
 import { Organization } from './entities/organization.entity'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
+import type { PagingResult } from 'typeorm-cursor-pagination'
 import type { CreateOrganizationReqDto } from './dto/create-organization.req.dto'
+import type { GetOrganizationsQueryDto } from './dto/get-organizations.query.dto'
 import type { UpdateOrganizationReqDto } from './dto/update-organization.req.dto'
 import type { Account } from '../accounts/entities/account.entity'
 
@@ -44,6 +47,22 @@ class OrganizationsService {
             throw new NotFoundException()
 
         return organization
+    }
+
+    async list(query: GetOrganizationsQueryDto): Promise<PagingResult<Organization>> {
+
+        const queryBuilder = this.organizationRepository.createQueryBuilder('organization')
+
+        const paginator = buildPaginator({
+            entity: Organization,
+            paginationKeys: ['id'],
+            query: {
+                ...query,
+                order: 'ASC'
+            }
+        })
+
+        return paginator.paginate(queryBuilder)
     }
 
     async update(subject: Organization, body: UpdateOrganizationReqDto, initiator: Account): Promise<Organization> {

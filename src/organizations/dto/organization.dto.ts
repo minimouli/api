@@ -20,6 +20,9 @@ class OrganizationDto {
     displayName: string
 
     @ApiProperty()
+    uri: string
+
+    @ApiProperty()
     updatedAt: string
 
     @ApiProperty()

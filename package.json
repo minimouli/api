@@ -48,7 +48,8 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "sift": "^16.0.0",
-    "typeorm": "^0.3.10"
+    "typeorm": "^0.3.10",
+    "typeorm-cursor-pagination": "^0.10.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",

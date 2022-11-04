@@ -8,17 +8,21 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
+import { buildPaginator } from 'typeorm-cursor-pagination'
 import { OrganizationsService } from './organizations.service'
 import { Organization } from './entities/organization.entity'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import type { Account } from '../accounts/entities/account.entity'
 
+jest.mock('typeorm-cursor-pagination')
+
 describe('OrganizationsService', () => {
 
     let organizationsService: OrganizationsService
     const organizationRepository = {
         create: jest.fn(),
+        createQueryBuilder: jest.fn(),
         findOneBy: jest.fn(),
         remove: jest.fn(),
         save: jest.fn()
@@ -29,6 +33,10 @@ describe('OrganizationsService', () => {
     const caslAbility = {
         can: jest.fn()
     }
+    const paginator = {
+        paginate: jest.fn()
+    }
+    const buildPaginatorMock = buildPaginator as jest.Mock
 
     beforeEach(async () => {
 
@@ -47,11 +55,14 @@ describe('OrganizationsService', () => {
         organizationsService = moduleRef.get(OrganizationsService)
 
         organizationRepository.create.mockReset()
+        organizationRepository.createQueryBuilder.mockReset()
         organizationRepository.findOneBy.mockReset()
         organizationRepository.remove.mockReset()
         organizationRepository.save.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
         caslAbility.can.mockReset()
+        paginator.paginate.mockReset()
+        buildPaginatorMock.mockReset()
     })
 
     describe('create', () => {
@@ -114,7 +125,35 @@ describe('OrganizationsService', () => {
 
             expect(organizationRepository.findOneBy).toHaveBeenCalledWith({ id })
         })
+    })
 
+    describe('list', () => {
+
+        const query = {
+            limit: 20
+        }
+        const queryBuilder = 'query builder'
+        const pagingResult = 'paging result'
+
+        it('should return the pagination', async () => {
+
+            organizationRepository.createQueryBuilder.mockReturnValue(queryBuilder)
+            paginator.paginate.mockResolvedValue(pagingResult)
+            buildPaginatorMock.mockReturnValue(paginator)
+
+            await expect(organizationsService.list(query)).resolves.toBe(pagingResult)
+
+            expect(organizationRepository.createQueryBuilder).toHaveBeenCalledWith('organization')
+            expect(buildPaginatorMock).toHaveBeenCalledWith({
+                entity: Organization,
+                paginationKeys: ['id'],
+                query: {
+                    ...query,
+                    order: 'ASC'
+                }
+            })
+            expect(paginator.paginate).toHaveBeenCalledWith(queryBuilder)
+        })
     })
 
     describe('update', () => {

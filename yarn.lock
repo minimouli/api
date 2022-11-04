@@ -2455,6 +2455,7 @@ __metadata:
     ts-node: ^10.0.0
     tsconfig-paths: ^3.10.1
     typeorm: ^0.3.10
+    typeorm-cursor-pagination: ^0.10.0
     typescript: ^4.3.5
   languageName: unknown
   linkType: soft
@@ -9125,6 +9126,15 @@ __metadata:
   version: 0.0.6
   resolution: "typedarray@npm:0.0.6"
   checksum: 33b39f3d0e8463985eeaeeacc3cb2e28bc3dfaf2a5ed219628c0b629d5d7b810b0eb2165f9f607c34871d5daa92ba1dc69f49051cf7d578b4cbd26c340b9d1b1
+  languageName: node
+  linkType: hard
+
+"typeorm-cursor-pagination@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "typeorm-cursor-pagination@npm:0.10.0"
+  peerDependencies:
+    typeorm: ^0.3.6
+  checksum: 80dc48c378f8ff141b6b9dd8b160710e0f2c55851ecf860ed639fba9586e674edd88ab7ca46a55ed8a4fd9feba0ef5ef10697d92aacb35e092e3889190a8bc8a
   languageName: node
   linkType: hard
 

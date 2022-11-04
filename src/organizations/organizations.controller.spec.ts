@@ -17,6 +17,7 @@ describe('OrganizationsController', () => {
         create: jest.fn(),
         deleteById: jest.fn(),
         findById: jest.fn(),
+        list: jest.fn(),
         updateById: jest.fn()
     }
 
@@ -36,6 +37,7 @@ describe('OrganizationsController', () => {
         organizationsService.create.mockReset()
         organizationsService.deleteById.mockReset()
         organizationsService.findById.mockReset()
+        organizationsService.list.mockReset()
         organizationsService.updateById.mockReset()
     })
 
@@ -112,6 +114,35 @@ describe('OrganizationsController', () => {
             await expect(organizationsController.deleteOrganization(currentUser, organizationId)).resolves.toBeUndefined()
 
             expect(organizationsService.deleteById).toHaveBeenCalledWith(organizationId, currentUser)
+        })
+    })
+
+    describe('listOrganizations', () => {
+
+        const query = {
+            limit: 20
+        }
+        const pagingResult = {
+            data: ['item'],
+            cursor: {
+                beforeCursor: 'before cursor',
+                afterCursor: 'after cursor'
+            }
+        }
+
+        it('should return the correct response', async () => {
+
+            organizationsService.list.mockResolvedValue(pagingResult)
+
+            await expect(organizationsController.listOrganizations(query)).resolves.toStrictEqual({
+                status: 'success',
+                data: {
+                    items: pagingResult.data,
+                    ...pagingResult.cursor
+                }
+            })
+
+            expect(organizationsService.list).toHaveBeenCalledWith(query)
         })
     })
 })
