@@ -20,6 +20,9 @@ class AccountDto {
     username: string
 
     @ApiProperty()
+    avatar: string
+
+    @ApiProperty()
     email: string
 
     @ApiProperty()

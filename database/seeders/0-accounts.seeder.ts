@@ -23,6 +23,7 @@ class AccountsSeeder implements MigrationInterface {
                     id: 'admin',
                     nickname: faker.name.firstName(),
                     username: faker.internet.userName().toLowerCase(),
+                    avatar: faker.image.abstract(460, 460, true),
                     email: faker.internet.email().toLowerCase(),
                     permissions: AdminPermissions
                 },
@@ -30,6 +31,7 @@ class AccountsSeeder implements MigrationInterface {
                     id: 'user-1',
                     nickname: faker.name.firstName(),
                     username: faker.internet.userName().toLowerCase(),
+                    avatar: faker.image.abstract(460, 460, true),
                     email: faker.internet.email().toLowerCase(),
                     permissions: []
                 },
@@ -37,6 +39,7 @@ class AccountsSeeder implements MigrationInterface {
                     id: 'user-2',
                     nickname: faker.name.firstName(),
                     username: faker.internet.userName().toLowerCase(),
+                    avatar: faker.image.abstract(460, 460, true),
                     email: faker.internet.email().toLowerCase(),
                     permissions: DefaultPermissions
                 }

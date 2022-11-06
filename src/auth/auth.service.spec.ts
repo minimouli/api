@@ -13,6 +13,7 @@ import { GithubCredentials } from './entities/github-credentials.entity'
 import { GithubApiService } from './services/github-api.service'
 import { GithubCredentialsService } from './services/github-credentials.service'
 import { AccountsService } from '../accounts/accounts.service'
+import { DefaultPermissions } from '../common/configs/permissions.config'
 import { getRandomString } from '../common/helpers/random.helper'
 import { LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/string.helper'
 
@@ -73,8 +74,9 @@ describe('AuthService', () => {
         const code = 'code'
         const accessToken = 'access token'
         const userProfile = {
+            id: 1,
             name: 'user name',
-            id: 1
+            avatar_url: 'avatar url'
         }
         const primaryEmail = 'primary email'
 
@@ -120,7 +122,13 @@ describe('AuthService', () => {
                 relations: ['account']
             })
             expect(githubApiService.getUserPrimaryEmail).toHaveBeenCalledWith(accessToken)
-            expect(accountsService.create).toHaveBeenCalledWith(userProfile.name, username, primaryEmail)
+            expect(accountsService.create).toHaveBeenCalledWith({
+                nickname: userProfile.name,
+                username,
+                avatar: userProfile.avatar_url,
+                email: primaryEmail,
+                permissions: DefaultPermissions
+            })
             expect(githubCredentialsService.create).toHaveBeenCalledWith(userProfile.id, account)
             expect(getRandomStringMock).toHaveBeenCalledWith(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)
         })

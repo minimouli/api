@@ -8,6 +8,7 @@
 interface GithubUserDto {
     id: number
     name: string
+    avatar_url: string
 }
 
 export type {

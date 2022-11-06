@@ -30,6 +30,9 @@ class Account {
     username: string
 
     @Column()
+    avatar: string
+
+    @Column()
     @Expose({
         groups: ['owner']
     })

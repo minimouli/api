@@ -12,6 +12,7 @@ import { GithubApiService } from './services/github-api.service'
 import { GithubCredentialsService } from './services/github-credentials.service'
 import { GithubCredentials } from './entities/github-credentials.entity'
 import { AccountsService } from '../accounts/accounts.service'
+import { DefaultPermissions } from '../common/configs/permissions.config'
 import { getRandomString } from '../common/helpers/random.helper'
 import { LOWER_CASE_ALPHA, NUMERIC } from '../common/helpers/string.helper'
 import type { Account } from '../accounts/entities/account.entity'
@@ -42,7 +43,14 @@ class AuthService {
 
         const username = getRandomString(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)
         const email = await this.githubApiService.getUserPrimaryEmail(accessToken)
-        const account = await this.accountsService.create(userProfile.name, username, email)
+
+        const account = await this.accountsService.create({
+            nickname: userProfile.name,
+            username,
+            avatar: userProfile.avatar_url,
+            email,
+            permissions: DefaultPermissions
+        })
 
         await this.githubCredentialsService.create(userProfile.id, account)
 

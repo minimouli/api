@@ -11,9 +11,9 @@ import { Repository } from 'typeorm'
 import { Account } from './entities/account.entity'
 import { validateNickname, validateUsername } from './helpers/name.helper'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
-import { DefaultPermissions } from '../common/configs/permissions.config'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
+import type { CreateAccountReqDto } from './dto/create-account.req.dto'
 import type { UpdateAccountReqDto } from './dto/update-account.req.dto'
 
 @Injectable()
@@ -25,15 +25,8 @@ class AccountsService {
         private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
-    async create(nickname: string, username: string, email: string, permissions = DefaultPermissions): Promise<Account> {
-
-        const account = this.accountRepository.create({
-            username,
-            nickname,
-            email,
-            permissions
-        })
-
+    async create(body: CreateAccountReqDto): Promise<Account> {
+        const account = this.accountRepository.create(body)
         return this.accountRepository.save(account)
     }
 

@@ -12,9 +12,9 @@ import { AccountsService } from './accounts.service'
 import { Account } from './entities/account.entity'
 import { validateNickname, validateUsername } from './helpers/name.helper'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
-import { DefaultPermissions } from '../common/configs/permissions.config'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
+import type { CreateAccountReqDto } from './dto/create-account.req.dto'
 
 jest.mock('./helpers/name.helper')
 
@@ -64,42 +64,20 @@ describe('AccountService', () => {
 
     describe('create', () => {
 
-        const nickname = 'nickname'
-        const username = 'username'
-        const email = 'email'
-        const permissions = [Permission.UpdateOwnAccount]
+        const body = {
+            username: 'username'
+        } as CreateAccountReqDto
         const createdAccount = 'created account'
         const savedAccount = 'saved account'
 
-        it('should return the created account with default permissions', async () => {
+        it('should create a new account', async () => {
 
             accountRepository.create.mockReturnValue(createdAccount)
             accountRepository.save.mockReturnValue(savedAccount)
 
-            await expect(accountsService.create(nickname, username, email)).resolves.toBe(savedAccount)
+            await expect(accountsService.create(body)).resolves.toBe(savedAccount)
 
-            expect(accountRepository.create).toHaveBeenCalledWith({
-                nickname,
-                username,
-                email,
-                permissions: DefaultPermissions
-            })
-            expect(accountRepository.save).toHaveBeenCalledWith(createdAccount)
-        })
-
-        it('should return the created account with specified permissions', async () => {
-
-            accountRepository.create.mockReturnValue(createdAccount)
-            accountRepository.save.mockReturnValue(savedAccount)
-
-            await expect(accountsService.create(nickname, username, email, permissions)).resolves.toBe(savedAccount)
-
-            expect(accountRepository.create).toHaveBeenCalledWith({
-                nickname,
-                username,
-                email,
-                permissions
-            })
+            expect(accountRepository.create).toHaveBeenCalledWith(body)
             expect(accountRepository.save).toHaveBeenCalledWith(createdAccount)
         })
     })
