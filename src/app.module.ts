@@ -16,6 +16,7 @@ import { CaslModule } from './casl/casl.module'
 import { MoulinettesModule } from './moulinettes/moulinettes.module'
 import { OrganizationsModule } from './organizations/organizations.module'
 import { ProjectsModule } from './projects/projects.module'
+import { RunsModule } from './runs/runs.module'
 import { TokensModule } from './tokens/tokens.module'
 
 @Module({
@@ -49,6 +50,7 @@ import { TokensModule } from './tokens/tokens.module'
         MoulinettesModule,
         OrganizationsModule,
         ProjectsModule,
+        RunsModule,
         TokensModule
     ],
     providers: [

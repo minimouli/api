@@ -25,14 +25,16 @@ const AdminPermissions = [
     Permission.DeleteOrganization,
     Permission.CreateProject,
     Permission.UpdateProject,
-    Permission.DeleteProject
+    Permission.DeleteProject,
+    Permission.CreateRun
 ]
 
 const DefaultPermissions = [
     Permission.UpdateOwnAccount,
     Permission.DeleteOwnAccount,
     Permission.ReadOwnAuthTokens,
-    Permission.DeleteOwnAuthTokens
+    Permission.DeleteOwnAuthTokens,
+    Permission.CreateRun
 ]
 
 export {

@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Expose } from 'class-transformer'
+import { Exclude, Expose } from 'class-transformer'
 import { BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm'
 import { EntityType } from '../../common/enums/entity-type.enum'
 import { getSecureRandomString } from '../../common/helpers/random.helper'
+import { Run } from '../../runs/entities/run.entity'
 import { AuthToken } from '../../tokens/entities/auth-token.entity'
 import type { Permission } from '../../common/enums/permission.enum'
 
@@ -44,6 +45,10 @@ class Account {
 
     @OneToMany(() => AuthToken, (authToken) => authToken.account)
     authTokens: AuthToken[]
+
+    @Exclude()
+    @OneToMany(() => Run, (run) => run.owner)
+    runs: Run[]
 
     @Expose()
     get uri(): string {

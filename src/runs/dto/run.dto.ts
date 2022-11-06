@@ -6,29 +6,36 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger'
+import { SuiteDto } from './suite.dto'
+import { AccountDto } from '../../accounts/dto/account.dto'
 import { EntityType } from '../../common/enums/entity-type.enum'
+import { MoulinetteDto } from '../../moulinettes/dto/moulinette.dto'
 
-class MoulinetteSourceDto {
-
-    @ApiProperty()
-    version: string
+class RunDto {
 
     @ApiProperty()
-    tarball: string
-
-    @ApiProperty()
-    checksum: string
+    id: string
 
     @ApiProperty({
-        type: [String]
+        type: [SuiteDto]
     })
-    rules: string[]
+    suites: SuiteDto[]
+
+    @ApiProperty({
+        type: MoulinetteDto
+    })
+    moulinette: MoulinetteDto
 
     @ApiProperty()
-    use: number
+    moulinetteVersion: string
+
+    @ApiProperty({
+        type: AccountDto
+    })
+    owner: AccountDto
 
     @ApiProperty()
-    isDeprecated: boolean
+    uri: string
 
     @ApiProperty()
     updatedAt: string
@@ -42,5 +49,5 @@ class MoulinetteSourceDto {
 }
 
 export {
-    MoulinetteSourceDto
+    RunDto
 }

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Expose } from 'class-transformer'
+import { Exclude, Expose } from 'class-transformer'
 import {
     BeforeInsert,
     Column,
@@ -23,6 +23,7 @@ import { Account } from '../../accounts/entities/account.entity'
 import { EntityType } from '../../common/enums/entity-type.enum'
 import { getSecureRandomString } from '../../common/helpers/random.helper'
 import { Project } from '../../projects/entities/project.entity'
+import { Run } from '../../runs/entities/run.entity'
 
 @Entity()
 class Moulinette {
@@ -43,6 +44,10 @@ class Moulinette {
     @ManyToMany(() => Account)
     @JoinTable()
     maintainers: Account[]
+
+    @Exclude()
+    @OneToMany(() => Run, (run) => run.moulinette)
+    runs: Run[]
 
     @Column()
     repository: string

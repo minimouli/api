@@ -11,11 +11,12 @@ import { $elemMatch, $eq, createQueryTester } from 'sift'
 import { Account } from '../accounts/entities/account.entity'
 import { CaslAction } from '../common/enums/casl-action.enum'
 import { Permission } from '../common/enums/permission.enum'
-import { AuthToken } from '../tokens/entities/auth-token.entity'
 import { Moulinette } from '../moulinettes/entities/moulinette.entity'
 import { MoulinetteSource } from '../moulinettes/entities/moulinette-source.entity'
 import { Organization } from '../organizations/entities/organization.entity'
 import { Project } from '../projects/entities/project.entity'
+import { Run } from '../runs/entities/run.entity'
+import { AuthToken } from '../tokens/entities/auth-token.entity'
 import type { AbilityClass, ExtractSubjectType, InferSubjects } from '@casl/ability'
 
 type Subjects = InferSubjects<
@@ -25,6 +26,7 @@ type Subjects = InferSubjects<
     | typeof MoulinetteSource
     | typeof Organization
     | typeof Project
+    | typeof Run
 >
 type AppAbility = PureAbility<[CaslAction, Subjects]>
 
@@ -138,6 +140,10 @@ class CaslAbilityFactory {
 
         if (permissions.includes(Permission.DeleteProject))
             can(CaslAction.Delete, Project)
+
+        /* Run */
+        if (permissions.includes(Permission.CreateRun))
+            can(CaslAction.Create, Run)
 
         return build({
             detectSubjectType: (subject) => subject.constructor as ExtractSubjectType<Subjects>,

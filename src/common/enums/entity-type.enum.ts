@@ -11,7 +11,8 @@ enum EntityType {
     Moulinette = 'moulinette',
     MoulinetteSource = 'moulinette-source',
     Organization = 'organization',
-    Project = 'project'
+    Project = 'project',
+    Run = 'run'
 }
 
 export {

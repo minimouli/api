@@ -6,7 +6,15 @@
  */
 
 import { Exclude, Expose } from 'class-transformer'
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import {
+    BeforeInsert,
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from 'typeorm'
 import { Moulinette } from './moulinette.entity'
 import { EntityType } from '../../common/enums/entity-type.enum'
 
@@ -54,6 +62,9 @@ class MoulinetteSource {
     rules: string[]
 
     @Column()
+    use: number
+
+    @Column()
     isDeprecated: boolean
 
     @UpdateDateColumn()
@@ -61,6 +72,11 @@ class MoulinetteSource {
 
     @CreateDateColumn()
     createdAt: string
+
+    @BeforeInsert()
+    beforeInsert() {
+        this.use = 0
+    }
 
 }
 
