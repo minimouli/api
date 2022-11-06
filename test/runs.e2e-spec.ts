@@ -17,7 +17,8 @@ describe('Runs', () => {
     let app: INestApplication
     let jwtService: JwtService
     const runsService = {
-        create: () => 'create'
+        create: () => 'create',
+        findById: () => 'find by id'
     }
 
     beforeAll(async () => {
@@ -36,6 +37,39 @@ describe('Runs', () => {
     })
 
     afterAll(() => app.close())
+
+    describe('GET /run/:runId', () => {
+
+        it('should return 200', () => request(app.getHttpServer())
+            .get('/run/123')
+            .expect(200)
+            .expect({
+                status: 'success',
+                data: runsService.findById()
+            }))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('should return 200', () => request(app.getHttpServer())
+                .get('/run/123')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(200)
+                .expect({
+                    status: 'success',
+                    data: runsService.findById()
+                }))
+        })
+    })
 
     describe('POST /run', () => {
 

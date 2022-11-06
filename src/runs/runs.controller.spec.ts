@@ -8,6 +8,7 @@
 import { Test } from '@nestjs/testing'
 import { RunsController } from './runs.controller'
 import { RunsService } from './runs.service'
+import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import type { CreateRunReqDto } from './dto/create-run.req.dto'
 import type { Account } from '../accounts/entities/account.entity'
 
@@ -15,7 +16,11 @@ describe('RunsController', () => {
 
     let runsController: RunsController
     const runsService = {
-        create: jest.fn()
+        create: jest.fn(),
+        findById: jest.fn()
+    }
+    const caslAbilityFactory = {
+        createForAccount: jest.fn()
     }
 
     beforeEach(async () => {
@@ -26,12 +31,17 @@ describe('RunsController', () => {
             .useMocker((token) => {
                 if (token === RunsService)
                     return runsService
+
+                if (token === CaslAbilityFactory)
+                    return caslAbilityFactory
             })
             .compile()
 
         runsController = moduleRef.get(RunsController)
 
         runsService.create.mockReset()
+        runsService.findById.mockReset()
+        caslAbilityFactory.createForAccount.mockReset()
     })
 
     describe('createRun', () => {
@@ -50,6 +60,24 @@ describe('RunsController', () => {
             })
 
             expect(runsService.create).toHaveBeenCalledWith(body, currentUser)
+        })
+    })
+
+    describe('getRun', () => {
+
+        const runId = 'runId'
+        const foundRun = 'found run'
+
+        it('should return the correct response', async () => {
+
+            runsService.findById.mockResolvedValue(foundRun)
+
+            await expect(runsController.getRun(runId)).resolves.toStrictEqual({
+                status: 'success',
+                data: foundRun
+            })
+
+            expect(runsService.findById).toHaveBeenCalledWith(runId)
         })
     })
 })

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { BadRequestException, ForbiddenException } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { RunsService } from './runs.service'
@@ -22,6 +22,7 @@ describe('RunsService', () => {
     let runsService: RunsService
     const runRepository = {
         create: jest.fn(),
+        findOne: jest.fn(),
         save: jest.fn()
     }
     const moulinetteRepository = {
@@ -61,6 +62,7 @@ describe('RunsService', () => {
         runsService = moduleRef.get(RunsService)
 
         runRepository.create.mockReset()
+        runRepository.findOne.mockReset()
         runRepository.save.mockReset()
         moulinetteRepository.findOneBy.mockReset()
         moulinetteSourceRepository.findOne.mockReset()
@@ -192,6 +194,47 @@ describe('RunsService', () => {
                 owner: initiator
             })
             expect(runRepository.save).toHaveBeenCalledWith(createdRun)
+        })
+    })
+
+    describe('findById', () => {
+
+        const id = 'id'
+        const foundRun = 'found run'
+
+        it('should throw a NotFoundException if the id does not belong to an existing run', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            runRepository.findOne.mockResolvedValue(null)
+
+            await expect(runsService.findById(id)).rejects.toThrow(NotFoundException)
+
+            expect(runRepository.findOne).toHaveBeenCalledWith({
+                where: { id },
+                relations: [
+                    'moulinette',
+                    'moulinette.project',
+                    'moulinette.project.organization',
+                    'owner'
+                ]
+            })
+        })
+
+        it('should return the found run', async () => {
+
+            runRepository.findOne.mockResolvedValue(foundRun)
+
+            await expect(runsService.findById(id)).resolves.toBe(foundRun)
+
+            expect(runRepository.findOne).toHaveBeenCalledWith({
+                where: { id },
+                relations: [
+                    'moulinette',
+                    'moulinette.project',
+                    'moulinette.project.organization',
+                    'owner'
+                ]
+            })
         })
     })
 })

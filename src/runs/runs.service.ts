@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Run } from './entities/run.entity'
@@ -75,6 +75,24 @@ class RunsService {
         })
 
         return this.runRepository.save(createdRun)
+    }
+
+    async findById(id: string): Promise<Run> {
+
+        const run = await this.runRepository.findOne({
+            where: { id },
+            relations: [
+                'moulinette',
+                'moulinette.project',
+                'moulinette.project.organization',
+                'owner'
+            ]
+        })
+
+        if (run === null)
+            throw new NotFoundException()
+
+        return run
     }
 
 }

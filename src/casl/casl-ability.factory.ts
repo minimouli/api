@@ -142,8 +142,13 @@ class CaslAbilityFactory {
             can(CaslAction.Delete, Project)
 
         /* Run */
+        can(CaslAction.Read, Run, { 'owner.id': account.id })
+
         if (permissions.includes(Permission.CreateRun))
             can(CaslAction.Create, Run)
+
+        if (permissions.includes(Permission.ReadAllRuns))
+            can(CaslAction.Read, Run)
 
         return build({
             detectSubjectType: (subject) => subject.constructor as ExtractSubjectType<Subjects>,

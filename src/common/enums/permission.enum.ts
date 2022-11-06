@@ -28,7 +28,8 @@ enum Permission {
     CreateProject = 'Permission.CreateProject',
     UpdateProject = 'Permission.UpdateProject',
     DeleteProject = 'Permission.DeleteProject',
-    CreateRun = 'Permission.CreateRun'
+    CreateRun = 'Permission.CreateRun',
+    ReadAllRuns = 'Permission.ReadAllRuns'
 }
 
 export {
