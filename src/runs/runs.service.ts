@@ -95,6 +95,29 @@ class RunsService {
         return run
     }
 
+    async delete(subject: Run, initiator: Account): Promise<void> {
+
+        const ability = this.caslAbilityFactory.createForAccount(initiator)
+
+        if (!ability.can(CaslAction.Delete, subject))
+            throw new ForbiddenException()
+
+        await this.runRepository.remove(subject)
+    }
+
+    async deleteById(id: string, initiator: Account): Promise<void> {
+
+        const subject = await this.runRepository.findOne({
+            where: { id },
+            relations: ['owner']
+        })
+
+        if (subject === null)
+            throw new NotFoundException()
+
+        await this.delete(subject, initiator)
+    }
+
 }
 
 export {

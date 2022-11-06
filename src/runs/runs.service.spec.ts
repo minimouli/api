@@ -23,6 +23,7 @@ describe('RunsService', () => {
     const runRepository = {
         create: jest.fn(),
         findOne: jest.fn(),
+        remove: jest.fn(),
         save: jest.fn()
     }
     const moulinetteRepository = {
@@ -63,6 +64,7 @@ describe('RunsService', () => {
 
         runRepository.create.mockReset()
         runRepository.findOne.mockReset()
+        runRepository.remove.mockReset()
         runRepository.save.mockReset()
         moulinetteRepository.findOneBy.mockReset()
         moulinetteSourceRepository.findOne.mockReset()
@@ -235,6 +237,75 @@ describe('RunsService', () => {
                     'owner'
                 ]
             })
+        })
+    })
+
+    describe('delete', () => {
+
+        const subject = { id: '1' } as Run
+        const initiator = { id: '2' } as Account
+
+        it('should throw a ForbiddenException if the initiator has not the permission to delete runs', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(false)
+
+            await expect(runsService.delete(subject, initiator)).rejects.toThrow(ForbiddenException)
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+        })
+
+        it('should delete the run', async () => {
+
+            caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            caslAbility.can.mockReturnValue(true)
+
+            await expect(runsService.delete(subject, initiator)).resolves.toBeUndefined()
+
+            expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Delete, subject)
+            expect(runRepository.remove).toHaveBeenCalledWith(subject)
+        })
+    })
+
+    describe('deleteById', () => {
+
+        let deleteSpy: jest.SpyInstance
+
+        const id = 'id'
+        const initiator = { id: '1' } as Account
+        const foundRun = { id: '2' } as Run
+
+        beforeEach(() => {
+            deleteSpy = jest.spyOn(runsService, 'delete')
+        })
+
+        it('should throw a NotFoundException if id does not belong to an existing run', async () => {
+
+            // eslint-disable-next-line unicorn/no-null
+            runRepository.findOne.mockResolvedValue(null)
+
+            await expect(runsService.deleteById(id, initiator)).rejects.toThrow(NotFoundException)
+
+            expect(runRepository.findOne).toHaveBeenCalledWith({
+                where: { id },
+                relations: ['owner']
+            })
+        })
+
+        it('should delete the project', async () => {
+
+            runRepository.findOne.mockResolvedValue(foundRun)
+            deleteSpy.mockResolvedValue(Promise.resolve())
+
+            await expect(runsService.deleteById(id, initiator)).resolves.toBeUndefined()
+
+            expect(runRepository.findOne).toHaveBeenCalledWith({
+                where: { id },
+                relations: ['owner']
+            })
+            expect(deleteSpy).toHaveBeenCalledWith(foundRun, initiator)
         })
     })
 })

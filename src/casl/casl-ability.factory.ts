@@ -109,8 +109,8 @@ class CaslAbilityFactory {
             }
         })
 
-        if (permissions.includes(Permission.DeleteMoulinetteSource))
-            can(CaslAction.Delete, MoulinetteSource)
+        if (permissions.includes(Permission.UpdateMoulinetteSource))
+            can(CaslAction.Update, MoulinetteSource)
 
         can(CaslAction.Delete, MoulinetteSource, {
             'moulinette.maintainers': {
@@ -118,8 +118,8 @@ class CaslAbilityFactory {
             }
         })
 
-        if (permissions.includes(Permission.UpdateMoulinetteSource))
-            can(CaslAction.Update, MoulinetteSource)
+        if (permissions.includes(Permission.DeleteMoulinetteSource))
+            can(CaslAction.Delete, MoulinetteSource)
 
         /* Organization */
         if (permissions.includes(Permission.CreateOrganization))
@@ -142,13 +142,18 @@ class CaslAbilityFactory {
             can(CaslAction.Delete, Project)
 
         /* Run */
-        can(CaslAction.Read, Run, { 'owner.id': account.id })
-
         if (permissions.includes(Permission.CreateRun))
             can(CaslAction.Create, Run)
 
+        can(CaslAction.Read, Run, { 'owner.id': account.id })
+
         if (permissions.includes(Permission.ReadAllRuns))
             can(CaslAction.Read, Run)
+
+        can(CaslAction.Delete, Run, { 'owner.id': account.id })
+
+        if (permissions.includes(Permission.DeleteAllRuns))
+            can(CaslAction.Delete, Run)
 
         return build({
             detectSubjectType: (subject) => subject.constructor as ExtractSubjectType<Subjects>,

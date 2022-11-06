@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Body, Controller, Get, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common'
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiCreatedResponse,
     ApiForbiddenResponse,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -85,6 +86,29 @@ class RunsController {
             status: 'success',
             data: run
         }
+    }
+
+    @Delete('/run/:runId')
+    @HttpCode(204)
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Delete a run' })
+    @ApiNoContentResponse({
+        description: 'Delete a run'
+    })
+    @ApiUnauthorizedResponse({
+        type: ErrorResDto,
+        description: 'Unauthorized'
+    })
+    @ApiForbiddenResponse({
+        type: ErrorResDto,
+        description: 'Forbidden'
+    })
+    @ApiNotFoundResponse({
+        type: ErrorResDto,
+        description: 'Not Found'
+    })
+    async deleteRun(@CurrentUser() currentUser: Account, @Param('runId') runId: string): Promise<void> {
+        await this.runsService.deleteById(runId, currentUser)
     }
 
 }

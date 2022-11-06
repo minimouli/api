@@ -17,6 +17,7 @@ describe('RunsController', () => {
     let runsController: RunsController
     const runsService = {
         create: jest.fn(),
+        deleteById: jest.fn(),
         findById: jest.fn()
     }
     const caslAbilityFactory = {
@@ -40,6 +41,7 @@ describe('RunsController', () => {
         runsController = moduleRef.get(RunsController)
 
         runsService.create.mockReset()
+        runsService.deleteById.mockReset()
         runsService.findById.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
     })
@@ -78,6 +80,19 @@ describe('RunsController', () => {
             })
 
             expect(runsService.findById).toHaveBeenCalledWith(runId)
+        })
+    })
+
+    describe('deleteRun', () => {
+
+        const currentUser = { id: '1' } as Account
+        const runId = '2'
+
+        it('should return the correct response', async () => {
+
+            await expect(runsController.deleteRun(currentUser, runId)).resolves.toBeUndefined()
+
+            expect(runsService.deleteById).toHaveBeenCalledWith(runId, currentUser)
         })
     })
 })

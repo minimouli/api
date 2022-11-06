@@ -27,7 +27,8 @@ const AdminPermissions = [
     Permission.UpdateProject,
     Permission.DeleteProject,
     Permission.CreateRun,
-    Permission.ReadAllRuns
+    Permission.ReadAllRuns,
+    Permission.DeleteAllRuns
 ]
 
 const DefaultPermissions = [

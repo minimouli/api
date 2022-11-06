@@ -18,6 +18,7 @@ describe('Runs', () => {
     let jwtService: JwtService
     const runsService = {
         create: () => 'create',
+        deleteById: () => Promise.resolve(),
         findById: () => 'find by id'
     }
 
@@ -128,6 +129,31 @@ describe('Runs', () => {
                     status: 'success',
                     data: runsService.create()
                 }))
+        })
+    })
+
+    describe('DELETE /run/:runId', () => {
+
+        it('should return 401 if the user is not logged', () => request(app.getHttpServer())
+            .delete('/run/123')
+            .expect(401))
+
+        describe('logged', () => {
+
+            const accountId = 'admin'
+            let jwt: string
+
+            beforeEach(() => {
+                jwt = jwtService.sign({
+                    sub: accountId,
+                    jti: `${accountId}-auth-token`
+                })
+            })
+
+            it('should return 204', () => request(app.getHttpServer())
+                .delete('/run/123')
+                .set('Authorization', `Bearer ${jwt}`)
+                .expect(204))
         })
     })
 })
