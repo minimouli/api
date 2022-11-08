@@ -16,6 +16,15 @@ class MoulinetteDto {
     @ApiProperty()
     id: string
 
+    @ApiProperty()
+    repository: string
+
+    @ApiProperty()
+    isOfficial: boolean
+
+    @ApiProperty()
+    use: number
+
     @ApiProperty({
         type: ProjectDto
     })
@@ -30,12 +39,6 @@ class MoulinetteDto {
         type: [AccountDto]
     })
     maintainers: AccountDto[]
-
-    @ApiProperty()
-    repository: string
-
-    @ApiProperty()
-    isOfficial: boolean
 
     @ApiProperty()
     uri: string

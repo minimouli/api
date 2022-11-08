@@ -27,7 +27,8 @@ describe('RunsService', () => {
         save: jest.fn()
     }
     const moulinetteRepository = {
-        findOneBy: jest.fn()
+        findOneBy: jest.fn(),
+        save: jest.fn()
     }
     const moulinetteSourceRepository = {
         findOne: jest.fn(),
@@ -67,6 +68,7 @@ describe('RunsService', () => {
         runRepository.remove.mockReset()
         runRepository.save.mockReset()
         moulinetteRepository.findOneBy.mockReset()
+        moulinetteRepository.save.mockReset()
         moulinetteSourceRepository.findOne.mockReset()
         moulinetteSourceRepository.save.mockReset()
         caslAbilityFactory.createForAccount.mockReset()
@@ -83,11 +85,15 @@ describe('RunsService', () => {
             suites: []
         } as CreateRunReqDto
         const initiator = { id: '1' } as Account
-        const foundMoulinette = 'found moulinette'
-        const foundMoulinetteSource = {
+        const foundMoulinette = {
             id: '2',
             use: 1
         }
+        const foundMoulinetteSource = {
+            id: '3',
+            use: 1
+        }
+        const savedMoulinette = 'saved moulinette'
         const createdRun = 'created run'
         const savedRun = 'saved run'
 
@@ -127,6 +133,7 @@ describe('RunsService', () => {
             moulinetteRepository.findOneBy.mockResolvedValue(foundMoulinette)
             // eslint-disable-next-line unicorn/no-null
             moulinetteSourceRepository.findOne.mockResolvedValue(null)
+            moulinetteRepository.save.mockResolvedValue(savedMoulinette)
             runRepository.create.mockReturnValue(createdRun)
             runRepository.save.mockResolvedValue(savedRun)
 
@@ -148,10 +155,14 @@ describe('RunsService', () => {
                 },
                 relations: ['moulinette']
             })
+            expect(moulinetteRepository.save).toHaveBeenCalledWith({
+                ...foundMoulinette,
+                use: foundMoulinette.use + 1
+            })
             expect(moulinetteSourceRepository.save).not.toHaveBeenCalled()
             expect(runRepository.create).toHaveBeenCalledWith({
                 suites: body.suites,
-                moulinette: foundMoulinette,
+                moulinette: savedMoulinette,
                 moulinetteVersion: `${moulinetteVersion.join('.')}`,
                 owner: initiator
             })
@@ -164,6 +175,7 @@ describe('RunsService', () => {
             caslAbility.can.mockReturnValue(true)
             moulinetteRepository.findOneBy.mockResolvedValue(foundMoulinette)
             moulinetteSourceRepository.findOne.mockResolvedValue(foundMoulinetteSource)
+            moulinetteRepository.save.mockResolvedValue(savedMoulinette)
             runRepository.create.mockReturnValue(createdRun)
             runRepository.save.mockResolvedValue(savedRun)
 
@@ -185,13 +197,17 @@ describe('RunsService', () => {
                 },
                 relations: ['moulinette']
             })
+            expect(moulinetteRepository.save).toHaveBeenCalledWith({
+                ...foundMoulinette,
+                use: foundMoulinette.use + 1
+            })
             expect(moulinetteSourceRepository.save).toHaveBeenCalledWith({
                 ...foundMoulinetteSource,
                 use: foundMoulinetteSource.use + 1
             })
             expect(runRepository.create).toHaveBeenCalledWith({
                 suites: body.suites,
-                moulinette: foundMoulinette,
+                moulinette: savedMoulinette,
                 moulinetteVersion: `${moulinetteVersion.join('.')}`,
                 owner: initiator
             })

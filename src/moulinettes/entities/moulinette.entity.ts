@@ -33,6 +33,15 @@ class Moulinette {
     @PrimaryColumn()
     id: string
 
+    @Column()
+    repository: string
+
+    @Column()
+    isOfficial: boolean
+
+    @Column()
+    use: number
+
     @ManyToOne(() => Project, (project) => project.moulinettes, {
         onDelete: 'CASCADE'
     })
@@ -49,12 +58,6 @@ class Moulinette {
     @OneToMany(() => Run, (run) => run.moulinette)
     runs: Run[]
 
-    @Column()
-    repository: string
-
-    @Column()
-    isOfficial: boolean
-
     @Expose()
     get uri(): string {
         return `minimouli:${this.type}:${this.id}`
@@ -69,6 +72,7 @@ class Moulinette {
     @BeforeInsert()
     beforeInsert() {
         this.id = getSecureRandomString(16)
+        this.use = 0
     }
 
 }

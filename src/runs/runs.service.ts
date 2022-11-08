@@ -61,6 +61,11 @@ class RunsService {
             relations: ['moulinette']
         })
 
+        const savedMoulinette = await this.moulinetteRepository.save({
+            ...foundMoulinette,
+            use: foundMoulinette.use + 1
+        })
+
         if (foundMoulinetteSource !== null)
             await this.moulinetteSourceRepository.save({
                 ...foundMoulinetteSource,
@@ -69,7 +74,7 @@ class RunsService {
 
         const createdRun = this.runRepository.create({
             suites: body.suites,
-            moulinette: foundMoulinette,
+            moulinette: savedMoulinette,
             moulinetteVersion,
             owner: initiator
         })
