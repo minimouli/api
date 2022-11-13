@@ -10,8 +10,10 @@ import { ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags } from '@ne
 import { AuthService } from './auth.service'
 import { LoginResDto } from './dto/login.res.dto'
 import { LoginWithGithubReqDto } from './dto/login-with-github.req.dto'
+import { LoginWithGithubAccessTokenReqDto } from './dto/login-with-github-access-token.req.dto'
 import { SignupResDto } from './dto/signup.res.dto'
 import { SignupWithGithubReqDto } from './dto/signup-with-github.req.dto'
+import { SignupWithGithubAccessTokenReqDto } from './dto/signup-with-github-access-token.req.dto'
 import { ErrorResDto } from '../common/dto/error.res.dto'
 import { TokensService } from '../tokens/tokens.service'
 
@@ -52,6 +54,34 @@ class AuthController {
         }
     }
 
+    @Post('/signup/github/accessToken')
+    @HttpCode(200)
+    @SerializeOptions({ groups: ['owner'] })
+    @ApiOperation({ summary: 'Sign up with a Github access token' })
+    @ApiOkResponse({
+        type: SignupResDto,
+        description: 'Successful signed up'
+    })
+    @ApiBadRequestResponse({
+        type: ErrorResDto,
+        description: 'Unable to sign up with Github'
+    })
+    async signupWithGithubAccessToken(@Body() body: SignupWithGithubAccessTokenReqDto): Promise<SignupResDto> {
+
+        const { accessToken, authTokenName } = body
+
+        const account = await this.authService.signupWithGithubAccessToken(accessToken)
+        const [, jwt] = await this.tokensService.create(authTokenName, account)
+
+        return {
+            status: 'success',
+            data: {
+                account,
+                jwt
+            }
+        }
+    }
+
     @Post('/login/github')
     @HttpCode(200)
     @SerializeOptions({ groups: ['owner'] })
@@ -69,6 +99,34 @@ class AuthController {
         const { code, authTokenName } = body
 
         const account = await this.authService.loginWithGithub(code)
+        const [, jwt] = await this.tokensService.create(authTokenName, account)
+
+        return {
+            status: 'success',
+            data: {
+                account,
+                jwt
+            }
+        }
+    }
+
+    @Post('/login/github/accessToken')
+    @HttpCode(200)
+    @SerializeOptions({ groups: ['owner'] })
+    @ApiOperation({ summary: 'Login with a Github access token' })
+    @ApiOkResponse({
+        type: LoginResDto,
+        description: 'Successful logged'
+    })
+    @ApiBadRequestResponse({
+        type: ErrorResDto,
+        description: 'Unable to login with Github'
+    })
+    async loginWithGithubAccessToken(@Body() body: LoginWithGithubAccessTokenReqDto): Promise<LoginResDto> {
+
+        const { accessToken, authTokenName } = body
+
+        const account = await this.authService.loginWithGithubAccessToken(accessToken)
         const [, jwt] = await this.tokensService.create(authTokenName, account)
 
         return {

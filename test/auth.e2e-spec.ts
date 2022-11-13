@@ -16,8 +16,10 @@ describe('Auth', () => {
 
     let app: INestApplication
     const authService = {
-        signupWithGithub: () => 'signup account',
-        loginWithGithub: () => 'login account'
+        signupWithGithub: () => 'signup with github',
+        signupWithGithubAccessToken: () => 'signup with github access token',
+        loginWithGithub: () => 'login with github',
+        loginWithGithubAccessToken: () => 'login with github access token'
     }
     const tokensService = {
         create: () => [undefined, 'jwt']
@@ -63,6 +65,29 @@ describe('Auth', () => {
             }))
     })
 
+    describe('POST /auth/signup/github/accessToken', () => {
+
+        it('should return 400 if the body is incomplete', () => request(app.getHttpServer())
+            .post('/auth/signup/github/accessToken')
+            .send({})
+            .expect(400))
+
+        it('should return 200', () => request(app.getHttpServer())
+            .post('/auth/signup/github/accessToken')
+            .send({
+                accessToken: 'access-token',
+                authTokenName: 'auth-token-name'
+            })
+            .expect(200)
+            .expect({
+                status: 'success',
+                data: {
+                    account: authService.signupWithGithubAccessToken(),
+                    jwt: tokensService.create().at(1)
+                }
+            }))
+    })
+
     describe('POST /auth/login/github', () => {
 
         it('should return 400 if the body is incomplete', () => request(app.getHttpServer())
@@ -86,4 +111,26 @@ describe('Auth', () => {
             }))
     })
 
+    describe('POST /auth/login/github/accessToken', () => {
+
+        it('should return 400 if the body is incomplete', () => request(app.getHttpServer())
+            .post('/auth/login/github/accessToken')
+            .send({})
+            .expect(400))
+
+        it('should return 200', () => request(app.getHttpServer())
+            .post('/auth/login/github/accessToken')
+            .send({
+                accessToken: 'access-token',
+                authTokenName: 'auth-token-name'
+            })
+            .expect(200)
+            .expect({
+                status: 'success',
+                data: {
+                    account: authService.loginWithGithubAccessToken(),
+                    jwt: tokensService.create().at(1)
+                }
+            }))
+    })
 })

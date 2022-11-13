@@ -29,8 +29,12 @@ class AuthService {
     ) {}
 
     async signupWithGithub(code: string): Promise<Account> {
-
         const accessToken = await this.githubApiService.consumeCodeForAccessToken(code)
+        return this.signupWithGithubAccessToken(accessToken)
+    }
+
+    async signupWithGithubAccessToken(accessToken: string): Promise<Account> {
+
         const userProfile = await this.githubApiService.getUserProfile(accessToken)
 
         const credentials = await this.githubCredentialsRepository.findOne({
@@ -58,8 +62,12 @@ class AuthService {
     }
 
     async loginWithGithub(code: string): Promise<Account> {
-
         const accessToken = await this.githubApiService.consumeCodeForAccessToken(code)
+       return this.loginWithGithubAccessToken(accessToken)
+    }
+
+    async loginWithGithubAccessToken(accessToken: string): Promise<Account> {
+
         const userProfile = await this.githubApiService.getUserProfile(accessToken)
 
         const credentials = await this.githubCredentialsRepository.findOne({

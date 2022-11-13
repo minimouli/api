@@ -15,7 +15,9 @@ describe('AuthController', () => {
     let authController: AuthController
     const authService = {
         signupWithGithub: jest.fn(),
-        loginWithGithub: jest.fn()
+        signupWithGithubAccessToken: jest.fn(),
+        loginWithGithub: jest.fn(),
+        loginWithGithubAccessToken: jest.fn()
     }
     const tokensService = {
         create: jest.fn()
@@ -38,7 +40,9 @@ describe('AuthController', () => {
         authController = moduleRef.get(AuthController)
 
         authService.signupWithGithub.mockReset()
+        authService.signupWithGithubAccessToken.mockReset()
         authService.loginWithGithub.mockReset()
+        authService.loginWithGithubAccessToken.mockReset()
         tokensService.create.mockReset()
     })
 
@@ -69,6 +73,33 @@ describe('AuthController', () => {
         })
     })
 
+    describe('signupWithGithubAccessToken', () => {
+
+        const body = {
+            accessToken: 'access token',
+            authTokenName: 'auth token name'
+        }
+        const account = 'account'
+        const jwt = 'jwt'
+
+        it('should return the correct response', async () => {
+
+            authService.signupWithGithubAccessToken.mockResolvedValue(account)
+            tokensService.create.mockResolvedValue([undefined, jwt])
+
+            await expect(authController.signupWithGithubAccessToken(body)).resolves.toStrictEqual({
+                status: 'success',
+                data: {
+                    account,
+                    jwt
+                }
+            })
+
+            expect(authService.signupWithGithubAccessToken).toHaveBeenCalledWith(body.accessToken)
+            expect(tokensService.create).toHaveBeenCalledWith(body.authTokenName, account)
+        })
+    })
+
     describe('loginWithGithub', () => {
 
         const body = {
@@ -92,6 +123,33 @@ describe('AuthController', () => {
             })
 
             expect(authService.loginWithGithub).toHaveBeenCalledWith(body.code)
+            expect(tokensService.create).toHaveBeenCalledWith(body.authTokenName, account)
+        })
+    })
+
+    describe('loginWithGithubAccessToken', () => {
+
+        const body = {
+            accessToken: 'access token',
+            authTokenName: 'auth token name'
+        }
+        const account = 'account'
+        const jwt = 'jwt'
+
+        it('should return the correct response', async () => {
+
+            authService.loginWithGithubAccessToken.mockResolvedValue(account)
+            tokensService.create.mockResolvedValue([undefined, jwt])
+
+            await expect(authController.loginWithGithubAccessToken(body)).resolves.toStrictEqual({
+                status: 'success',
+                data: {
+                    account,
+                    jwt
+                }
+            })
+
+            expect(authService.loginWithGithubAccessToken).toHaveBeenCalledWith(body.accessToken)
             expect(tokensService.create).toHaveBeenCalledWith(body.authTokenName, account)
         })
     })

@@ -73,6 +73,28 @@ describe('AuthService', () => {
 
         const code = 'code'
         const accessToken = 'access token'
+        const signedUpAccount = 'signed up account'
+        let signupWithGithubAccessTokenSpy: jest.SpyInstance
+
+        beforeEach(() => {
+            signupWithGithubAccessTokenSpy = jest.spyOn(authService, 'signupWithGithubAccessToken')
+        })
+
+        it('should return the newly signed up account', async () => {
+
+            githubApiService.consumeCodeForAccessToken.mockResolvedValue(accessToken)
+            signupWithGithubAccessTokenSpy.mockResolvedValue(signedUpAccount)
+
+            await expect(authService.signupWithGithub(code)).resolves.toBe(signedUpAccount)
+
+            expect(githubApiService.consumeCodeForAccessToken).toHaveBeenCalledWith(code)
+            expect(signupWithGithubAccessTokenSpy).toHaveBeenCalledWith(accessToken)
+        })
+    })
+
+    describe('signupWithGithubAccessToken', () => {
+
+        const accessToken = 'access token'
         const userProfile = {
             id: 1,
             name: 'user name',
@@ -86,13 +108,11 @@ describe('AuthService', () => {
                 account: 'account'
             }
 
-            githubApiService.consumeCodeForAccessToken.mockResolvedValue(accessToken)
             githubApiService.getUserProfile.mockResolvedValue(userProfile)
             githubCredentialsRepository.findOne.mockResolvedValue(credentials)
 
-            await expect(authService.signupWithGithub(code)).resolves.toBe(credentials.account)
+            await expect(authService.signupWithGithubAccessToken(accessToken)).resolves.toBe(credentials.account)
 
-            expect(githubApiService.consumeCodeForAccessToken).toHaveBeenCalledWith(code)
             expect(githubApiService.getUserProfile).toHaveBeenCalledWith(accessToken)
             expect(githubCredentialsRepository.findOne).toHaveBeenCalledWith({
                 where: { githubId: userProfile.id },
@@ -105,7 +125,6 @@ describe('AuthService', () => {
             const account = 'account'
             const username = 'username'
 
-            githubApiService.consumeCodeForAccessToken.mockResolvedValue(accessToken)
             githubApiService.getUserProfile.mockResolvedValue(userProfile)
             // eslint-disable-next-line unicorn/no-null
             githubCredentialsRepository.findOne.mockResolvedValue(null)
@@ -113,9 +132,8 @@ describe('AuthService', () => {
             accountsService.create.mockResolvedValue(account)
             getRandomStringMock.mockReturnValue(username)
 
-            await expect(authService.signupWithGithub(code)).resolves.toBe(account)
+            await expect(authService.signupWithGithubAccessToken(accessToken)).resolves.toBe(account)
 
-            expect(githubApiService.consumeCodeForAccessToken).toHaveBeenCalledWith(code)
             expect(githubApiService.getUserProfile).toHaveBeenCalledWith(accessToken)
             expect(githubCredentialsRepository.findOne).toHaveBeenCalledWith({
                 where: { githubId: userProfile.id },
@@ -138,6 +156,28 @@ describe('AuthService', () => {
 
         const code = 'code'
         const accessToken = 'access token'
+        const loggedAccount = 'signed up account'
+        let loginWithGithubAccessTokenSpy: jest.SpyInstance
+
+        beforeEach(() => {
+            loginWithGithubAccessTokenSpy = jest.spyOn(authService, 'loginWithGithubAccessToken')
+        })
+
+        it('should return the newly signed up account', async () => {
+
+            githubApiService.consumeCodeForAccessToken.mockResolvedValue(accessToken)
+            loginWithGithubAccessTokenSpy.mockResolvedValue(loggedAccount)
+
+            await expect(authService.loginWithGithub(code)).resolves.toBe(loggedAccount)
+
+            expect(githubApiService.consumeCodeForAccessToken).toHaveBeenCalledWith(code)
+            expect(loginWithGithubAccessTokenSpy).toHaveBeenCalledWith(accessToken)
+        })
+    })
+
+    describe('loginWithGithubAccessToken', () => {
+
+        const accessToken = 'access token'
         const userProfile = {
             name: 'user name',
             id: 1
@@ -145,14 +185,12 @@ describe('AuthService', () => {
 
         it('should throw a BadRequestException if no github credentials exists', async () => {
 
-            githubApiService.consumeCodeForAccessToken.mockResolvedValue(accessToken)
             githubApiService.getUserProfile.mockResolvedValue(userProfile)
             // eslint-disable-next-line unicorn/no-null
             githubCredentialsRepository.findOne.mockResolvedValue(null)
 
-            await expect(authService.loginWithGithub(code)).rejects.toStrictEqual(new BadRequestException('This Github account is not associated with an existing account'))
+            await expect(authService.loginWithGithubAccessToken(accessToken)).rejects.toStrictEqual(new BadRequestException('This Github account is not associated with an existing account'))
 
-            expect(githubApiService.consumeCodeForAccessToken).toHaveBeenCalledWith(code)
             expect(githubApiService.getUserProfile).toHaveBeenCalledWith(accessToken)
             expect(githubCredentialsRepository.findOne).toHaveBeenCalledWith({
                 where: { githubId: userProfile.id },
@@ -166,13 +204,11 @@ describe('AuthService', () => {
                 account: 'account'
             }
 
-            githubApiService.consumeCodeForAccessToken.mockResolvedValue(accessToken)
             githubApiService.getUserProfile.mockResolvedValue(userProfile)
             githubCredentialsRepository.findOne.mockResolvedValue(credentials)
 
-            await expect(authService.loginWithGithub(code)).resolves.toBe(credentials.account)
+            await expect(authService.loginWithGithubAccessToken(accessToken)).resolves.toBe(credentials.account)
 
-            expect(githubApiService.consumeCodeForAccessToken).toHaveBeenCalledWith(code)
             expect(githubApiService.getUserProfile).toHaveBeenCalledWith(accessToken)
             expect(githubCredentialsRepository.findOne).toHaveBeenCalledWith({
                 where: { githubId: userProfile.id },
