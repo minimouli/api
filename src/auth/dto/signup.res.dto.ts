@@ -16,7 +16,7 @@ class SignupDataResDto {
     account: AccountDto
 
     @ApiProperty()
-    jwt: string
+    accessToken: string
 
 }
 

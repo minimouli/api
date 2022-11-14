@@ -43,13 +43,13 @@ class AuthController {
         const { code, authTokenName } = body
 
         const account = await this.authService.signupWithGithub(code)
-        const [, jwt] = await this.tokensService.create(authTokenName, account)
+        const [, accessToken] = await this.tokensService.create(authTokenName, account)
 
         return {
             status: 'success',
             data: {
                 account,
-                jwt
+                accessToken
             }
         }
     }
@@ -68,16 +68,16 @@ class AuthController {
     })
     async signupWithGithubAccessToken(@Body() body: SignupWithGithubAccessTokenReqDto): Promise<SignupResDto> {
 
-        const { accessToken, authTokenName } = body
+        const { accessToken: githubAccessToken, authTokenName } = body
 
-        const account = await this.authService.signupWithGithubAccessToken(accessToken)
-        const [, jwt] = await this.tokensService.create(authTokenName, account)
+        const account = await this.authService.signupWithGithubAccessToken(githubAccessToken)
+        const [, accessToken] = await this.tokensService.create(authTokenName, account)
 
         return {
             status: 'success',
             data: {
                 account,
-                jwt
+                accessToken
             }
         }
     }
@@ -99,13 +99,13 @@ class AuthController {
         const { code, authTokenName } = body
 
         const account = await this.authService.loginWithGithub(code)
-        const [, jwt] = await this.tokensService.create(authTokenName, account)
+        const [, accessToken] = await this.tokensService.create(authTokenName, account)
 
         return {
             status: 'success',
             data: {
                 account,
-                jwt
+                accessToken
             }
         }
     }
@@ -124,16 +124,16 @@ class AuthController {
     })
     async loginWithGithubAccessToken(@Body() body: LoginWithGithubAccessTokenReqDto): Promise<LoginResDto> {
 
-        const { accessToken, authTokenName } = body
+        const { accessToken: githubAccessToken, authTokenName } = body
 
-        const account = await this.authService.loginWithGithubAccessToken(accessToken)
-        const [, jwt] = await this.tokensService.create(authTokenName, account)
+        const account = await this.authService.loginWithGithubAccessToken(githubAccessToken)
+        const [, accessToken] = await this.tokensService.create(authTokenName, account)
 
         return {
             status: 'success',
             data: {
                 account,
-                jwt
+                accessToken
             }
         }
     }

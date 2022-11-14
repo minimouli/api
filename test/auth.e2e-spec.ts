@@ -22,7 +22,7 @@ describe('Auth', () => {
         loginWithGithubAccessToken: () => 'login with github access token'
     }
     const tokensService = {
-        create: () => [undefined, 'jwt']
+        create: () => [undefined, 'access token']
     }
 
     beforeAll(async () => {
@@ -60,7 +60,7 @@ describe('Auth', () => {
                 status: 'success',
                 data: {
                     account: authService.signupWithGithub(),
-                    jwt: tokensService.create().at(1)
+                    accessToken: tokensService.create().at(1)
                 }
             }))
     })
@@ -75,7 +75,7 @@ describe('Auth', () => {
         it('should return 200', () => request(app.getHttpServer())
             .post('/auth/signup/github/accessToken')
             .send({
-                accessToken: 'access-token',
+                accessToken: 'github-access-token',
                 authTokenName: 'auth-token-name'
             })
             .expect(200)
@@ -83,7 +83,7 @@ describe('Auth', () => {
                 status: 'success',
                 data: {
                     account: authService.signupWithGithubAccessToken(),
-                    jwt: tokensService.create().at(1)
+                    accessToken: tokensService.create().at(1)
                 }
             }))
     })
@@ -106,7 +106,7 @@ describe('Auth', () => {
                 status: 'success',
                 data: {
                     account: authService.loginWithGithub(),
-                    jwt: tokensService.create().at(1)
+                    accessToken: tokensService.create().at(1)
                 }
             }))
     })
@@ -121,7 +121,7 @@ describe('Auth', () => {
         it('should return 200', () => request(app.getHttpServer())
             .post('/auth/login/github/accessToken')
             .send({
-                accessToken: 'access-token',
+                accessToken: 'github-access-token',
                 authTokenName: 'auth-token-name'
             })
             .expect(200)
@@ -129,7 +129,7 @@ describe('Auth', () => {
                 status: 'success',
                 data: {
                     account: authService.loginWithGithubAccessToken(),
-                    jwt: tokensService.create().at(1)
+                    accessToken: tokensService.create().at(1)
                 }
             }))
     })
