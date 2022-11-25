@@ -8,15 +8,36 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { AuthTokenDto } from './auth-token.dto'
 
+class GetAuthTokensDataResDto {
+
+    @ApiProperty({
+        type: [AuthTokenDto]
+    })
+    items: AuthTokenDto[]
+
+    @ApiProperty({
+        type: String,
+        nullable: true
+    })
+    beforeCursor: string | null
+
+    @ApiProperty({
+        type: String,
+        nullable: true
+    })
+    afterCursor: string | null
+
+}
+
 class GetAuthTokensResDto {
 
     @ApiProperty()
     status: 'success'
 
     @ApiProperty({
-        type: [AuthTokenDto]
+        type: GetAuthTokensDataResDto
     })
-    data: AuthTokenDto[]
+    data: GetAuthTokensDataResDto
 
 }
 

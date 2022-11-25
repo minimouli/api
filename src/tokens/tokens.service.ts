@@ -12,11 +12,14 @@ import { Cron, CronExpression } from '@nestjs/schedule'
 import { InjectRepository } from '@nestjs/typeorm'
 import ms from 'ms'
 import { LessThanOrEqual, Repository } from 'typeorm'
+import { buildPaginator } from 'typeorm-cursor-pagination'
 import { AuthToken } from './entities/auth-token.entity'
 import { Account } from '../accounts/entities/account.entity'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
+import type { PagingResult } from 'typeorm-cursor-pagination'
 import type { JwtApplicationPayload } from './types/jwt.type'
+import type { GetAuthTokensQueryDto } from './dto/get-auth-tokens.query.dto'
 
 @Injectable()
 class TokensService {
@@ -41,7 +44,7 @@ class TokensService {
         return [authToken, jwt]
     }
 
-    async getAllAuthTokensFromAccountId(ownerId: string, initiator: Account): Promise<AuthToken[]> {
+    async listAuthTokensFromAccountId(ownerId: string, query: GetAuthTokensQueryDto, initiator: Account): Promise<PagingResult<AuthToken>> {
 
         const owner = await this.accountRepository.findOneBy({ id: ownerId })
 
@@ -49,20 +52,24 @@ class TokensService {
             throw new NotFoundException()
 
         const ability = this.caslAbilityFactory.createForAccount(initiator)
-        const authTokens = await this.authTokenRepository.find({
-            where: {
-                account: {
-                    id: ownerId
-                }
-            },
-            relations: ['account']
+        const queryBuilder = this.authTokenRepository.createQueryBuilder('authToken')
+            .where('authToken.account.id = :ownerId', { ownerId })
+            .leftJoinAndSelect('authToken.account', 'account')
+
+        const paginator = buildPaginator({
+            entity: AuthToken,
+            paginationKeys: ['id'],
+            alias: 'authToken',
+            query
         })
 
-        for (const authToken of authTokens)
+        const result = await paginator.paginate(queryBuilder)
+
+        for (const authToken of result.data)
             if (!ability.can(CaslAction.Read, authToken))
                 throw new ForbiddenException()
 
-        return authTokens
+        return result
     }
 
     async deleteAuthTokenById(subjectId: string, initiator: Account): Promise<void> {

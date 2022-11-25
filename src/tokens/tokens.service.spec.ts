@@ -11,11 +11,14 @@ import { JwtService } from '@nestjs/jwt'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { LessThanOrEqual } from 'typeorm'
+import { buildPaginator } from 'typeorm-cursor-pagination'
 import { TokensService } from './tokens.service'
 import { AuthToken } from './entities/auth-token.entity'
 import { Account } from '../accounts/entities/account.entity'
 import { CaslAbilityFactory } from '../casl/casl-ability.factory'
 import { CaslAction } from '../common/enums/casl-action.enum'
+
+jest.mock('typeorm-cursor-pagination')
 
 describe('TokensService', () => {
 
@@ -25,8 +28,8 @@ describe('TokensService', () => {
     }
     const authTokenRepository = {
         create: jest.fn(),
+        createQueryBuilder: jest.fn(),
         delete: jest.fn(),
-        find: jest.fn(),
         findOne: jest.fn(),
         remove: jest.fn(),
         save: jest.fn()
@@ -43,6 +46,14 @@ describe('TokensService', () => {
     const jwtService = {
         sign: jest.fn()
     }
+    const queryBuilder = {
+        leftJoinAndSelect: jest.fn(),
+        where: jest.fn()
+    }
+    const paginator = {
+        paginate: jest.fn()
+    }
+    const buildPaginatorMock = buildPaginator as jest.Mock
 
     const systemTime = new Date('2022-01-01T00:00:00.000Z')
 
@@ -76,8 +87,8 @@ describe('TokensService', () => {
 
         accountRepository.findOneBy.mockReset()
         authTokenRepository.create.mockReset()
+        authTokenRepository.createQueryBuilder.mockReset()
         authTokenRepository.delete.mockReset()
-        authTokenRepository.find.mockReset()
         authTokenRepository.findOne.mockReset()
         authTokenRepository.remove.mockReset()
         authTokenRepository.save.mockReset()
@@ -85,6 +96,9 @@ describe('TokensService', () => {
         caslAbility.can.mockReset()
         configService.get.mockReset()
         jwtService.sign.mockReset()
+        queryBuilder.leftJoinAndSelect.mockReset()
+        paginator.paginate.mockReset()
+        buildPaginatorMock.mockReset()
     })
 
     afterAll(() => {
@@ -159,20 +173,25 @@ describe('TokensService', () => {
         })
     })
 
-    describe('getAllAuthTokensFromAccountId', () => {
+    describe('listAuthTokensFromAccountId', () => {
 
         const ownerId = 'owner id'
         const initiator = { id: '1' } as Account
+        const query = {
+            limit: 20
+        }
         const owner = { id: '2' } as Account
         const authToken = 'auth token'
-        const authTokens = [authToken]
+        const pagingResult = {
+            data: [authToken]
+        }
 
         it('should throw a NotFoundException if the owner id is not related to an existing account', async () => {
 
             // eslint-disable-next-line unicorn/no-null
             accountRepository.findOneBy.mockResolvedValue(null)
 
-            await expect(tokensService.getAllAuthTokensFromAccountId(ownerId, initiator)).rejects.toThrow(new NotFoundException())
+            await expect(tokensService.listAuthTokensFromAccountId(ownerId, query, initiator)).rejects.toThrow(new NotFoundException())
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({
                 id: ownerId
@@ -182,48 +201,60 @@ describe('TokensService', () => {
         it('should throw a ForbiddenException if the account has not the permission to read auth tokens', async () => {
 
             accountRepository.findOneBy.mockResolvedValue(owner)
-            authTokenRepository.find.mockResolvedValue(authTokens)
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            authTokenRepository.createQueryBuilder.mockReturnValue(queryBuilder)
+            queryBuilder.where.mockReturnValue(queryBuilder)
+            queryBuilder.leftJoinAndSelect.mockReturnValue(queryBuilder)
+            paginator.paginate.mockResolvedValue(pagingResult)
             caslAbility.can.mockReturnValue(false)
+            buildPaginatorMock.mockReturnValue(paginator)
 
-            await expect(tokensService.getAllAuthTokensFromAccountId(ownerId, initiator)).rejects.toThrow(new ForbiddenException())
+            await expect(tokensService.listAuthTokensFromAccountId(ownerId, query, initiator)).rejects.toThrow(new ForbiddenException())
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({
                 id: ownerId
             })
-            expect(authTokenRepository.find).toHaveBeenCalledWith({
-                where: {
-                    account: {
-                        id: ownerId
-                    }
-                },
-                relations: ['account']
-            })
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(authTokenRepository.createQueryBuilder).toHaveBeenCalledWith('authToken')
+            expect(queryBuilder.where).toHaveBeenCalledWith('authToken.account.id = :ownerId', { ownerId })
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('authToken.account', 'account')
+            expect(buildPaginator).toHaveBeenCalledWith({
+                entity: AuthToken,
+                paginationKeys: ['id'],
+                alias: 'authToken',
+                query
+            })
+            expect(paginator.paginate).toHaveBeenCalledWith(queryBuilder)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Read, authToken)
         })
 
         it('should return all auth tokens', async () => {
 
             accountRepository.findOneBy.mockResolvedValue(owner)
-            authTokenRepository.find.mockResolvedValue(authTokens)
             caslAbilityFactory.createForAccount.mockReturnValue(caslAbility)
+            authTokenRepository.createQueryBuilder.mockReturnValue(queryBuilder)
+            queryBuilder.where.mockReturnValue(queryBuilder)
+            queryBuilder.leftJoinAndSelect.mockReturnValue(queryBuilder)
+            paginator.paginate.mockResolvedValue(pagingResult)
             caslAbility.can.mockReturnValue(true)
+            buildPaginatorMock.mockReturnValue(paginator)
 
-            await expect(tokensService.getAllAuthTokensFromAccountId(ownerId, initiator)).resolves.toStrictEqual(authTokens)
+            await expect(tokensService.listAuthTokensFromAccountId(ownerId, query, initiator)).resolves.toStrictEqual(pagingResult)
 
             expect(accountRepository.findOneBy).toHaveBeenCalledWith({
                 id: ownerId
             })
-            expect(authTokenRepository.find).toHaveBeenCalledWith({
-                where: {
-                    account: {
-                        id: ownerId
-                    }
-                },
-                relations: ['account']
-            })
             expect(caslAbilityFactory.createForAccount).toHaveBeenCalledWith(initiator)
+            expect(authTokenRepository.createQueryBuilder).toHaveBeenCalledWith('authToken')
+            expect(queryBuilder.where).toHaveBeenCalledWith('authToken.account.id = :ownerId', { ownerId })
+            expect(queryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('authToken.account', 'account')
+            expect(buildPaginator).toHaveBeenCalledWith({
+                entity: AuthToken,
+                paginationKeys: ['id'],
+                alias: 'authToken',
+                query
+            })
+            expect(paginator.paginate).toHaveBeenCalledWith(queryBuilder)
             expect(caslAbility.can).toHaveBeenCalledWith(CaslAction.Read, authToken)
         })
     })

@@ -5,16 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Controller, Delete, Get, HttpCode, Param, UseGuards } from '@nestjs/common'
+import { Controller, Delete, Get, HttpCode, Param, Query, UseGuards } from '@nestjs/common'
 import {
     ApiBearerAuth,
-    ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse,
+    ApiForbiddenResponse,
+    ApiNoContentResponse,
+    ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
+    ApiQuery,
     ApiTags,
     ApiUnauthorizedResponse
 } from '@nestjs/swagger'
 import { TokensService } from './tokens.service'
+import { GetAuthTokensQueryDto } from './dto/get-auth-tokens.query.dto'
 import { GetAuthTokensResDto } from './dto/get-auth-tokens.res.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { Account } from '../accounts/entities/account.entity'
@@ -33,6 +37,21 @@ class TokensController {
     @Get('/me/tokens')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({ summary: 'Get auth tokens owned by the current user' })
+    @ApiQuery({
+        name: 'limit',
+        type: Number,
+        required: false
+    })
+    @ApiQuery({
+        name: 'beforeCursor',
+        type: String,
+        required: false
+    })
+    @ApiQuery({
+        name: 'afterCursor',
+        type: String,
+        required: false
+    })
     @ApiOkResponse({
         type: GetAuthTokensResDto,
         description: 'Get auth tokens owned by the current user'
@@ -45,19 +64,40 @@ class TokensController {
         type: ErrorResDto,
         description: 'Forbidden'
     })
-    async getCurrentUserAuthTokens(@CurrentUser() currentUser: Account): Promise<GetAuthTokensResDto> {
+    async listCurrentUserAuthTokens(
+        @CurrentUser() currentUser: Account,
+        @Query() query: GetAuthTokensQueryDto
+    ): Promise<GetAuthTokensResDto> {
 
-        const authTokens = await this.tokensService.getAllAuthTokensFromAccountId(currentUser.id, currentUser)
+        const { cursor, data } = await this.tokensService.listAuthTokensFromAccountId(currentUser.id, query, currentUser)
 
         return {
             status: 'success',
-            data: authTokens
+            data: {
+                items: data,
+                ...cursor
+            }
         }
     }
 
     @Get('/account/:ownerId/tokens')
     @UseGuards(JwtAuthGuard)
     @ApiOperation({ summary: 'Get auth tokens owned by a given user' })
+    @ApiQuery({
+        name: 'limit',
+        type: Number,
+        required: false
+    })
+    @ApiQuery({
+        name: 'beforeCursor',
+        type: String,
+        required: false
+    })
+    @ApiQuery({
+        name: 'afterCursor',
+        type: String,
+        required: false
+    })
     @ApiOkResponse({
         type: GetAuthTokensResDto,
         description: 'Get auth tokens owned by a given user'
@@ -74,13 +114,20 @@ class TokensController {
         type: ErrorResDto,
         description: 'Not Found'
     })
-    async getAuthTokens(@CurrentUser() currentUser: Account, @Param('ownerId') ownerId: string): Promise<GetAuthTokensResDto> {
+    async listAuthTokens(
+        @CurrentUser() currentUser: Account,
+        @Query() query: GetAuthTokensQueryDto,
+        @Param('ownerId') ownerId: string
+    ): Promise<GetAuthTokensResDto> {
 
-        const authTokens = await this.tokensService.getAllAuthTokensFromAccountId(ownerId, currentUser)
+        const { cursor, data } = await this.tokensService.listAuthTokensFromAccountId(ownerId, query, currentUser)
 
         return {
             status: 'success',
-            data: authTokens
+            data: {
+                items: data,
+                ...cursor
+            }
         }
     }
 

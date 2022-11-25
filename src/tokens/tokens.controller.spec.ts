@@ -14,7 +14,7 @@ describe('TokensController', () => {
 
     let tokensController: TokensController
     const tokensService = {
-        getAllAuthTokensFromAccountId: jest.fn(),
+        listAuthTokensFromAccountId: jest.fn(),
         deleteAuthTokenById: jest.fn()
     }
 
@@ -31,44 +31,68 @@ describe('TokensController', () => {
 
         tokensController = moduleRef.get(TokensController)
 
-        tokensService.getAllAuthTokensFromAccountId.mockReset()
+        tokensService.listAuthTokensFromAccountId.mockReset()
         tokensService.deleteAuthTokenById.mockReset()
     })
 
-    describe('getCurrentUserAuthTokens', () => {
+    describe('listCurrentUserAuthTokens', () => {
 
         it('should return the correct response', async () => {
 
             const currentUser = { id: '1' } as Account
-            const authTokens = ['auth tokens']
+            const query = {
+                limit: 20
+            }
+            const pagingResult = {
+                data: ['item'],
+                cursor: {
+                    beforeCursor: 'before cursor',
+                    afterCursor: 'after cursor'
+                }
+            }
 
-            tokensService.getAllAuthTokensFromAccountId.mockResolvedValue(authTokens)
+            tokensService.listAuthTokensFromAccountId.mockResolvedValue(pagingResult)
 
-            await expect(tokensController.getCurrentUserAuthTokens(currentUser)).resolves.toStrictEqual({
+            await expect(tokensController.listCurrentUserAuthTokens(currentUser, query)).resolves.toStrictEqual({
                 status: 'success',
-                data: authTokens
+                data: {
+                    items: pagingResult.data,
+                    ...pagingResult.cursor
+                }
             })
 
-            expect(tokensService.getAllAuthTokensFromAccountId).toHaveBeenCalledWith(currentUser.id, currentUser)
+            expect(tokensService.listAuthTokensFromAccountId).toHaveBeenCalledWith(currentUser.id, query, currentUser)
         })
     })
 
-    describe('getAuthTokens', () => {
+    describe('listAuthTokens', () => {
 
         it('should return the correct response', async () => {
 
             const currentUser = { id: '1' } as Account
+            const query = {
+                limit: 20
+            }
             const ownerId = 'owner id'
-            const authTokens = ['auth tokens']
+            const pagingResult = {
+                data: ['item'],
+                cursor: {
+                    beforeCursor: 'before cursor',
+                    afterCursor: 'after cursor'
+                }
+            }
 
-            tokensService.getAllAuthTokensFromAccountId.mockResolvedValue(authTokens)
+            tokensService.listAuthTokensFromAccountId.mockResolvedValue(pagingResult)
 
-            await expect(tokensController.getAuthTokens(currentUser, ownerId)).resolves.toStrictEqual({
+            await expect(tokensController.listAuthTokens(currentUser, query, ownerId)).resolves.toStrictEqual({
                 status: 'success',
-                data: authTokens
+                data: {
+                    items: pagingResult.data,
+                    ...pagingResult.cursor
+                }
             })
 
-            expect(tokensService.getAllAuthTokensFromAccountId).toHaveBeenCalledWith(ownerId, currentUser)
+            expect(tokensService.listAuthTokensFromAccountId).toHaveBeenCalledWith(ownerId, query, currentUser)
         })
     })
 

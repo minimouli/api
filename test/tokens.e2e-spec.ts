@@ -17,7 +17,13 @@ describe('Tokens', () => {
     let app: INestApplication
     let jwtService: JwtService
     const tokensService = {
-        getAllAuthTokensFromAccountId: () => ['auth token 1', 'auth token 2'],
+        listAuthTokensFromAccountId: () => ({
+            data: ['item'],
+            cursor: {
+                beforeCursor: 'before cursor',
+                afterCursor: 'after cursor'
+            }
+        }),
         deleteAuthTokenById: () => Promise.resolve()
     }
 
@@ -56,13 +62,41 @@ describe('Tokens', () => {
                 })
             })
 
+            it('should return 400 if the limit query parameter is less than 1', () => request(app.getHttpServer())
+                .get('/me/tokens')
+                .set('Authorization', `Bearer ${jwt}`)
+                .query({
+                    limit: 0
+                })
+                .expect(400))
+
+            it('should return 400 if the limit query parameter is more than 100', () => request(app.getHttpServer())
+                .get('/me/tokens')
+                .set('Authorization', `Bearer ${jwt}`)
+                .query({
+                    limit: 101
+                })
+                .expect(400))
+
+            it('should return 400 if the limit query parameter is not a number', () => request(app.getHttpServer())
+                .get('/me/tokens')
+                .set('Authorization', `Bearer ${jwt}`)
+                .query({
+                    limit: 'not a number'
+                })
+                .expect(400))
+
             it('should return 200', () => request(app.getHttpServer())
                 .get('/me/tokens')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: tokensService.getAllAuthTokensFromAccountId()
+                    data: {
+                        items: ['item'],
+                        beforeCursor: 'before cursor',
+                        afterCursor: 'after cursor'
+                    }
                 }))
         })
     })
@@ -85,13 +119,41 @@ describe('Tokens', () => {
                 })
             })
 
+            it('should return 400 if the limit query parameter is less than 1', () => request(app.getHttpServer())
+                .get('/account/123/tokens')
+                .set('Authorization', `Bearer ${jwt}`)
+                .query({
+                    limit: 0
+                })
+                .expect(400))
+
+            it('should return 400 if the limit query parameter is more than 100', () => request(app.getHttpServer())
+                .get('/account/123/tokens')
+                .set('Authorization', `Bearer ${jwt}`)
+                .query({
+                    limit: 101
+                })
+                .expect(400))
+
+            it('should return 400 if the limit query parameter is not a number', () => request(app.getHttpServer())
+                .get('/account/123/tokens')
+                .set('Authorization', `Bearer ${jwt}`)
+                .query({
+                    limit: 'not a number'
+                })
+                .expect(400))
+
             it('should return 200', () => request(app.getHttpServer())
                 .get('/account/123/tokens')
                 .set('Authorization', `Bearer ${jwt}`)
                 .expect(200)
                 .expect({
                     status: 'success',
-                    data: tokensService.getAllAuthTokensFromAccountId()
+                    data: {
+                        items: ['item'],
+                        beforeCursor: 'before cursor',
+                        afterCursor: 'after cursor'
+                    }
                 }))
         })
     })
