@@ -5,6 +5,9 @@ node_modules
 /dist
 /node_modules
 
+# TypeScript
+*.tsbuildinfo
+
 # Yarn
 .yarn/*
 .pnp.*

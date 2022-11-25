@@ -3,8 +3,11 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "yarn run clean:dist",
     "prepare": "husky install",
+    "clean": "yarn run clean:dist && yarn run clean:tsc",
+    "clean:dist": "rimraf './dist' './tsconfig.build.tsbuildinfo'",
+    "clean:tsc": "tsc --build --clean",
     "build": "nest build",
     "start": "cross-env NODE_ENV=dev nest start",
     "start:dev": "yarn run start --watch",
