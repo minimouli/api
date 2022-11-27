@@ -16,10 +16,10 @@ describe('Auth', () => {
 
     let app: INestApplication
     const authService = {
-        signupWithGithub: () => 'signup with github',
-        signupWithGithubAccessToken: () => 'signup with github access token',
-        loginWithGithub: () => 'login with github',
-        loginWithGithubAccessToken: () => 'login with github access token'
+        signupWithGitHubAuthCode: () => 'signup with github',
+        signupWithGitHubAccessToken: () => 'signup with github access token',
+        loginWithGitHubAuthCode: () => 'login with github',
+        loginWithGitHubAccessToken: () => 'login with github access token'
     }
     const tokensService = {
         create: () => [undefined, 'access token']
@@ -42,15 +42,15 @@ describe('Auth', () => {
 
     afterAll(() => app.close())
 
-    describe('POST /auth/signup/github', () => {
+    describe('POST /auth/signup/github/auth-code', () => {
 
         it('should return 400 if the body is incomplete', () => request(app.getHttpServer())
-            .post('/auth/signup/github')
+            .post('/auth/signup/github/auth-code')
             .send({})
             .expect(400))
 
         it('should return 200', () => request(app.getHttpServer())
-            .post('/auth/signup/github')
+            .post('/auth/signup/github/auth-code')
             .send({
                 code: 'github-code',
                 authTokenName: 'auth-token-name'
@@ -59,21 +59,21 @@ describe('Auth', () => {
             .expect({
                 status: 'success',
                 data: {
-                    account: authService.signupWithGithub(),
+                    account: authService.signupWithGitHubAuthCode(),
                     accessToken: tokensService.create().at(1)
                 }
             }))
     })
 
-    describe('POST /auth/signup/github/accessToken', () => {
+    describe('POST /auth/signup/github/access-token', () => {
 
         it('should return 400 if the body is incomplete', () => request(app.getHttpServer())
-            .post('/auth/signup/github/accessToken')
+            .post('/auth/signup/github/access-token')
             .send({})
             .expect(400))
 
         it('should return 200', () => request(app.getHttpServer())
-            .post('/auth/signup/github/accessToken')
+            .post('/auth/signup/github/access-token')
             .send({
                 accessToken: 'github-access-token',
                 authTokenName: 'auth-token-name'
@@ -82,21 +82,21 @@ describe('Auth', () => {
             .expect({
                 status: 'success',
                 data: {
-                    account: authService.signupWithGithubAccessToken(),
+                    account: authService.signupWithGitHubAccessToken(),
                     accessToken: tokensService.create().at(1)
                 }
             }))
     })
 
-    describe('POST /auth/login/github', () => {
+    describe('POST /auth/login/github/auth-code', () => {
 
         it('should return 400 if the body is incomplete', () => request(app.getHttpServer())
-            .post('/auth/login/github')
+            .post('/auth/login/github/auth-code')
             .send({})
             .expect(400))
 
         it('should return 200', () => request(app.getHttpServer())
-            .post('/auth/login/github')
+            .post('/auth/login/github/auth-code')
             .send({
                 code: 'github-code',
                 authTokenName: 'auth-token-name'
@@ -105,21 +105,21 @@ describe('Auth', () => {
             .expect({
                 status: 'success',
                 data: {
-                    account: authService.loginWithGithub(),
+                    account: authService.loginWithGitHubAuthCode(),
                     accessToken: tokensService.create().at(1)
                 }
             }))
     })
 
-    describe('POST /auth/login/github/accessToken', () => {
+    describe('POST /auth/login/github/access-token', () => {
 
         it('should return 400 if the body is incomplete', () => request(app.getHttpServer())
-            .post('/auth/login/github/accessToken')
+            .post('/auth/login/github/access-token')
             .send({})
             .expect(400))
 
         it('should return 200', () => request(app.getHttpServer())
-            .post('/auth/login/github/accessToken')
+            .post('/auth/login/github/access-token')
             .send({
                 accessToken: 'github-access-token',
                 authTokenName: 'auth-token-name'
@@ -128,7 +128,7 @@ describe('Auth', () => {
             .expect({
                 status: 'success',
                 data: {
-                    account: authService.loginWithGithubAccessToken(),
+                    account: authService.loginWithGitHubAccessToken(),
                     accessToken: tokensService.create().at(1)
                 }
             }))

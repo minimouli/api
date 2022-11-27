@@ -9,9 +9,9 @@ import { BadRequestException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { AuthService } from './auth.service'
-import { GithubCredentials } from './entities/github-credentials.entity'
-import { GithubApiService } from './services/github-api.service'
-import { GithubCredentialsService } from './services/github-credentials.service'
+import { GitHubCredentials } from './entities/github-credentials.entity'
+import { GitHubApiService } from './services/github-api.service'
+import { GitHubCredentialsService } from './services/github-credentials.service'
 import { AccountsService } from '../accounts/accounts.service'
 import { DefaultPermissions } from '../common/configs/permissions.config'
 import { getRandomString } from '../common/helpers/random.helper'
@@ -44,13 +44,13 @@ describe('AuthService', () => {
             providers: [AuthService]
         })
             .useMocker((token) => {
-                if (token === getRepositoryToken(GithubCredentials))
+                if (token === getRepositoryToken(GitHubCredentials))
                     return githubCredentialsRepository
 
-                if (token === GithubApiService)
+                if (token === GitHubApiService)
                     return githubApiService
 
-                if (token === GithubCredentialsService)
+                if (token === GitHubCredentialsService)
                     return githubCredentialsService
 
                 if (token === AccountsService)
@@ -69,30 +69,30 @@ describe('AuthService', () => {
         getRandomStringMock.mockReset()
     })
 
-    describe('signupWithGithub', () => {
+    describe('signupWithGitHubAuthCode', () => {
 
         const code = 'code'
         const accessToken = 'access token'
         const signedUpAccount = 'signed up account'
-        let signupWithGithubAccessTokenSpy: jest.SpyInstance
+        let signupWithGitHubAccessTokenSpy: jest.SpyInstance
 
         beforeEach(() => {
-            signupWithGithubAccessTokenSpy = jest.spyOn(authService, 'signupWithGithubAccessToken')
+            signupWithGitHubAccessTokenSpy = jest.spyOn(authService, 'signupWithGitHubAccessToken')
         })
 
         it('should return the newly signed up account', async () => {
 
             githubApiService.consumeCodeForAccessToken.mockResolvedValue(accessToken)
-            signupWithGithubAccessTokenSpy.mockResolvedValue(signedUpAccount)
+            signupWithGitHubAccessTokenSpy.mockResolvedValue(signedUpAccount)
 
-            await expect(authService.signupWithGithub(code)).resolves.toBe(signedUpAccount)
+            await expect(authService.signupWithGitHubAuthCode(code)).resolves.toBe(signedUpAccount)
 
             expect(githubApiService.consumeCodeForAccessToken).toHaveBeenCalledWith(code)
-            expect(signupWithGithubAccessTokenSpy).toHaveBeenCalledWith(accessToken)
+            expect(signupWithGitHubAccessTokenSpy).toHaveBeenCalledWith(accessToken)
         })
     })
 
-    describe('signupWithGithubAccessToken', () => {
+    describe('signupWithGitHubAccessToken', () => {
 
         const accessToken = 'access token'
         const userProfile = {
@@ -111,7 +111,7 @@ describe('AuthService', () => {
             githubApiService.getUserProfile.mockResolvedValue(userProfile)
             githubCredentialsRepository.findOne.mockResolvedValue(credentials)
 
-            await expect(authService.signupWithGithubAccessToken(accessToken)).resolves.toBe(credentials.account)
+            await expect(authService.signupWithGitHubAccessToken(accessToken)).resolves.toBe(credentials.account)
 
             expect(githubApiService.getUserProfile).toHaveBeenCalledWith(accessToken)
             expect(githubCredentialsRepository.findOne).toHaveBeenCalledWith({
@@ -132,7 +132,7 @@ describe('AuthService', () => {
             accountsService.create.mockResolvedValue(account)
             getRandomStringMock.mockReturnValue(username)
 
-            await expect(authService.signupWithGithubAccessToken(accessToken)).resolves.toBe(account)
+            await expect(authService.signupWithGitHubAccessToken(accessToken)).resolves.toBe(account)
 
             expect(githubApiService.getUserProfile).toHaveBeenCalledWith(accessToken)
             expect(githubCredentialsRepository.findOne).toHaveBeenCalledWith({
@@ -152,30 +152,30 @@ describe('AuthService', () => {
         })
     })
 
-    describe('loginWithGithub', () => {
+    describe('loginWithGitHubAuthCode', () => {
 
         const code = 'code'
         const accessToken = 'access token'
         const loggedAccount = 'signed up account'
-        let loginWithGithubAccessTokenSpy: jest.SpyInstance
+        let loginWithGitHubAccessTokenSpy: jest.SpyInstance
 
         beforeEach(() => {
-            loginWithGithubAccessTokenSpy = jest.spyOn(authService, 'loginWithGithubAccessToken')
+            loginWithGitHubAccessTokenSpy = jest.spyOn(authService, 'loginWithGitHubAccessToken')
         })
 
         it('should return the newly signed up account', async () => {
 
             githubApiService.consumeCodeForAccessToken.mockResolvedValue(accessToken)
-            loginWithGithubAccessTokenSpy.mockResolvedValue(loggedAccount)
+            loginWithGitHubAccessTokenSpy.mockResolvedValue(loggedAccount)
 
-            await expect(authService.loginWithGithub(code)).resolves.toBe(loggedAccount)
+            await expect(authService.loginWithGitHubAuthCode(code)).resolves.toBe(loggedAccount)
 
             expect(githubApiService.consumeCodeForAccessToken).toHaveBeenCalledWith(code)
-            expect(loginWithGithubAccessTokenSpy).toHaveBeenCalledWith(accessToken)
+            expect(loginWithGitHubAccessTokenSpy).toHaveBeenCalledWith(accessToken)
         })
     })
 
-    describe('loginWithGithubAccessToken', () => {
+    describe('loginWithGitHubAccessToken', () => {
 
         const accessToken = 'access token'
         const userProfile = {
@@ -189,7 +189,7 @@ describe('AuthService', () => {
             // eslint-disable-next-line unicorn/no-null
             githubCredentialsRepository.findOne.mockResolvedValue(null)
 
-            await expect(authService.loginWithGithubAccessToken(accessToken)).rejects.toStrictEqual(new BadRequestException('This Github account is not associated with an existing account'))
+            await expect(authService.loginWithGitHubAccessToken(accessToken)).rejects.toStrictEqual(new BadRequestException('This GitHub account is not associated with an existing account'))
 
             expect(githubApiService.getUserProfile).toHaveBeenCalledWith(accessToken)
             expect(githubCredentialsRepository.findOne).toHaveBeenCalledWith({
@@ -207,7 +207,7 @@ describe('AuthService', () => {
             githubApiService.getUserProfile.mockResolvedValue(userProfile)
             githubCredentialsRepository.findOne.mockResolvedValue(credentials)
 
-            await expect(authService.loginWithGithubAccessToken(accessToken)).resolves.toBe(credentials.account)
+            await expect(authService.loginWithGitHubAccessToken(accessToken)).resolves.toBe(credentials.account)
 
             expect(githubApiService.getUserProfile).toHaveBeenCalledWith(accessToken)
             expect(githubCredentialsRepository.findOne).toHaveBeenCalledWith({

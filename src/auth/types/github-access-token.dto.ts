@@ -5,19 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-interface GithubAccessTokenSuccessDto {
+interface GitHubAccessTokenSuccessDto {
     error: undefined
     access_token: string
     token_type: string
     scope: string
 }
 
-interface GithubAccessTokenFailureDto {
+interface GitHubAccessTokenFailureDto {
     error: string
 }
 
-type GithubAccessTokenDto = GithubAccessTokenSuccessDto | GithubAccessTokenFailureDto
+type GitHubAccessTokenDto = GitHubAccessTokenSuccessDto | GitHubAccessTokenFailureDto
 
 export type {
-    GithubAccessTokenDto
+    GitHubAccessTokenDto
 }

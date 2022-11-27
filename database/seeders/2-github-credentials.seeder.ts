@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { GithubCredentials } from '../../src/auth/entities/github-credentials.entity'
+import { GitHubCredentials } from '../../src/auth/entities/github-credentials.entity'
 import type { MigrationInterface, QueryRunner } from 'typeorm'
 
-class GithubCredentialsSeeder implements MigrationInterface {
+class GitHubCredentialsSeeder implements MigrationInterface {
 
-    public name = 'GithubCredentialsSeeder'
+    public name = 'GitHubCredentialsSeeder'
 
     public up(): Promise<void> {
         return Promise.resolve()
@@ -19,12 +19,12 @@ class GithubCredentialsSeeder implements MigrationInterface {
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.manager.createQueryBuilder()
             .delete()
-            .from(GithubCredentials)
+            .from(GitHubCredentials)
             .execute()
     }
 
 }
 
 export {
-    GithubCredentialsSeeder
+    GitHubCredentialsSeeder
 }

@@ -8,9 +8,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { GithubApiService } from './services/github-api.service'
-import { GithubCredentialsService } from './services/github-credentials.service'
-import { GithubCredentials } from './entities/github-credentials.entity'
+import { GitHubApiService } from './services/github-api.service'
+import { GitHubCredentialsService } from './services/github-credentials.service'
+import { GitHubCredentials } from './entities/github-credentials.entity'
 import { AccountsService } from '../accounts/accounts.service'
 import { DefaultPermissions } from '../common/configs/permissions.config'
 import { getRandomString } from '../common/helpers/random.helper'
@@ -21,19 +21,19 @@ import type { Account } from '../accounts/entities/account.entity'
 class AuthService {
 
     constructor(
-        @InjectRepository(GithubCredentials)
-        private readonly githubCredentialsRepository: Repository<GithubCredentials>,
-        private readonly githubApiService: GithubApiService,
-        private readonly githubCredentialsService: GithubCredentialsService,
+        @InjectRepository(GitHubCredentials)
+        private readonly githubCredentialsRepository: Repository<GitHubCredentials>,
+        private readonly githubApiService: GitHubApiService,
+        private readonly githubCredentialsService: GitHubCredentialsService,
         private readonly accountsService: AccountsService
     ) {}
 
-    async signupWithGithub(code: string): Promise<Account> {
+    async signupWithGitHubAuthCode(code: string): Promise<Account> {
         const accessToken = await this.githubApiService.consumeCodeForAccessToken(code)
-        return this.signupWithGithubAccessToken(accessToken)
+        return this.signupWithGitHubAccessToken(accessToken)
     }
 
-    async signupWithGithubAccessToken(accessToken: string): Promise<Account> {
+    async signupWithGitHubAccessToken(accessToken: string): Promise<Account> {
 
         const userProfile = await this.githubApiService.getUserProfile(accessToken)
 
@@ -61,12 +61,12 @@ class AuthService {
         return account
     }
 
-    async loginWithGithub(code: string): Promise<Account> {
+    async loginWithGitHubAuthCode(code: string): Promise<Account> {
         const accessToken = await this.githubApiService.consumeCodeForAccessToken(code)
-       return this.loginWithGithubAccessToken(accessToken)
+       return this.loginWithGitHubAccessToken(accessToken)
     }
 
-    async loginWithGithubAccessToken(accessToken: string): Promise<Account> {
+    async loginWithGitHubAccessToken(accessToken: string): Promise<Account> {
 
         const userProfile = await this.githubApiService.getUserProfile(accessToken)
 
@@ -76,7 +76,7 @@ class AuthService {
         })
 
         if (!credentials)
-            throw new BadRequestException('This Github account is not associated with an existing account')
+            throw new BadRequestException('This GitHub account is not associated with an existing account')
 
         return credentials.account
     }

@@ -8,7 +8,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsString, MaxLength } from 'class-validator'
 
-class SignupWithGithubReqDto {
+class SignupWithGitHubReqDto {
 
     @ApiProperty()
     @IsString()
@@ -22,5 +22,5 @@ class SignupWithGithubReqDto {
 }
 
 export {
-    SignupWithGithubReqDto
+    SignupWithGitHubReqDto
 }

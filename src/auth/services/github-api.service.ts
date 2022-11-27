@@ -10,14 +10,14 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { catchError, lastValueFrom, map } from 'rxjs'
 import { isArrayEqual } from '../../common/helpers/array.helper'
-import type { GithubAccessTokenDto } from '../types/github-access-token.dto'
-import type { GithubUserDto } from '../types/github-user.dto'
-import type { GithubUserEmailsDto } from '../types/github-user-emails.dto'
+import type { GitHubAccessTokenDto } from '../types/github-access-token.dto'
+import type { GitHubUserDto } from '../types/github-user.dto'
+import type { GitHubUserEmailsDto } from '../types/github-user-emails.dto'
 
 @Injectable()
-class GithubApiService {
+class GitHubApiService {
 
-    private readonly logger = new Logger(GithubApiService.name)
+    private readonly logger = new Logger(GitHubApiService.name)
 
     constructor(
         private readonly configService: ConfigService,
@@ -37,12 +37,12 @@ class GithubApiService {
             code
         })
 
-        const observable = this.httpService.post<GithubAccessTokenDto>(url.href, body, { headers })
+        const observable = this.httpService.post<GitHubAccessTokenDto>(url.href, body, { headers })
             .pipe(
                 catchError((error) => {
-                    this.logger.error('Github access token endpoint returns a non 200 code')
+                    this.logger.error('GitHub access token endpoint returns a non 200 code')
                     this.logger.error(error)
-                    throw new BadRequestException('Unable to signup or login with Github')
+                    throw new BadRequestException('Unable to signup or login with GitHub')
                 }),
                 map((response) => response.data)
             )
@@ -50,21 +50,21 @@ class GithubApiService {
         const response = await lastValueFrom(observable)
 
         if (response.error !== undefined)
-            throw new BadRequestException('Unable to signup or login with Github, the provided code may be invalid or already used')
+            throw new BadRequestException('Unable to signup or login with GitHub, the provided code may be invalid or already used')
 
         const { access_token, token_type, scope } = response
         const expectedScopes = this.configService.get<string>('GITHUB_OAUTH2_REQUIRED_SCOPES')?.split(',') ?? []
 
         if (token_type !== 'bearer')
-            throw new BadRequestException('Unable to signup or login with Github, the received token is not a bearer')
+            throw new BadRequestException('Unable to signup or login with GitHub, the received token is not a bearer')
 
         if (!isArrayEqual(scope.split(','), expectedScopes))
-            throw new BadRequestException('Unable to signup or login with Github, provided scopes different from those expected')
+            throw new BadRequestException('Unable to signup or login with GitHub, provided scopes different from those expected')
 
         return access_token
     }
 
-    async getUserProfile(accessToken: string): Promise<GithubUserDto> {
+    async getUserProfile(accessToken: string): Promise<GitHubUserDto> {
 
         const url = new URL(this.configService.get('GITHUB_API_USER_PROFILE_ENDPOINT') ?? '')
         const headers = {
@@ -72,12 +72,12 @@ class GithubApiService {
             Authorization: `Bearer ${accessToken}`
         }
 
-        const observable = this.httpService.get<GithubUserDto>(url.href, { headers })
+        const observable = this.httpService.get<GitHubUserDto>(url.href, { headers })
             .pipe(
                 catchError((error) => {
-                    this.logger.error('Github user profile endpoint returns a non 200 code')
+                    this.logger.error('GitHub user profile endpoint returns a non 200 code')
                     this.logger.error(error)
-                    throw new BadRequestException('Unable to retrieve the Github user profile')
+                    throw new BadRequestException('Unable to retrieve the GitHub user profile')
                 }),
                 map((response) => response.data)
             )
@@ -93,12 +93,12 @@ class GithubApiService {
             Authorization: `Bearer ${accessToken}`
         }
 
-        const observable = this.httpService.get<GithubUserEmailsDto>(url.href, { headers })
+        const observable = this.httpService.get<GitHubUserEmailsDto>(url.href, { headers })
             .pipe(
                 catchError((error) => {
-                    this.logger.error('Github user emails endpoint returns a non 200 code')
+                    this.logger.error('GitHub user emails endpoint returns a non 200 code')
                     this.logger.error(error)
-                    throw new BadRequestException('Unable to retrieve the Github user emails')
+                    throw new BadRequestException('Unable to retrieve the GitHub user emails')
                 }),
                 map((response) => response.data)
             )
@@ -115,5 +115,5 @@ class GithubApiService {
 }
 
 export {
-    GithubApiService
+    GitHubApiService
 }

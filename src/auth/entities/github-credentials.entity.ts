@@ -19,7 +19,7 @@ import { Account } from '../../accounts/entities/account.entity'
 import { getSecureRandomString } from '../../common/helpers/random.helper'
 
 @Entity()
-class GithubCredentials {
+class GitHubCredentials {
 
     @PrimaryColumn()
     id: string
@@ -47,5 +47,5 @@ class GithubCredentials {
 }
 
 export {
-    GithubCredentials
+    GitHubCredentials
 }

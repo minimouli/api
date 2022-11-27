@@ -10,11 +10,11 @@ import { BadRequestException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test } from '@nestjs/testing'
 import { Observable } from 'rxjs'
-import { GithubApiService } from './github-api.service'
+import { GitHubApiService } from './github-api.service'
 
-describe('GithubApiService', () => {
+describe('GitHubApiService', () => {
 
-    let githubApiService: GithubApiService
+    let githubApiService: GitHubApiService
     const configService = {
         get: jest.fn()
     }
@@ -29,7 +29,7 @@ describe('GithubApiService', () => {
     beforeEach(async () => {
 
         const moduleRef = await Test.createTestingModule({
-            providers: [GithubApiService]
+            providers: [GitHubApiService]
         })
             .useMocker((token) => {
                 if (token === ConfigService)
@@ -40,7 +40,7 @@ describe('GithubApiService', () => {
             })
             .compile()
 
-        githubApiService = moduleRef.get(GithubApiService)
+        githubApiService = moduleRef.get(GitHubApiService)
         // eslint-disable-next-line @typescript-eslint/dot-notation
         jest.spyOn(githubApiService['logger'], 'error').mockImplementation(logger.error)
 
@@ -79,7 +79,7 @@ describe('GithubApiService', () => {
             })
 
             await expect(githubApiService.consumeCodeForAccessToken(code)).rejects.toThrow(
-                new BadRequestException('Unable to signup or login with Github')
+                new BadRequestException('Unable to signup or login with GitHub')
             )
 
             expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
@@ -92,7 +92,7 @@ describe('GithubApiService', () => {
                     'Content-Type': 'application/json'
                 }
             })
-            expect(logger.error).toHaveBeenCalledWith('Github access token endpoint returns a non 200 code')
+            expect(logger.error).toHaveBeenCalledWith('GitHub access token endpoint returns a non 200 code')
             expect(logger.error).toHaveBeenCalledWith(new Error(errorMessage))
         })
 
@@ -115,7 +115,7 @@ describe('GithubApiService', () => {
             })
 
             await expect(githubApiService.consumeCodeForAccessToken(code)).rejects.toThrow(
-                new BadRequestException('Unable to signup or login with Github, the provided code may be invalid or already used')
+                new BadRequestException('Unable to signup or login with GitHub, the provided code may be invalid or already used')
             )
 
             expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
@@ -151,7 +151,7 @@ describe('GithubApiService', () => {
             })
 
             await expect(githubApiService.consumeCodeForAccessToken(code)).rejects.toThrow(
-                new BadRequestException('Unable to signup or login with Github, the received token is not a bearer')
+                new BadRequestException('Unable to signup or login with GitHub, the received token is not a bearer')
             )
 
             expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
@@ -187,7 +187,7 @@ describe('GithubApiService', () => {
             })
 
             await expect(githubApiService.consumeCodeForAccessToken(code)).rejects.toThrow(
-                new BadRequestException('Unable to signup or login with Github, provided scopes different from those expected')
+                new BadRequestException('Unable to signup or login with GitHub, provided scopes different from those expected')
             )
 
             expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
@@ -224,7 +224,7 @@ describe('GithubApiService', () => {
             })
 
             await expect(githubApiService.consumeCodeForAccessToken(code)).rejects.toThrow(
-                new BadRequestException('Unable to signup or login with Github, provided scopes different from those expected')
+                new BadRequestException('Unable to signup or login with GitHub, provided scopes different from those expected')
             )
 
             expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
@@ -300,7 +300,7 @@ describe('GithubApiService', () => {
             })
 
             await expect(githubApiService.getUserProfile(accessToken)).rejects.toThrow(
-                new BadRequestException('Unable to retrieve the Github user profile')
+                new BadRequestException('Unable to retrieve the GitHub user profile')
             )
 
             expect(httpService.get).toHaveBeenCalledWith(url, {
@@ -309,7 +309,7 @@ describe('GithubApiService', () => {
                     Authorization: `Bearer ${accessToken}`
                 }
             })
-            expect(logger.error).toHaveBeenCalledWith('Github user profile endpoint returns a non 200 code')
+            expect(logger.error).toHaveBeenCalledWith('GitHub user profile endpoint returns a non 200 code')
             expect(logger.error).toHaveBeenCalledWith(new Error(errorMessage))
         })
 
@@ -366,7 +366,7 @@ describe('GithubApiService', () => {
             })
 
             await expect(githubApiService.getUserPrimaryEmail(accessToken)).rejects.toThrow(
-                new BadRequestException('Unable to retrieve the Github user emails')
+                new BadRequestException('Unable to retrieve the GitHub user emails')
             )
 
             expect(httpService.get).toHaveBeenCalledWith(url, {
@@ -375,7 +375,7 @@ describe('GithubApiService', () => {
                     Authorization: `Bearer ${accessToken}`
                 }
             })
-            expect(logger.error).toHaveBeenCalledWith('Github user emails endpoint returns a non 200 code')
+            expect(logger.error).toHaveBeenCalledWith('GitHub user emails endpoint returns a non 200 code')
             expect(logger.error).toHaveBeenCalledWith(new Error(errorMessage))
         })
 

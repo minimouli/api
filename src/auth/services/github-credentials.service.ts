@@ -7,17 +7,17 @@
 
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { GithubCredentials } from '../entities/github-credentials.entity'
+import { GitHubCredentials } from '../entities/github-credentials.entity'
 import type { Account } from '../../accounts/entities/account.entity'
 
-class GithubCredentialsService {
+class GitHubCredentialsService {
 
     constructor(
-        @InjectRepository(GithubCredentials)
-        private readonly githubCredentialsRepository: Repository<GithubCredentials>
+        @InjectRepository(GitHubCredentials)
+        private readonly githubCredentialsRepository: Repository<GitHubCredentials>
     ) {}
 
-    async create(githubId: number, account: Account): Promise<GithubCredentials> {
+    async create(githubId: number, account: Account): Promise<GitHubCredentials> {
 
         const githubCredentials = this.githubCredentialsRepository.create({
             githubId,
@@ -30,5 +30,5 @@ class GithubCredentialsService {
 }
 
 export {
-    GithubCredentialsService
+    GitHubCredentialsService
 }

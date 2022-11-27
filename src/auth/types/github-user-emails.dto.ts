@@ -5,14 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-interface GithubUserEmailDto {
+interface GitHubUserEmailDto {
     email: string
     primary: boolean
 }
 
-type GithubUserEmailsDto = GithubUserEmailDto[]
+type GitHubUserEmailsDto = GitHubUserEmailDto[]
 
 export type {
-    GithubUserEmailDto,
-    GithubUserEmailsDto
+    GitHubUserEmailDto,
+    GitHubUserEmailsDto
 }

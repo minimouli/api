@@ -14,10 +14,10 @@ describe('AuthController', () => {
 
     let authController: AuthController
     const authService = {
-        signupWithGithub: jest.fn(),
-        signupWithGithubAccessToken: jest.fn(),
-        loginWithGithub: jest.fn(),
-        loginWithGithubAccessToken: jest.fn()
+        signupWithGitHubAuthCode: jest.fn(),
+        signupWithGitHubAccessToken: jest.fn(),
+        loginWithGitHubAuthCode: jest.fn(),
+        loginWithGitHubAccessToken: jest.fn()
     }
     const tokensService = {
         create: jest.fn()
@@ -39,14 +39,14 @@ describe('AuthController', () => {
 
         authController = moduleRef.get(AuthController)
 
-        authService.signupWithGithub.mockReset()
-        authService.signupWithGithubAccessToken.mockReset()
-        authService.loginWithGithub.mockReset()
-        authService.loginWithGithubAccessToken.mockReset()
+        authService.signupWithGitHubAuthCode.mockReset()
+        authService.signupWithGitHubAccessToken.mockReset()
+        authService.loginWithGitHubAuthCode.mockReset()
+        authService.loginWithGitHubAccessToken.mockReset()
         tokensService.create.mockReset()
     })
 
-    describe('signupWithGithub', () => {
+    describe('signupWithGitHubAuthCode', () => {
 
         const body = {
             code: 'github code',
@@ -57,10 +57,10 @@ describe('AuthController', () => {
 
         it('should return the correct response', async () => {
 
-            authService.signupWithGithub.mockResolvedValue(account)
+            authService.signupWithGitHubAuthCode.mockResolvedValue(account)
             tokensService.create.mockResolvedValue([undefined, accessToken])
 
-            await expect(authController.signupWithGithub(body)).resolves.toStrictEqual({
+            await expect(authController.signupWithGitHubAuthCode(body)).resolves.toStrictEqual({
                 status: 'success',
                 data: {
                     account,
@@ -68,12 +68,12 @@ describe('AuthController', () => {
                 }
             })
 
-            expect(authService.signupWithGithub).toHaveBeenCalledWith(body.code)
+            expect(authService.signupWithGitHubAuthCode).toHaveBeenCalledWith(body.code)
             expect(tokensService.create).toHaveBeenCalledWith(body.authTokenName, account)
         })
     })
 
-    describe('signupWithGithubAccessToken', () => {
+    describe('signupWithGitHubAccessToken', () => {
 
         const body = {
             accessToken: 'github access token',
@@ -84,10 +84,10 @@ describe('AuthController', () => {
 
         it('should return the correct response', async () => {
 
-            authService.signupWithGithubAccessToken.mockResolvedValue(account)
+            authService.signupWithGitHubAccessToken.mockResolvedValue(account)
             tokensService.create.mockResolvedValue([undefined, accessToken])
 
-            await expect(authController.signupWithGithubAccessToken(body)).resolves.toStrictEqual({
+            await expect(authController.signupWithGitHubAccessToken(body)).resolves.toStrictEqual({
                 status: 'success',
                 data: {
                     account,
@@ -95,12 +95,12 @@ describe('AuthController', () => {
                 }
             })
 
-            expect(authService.signupWithGithubAccessToken).toHaveBeenCalledWith(body.accessToken)
+            expect(authService.signupWithGitHubAccessToken).toHaveBeenCalledWith(body.accessToken)
             expect(tokensService.create).toHaveBeenCalledWith(body.authTokenName, account)
         })
     })
 
-    describe('loginWithGithub', () => {
+    describe('loginWithGitHubAuthCode', () => {
 
         const body = {
             code: 'github code',
@@ -111,10 +111,10 @@ describe('AuthController', () => {
 
         it('should return the correct response', async () => {
 
-            authService.loginWithGithub.mockResolvedValue(account)
+            authService.loginWithGitHubAuthCode.mockResolvedValue(account)
             tokensService.create.mockResolvedValue([undefined, accessToken])
 
-            await expect(authController.loginWithGithub(body)).resolves.toStrictEqual({
+            await expect(authController.loginWithGitHubAuthCode(body)).resolves.toStrictEqual({
                 status: 'success',
                 data: {
                     account,
@@ -122,12 +122,12 @@ describe('AuthController', () => {
                 }
             })
 
-            expect(authService.loginWithGithub).toHaveBeenCalledWith(body.code)
+            expect(authService.loginWithGitHubAuthCode).toHaveBeenCalledWith(body.code)
             expect(tokensService.create).toHaveBeenCalledWith(body.authTokenName, account)
         })
     })
 
-    describe('loginWithGithubAccessToken', () => {
+    describe('loginWithGitHubAccessToken', () => {
 
         const body = {
             accessToken: 'github access token',
@@ -138,10 +138,10 @@ describe('AuthController', () => {
 
         it('should return the correct response', async () => {
 
-            authService.loginWithGithubAccessToken.mockResolvedValue(account)
+            authService.loginWithGitHubAccessToken.mockResolvedValue(account)
             tokensService.create.mockResolvedValue([undefined, accessToken])
 
-            await expect(authController.loginWithGithubAccessToken(body)).resolves.toStrictEqual({
+            await expect(authController.loginWithGitHubAccessToken(body)).resolves.toStrictEqual({
                 status: 'success',
                 data: {
                     account,
@@ -149,7 +149,7 @@ describe('AuthController', () => {
                 }
             })
 
-            expect(authService.loginWithGithubAccessToken).toHaveBeenCalledWith(body.accessToken)
+            expect(authService.loginWithGitHubAccessToken).toHaveBeenCalledWith(body.accessToken)
             expect(tokensService.create).toHaveBeenCalledWith(body.authTokenName, account)
         })
     })

@@ -7,13 +7,13 @@
 
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
-import { GithubCredentialsService } from './github-credentials.service'
-import { GithubCredentials } from '../entities/github-credentials.entity'
+import { GitHubCredentialsService } from './github-credentials.service'
+import { GitHubCredentials } from '../entities/github-credentials.entity'
 import { Account } from '../../accounts/entities/account.entity'
 
-describe('GithubCredentialsService', () => {
+describe('GitHubCredentialsService', () => {
 
-    let githubCredentialsService: GithubCredentialsService
+    let githubCredentialsService: GitHubCredentialsService
     const githubCredentialsRepository = {
         create: jest.fn(),
         save: jest.fn()
@@ -23,16 +23,16 @@ describe('GithubCredentialsService', () => {
 
         const moduleRef = await Test.createTestingModule({
             providers: [
-                GithubCredentialsService,
+                GitHubCredentialsService,
                 {
-                    provide: getRepositoryToken(GithubCredentials),
+                    provide: getRepositoryToken(GitHubCredentials),
                     useValue: githubCredentialsRepository
                 }
             ]
         })
             .compile()
 
-        githubCredentialsService = moduleRef.get(GithubCredentialsService)
+        githubCredentialsService = moduleRef.get(GitHubCredentialsService)
 
         githubCredentialsRepository.create.mockReset()
         githubCredentialsRepository.save.mockReset()

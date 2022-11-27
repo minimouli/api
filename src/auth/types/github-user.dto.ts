@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-interface GithubUserDto {
+interface GitHubUserDto {
     id: number
     name: string
     avatar_url: string
 }
 
 export type {
-    GithubUserDto
+    GitHubUserDto
 }
