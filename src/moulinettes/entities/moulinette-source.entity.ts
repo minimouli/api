@@ -21,7 +21,7 @@ import { EntityType } from '../../common/enums/entity-type.enum'
 @Entity()
 class MoulinetteSource {
 
-    type = EntityType.MoulinetteSource
+    object = EntityType.MoulinetteSource
 
     @Exclude()
     @PrimaryGeneratedColumn()

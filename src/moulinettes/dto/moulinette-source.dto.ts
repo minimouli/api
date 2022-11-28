@@ -37,7 +37,7 @@ class MoulinetteSourceDto {
     createdAt: string
 
     @ApiProperty()
-    type: EntityType
+    object: EntityType
 
 }
 

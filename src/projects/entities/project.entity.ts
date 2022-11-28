@@ -24,7 +24,7 @@ import { Moulinette } from '../../moulinettes/entities/moulinette.entity'
 @Entity()
 class Project {
 
-    type = EntityType.Project
+    object = EntityType.Project
 
     @PrimaryColumn()
     id: string
@@ -49,7 +49,7 @@ class Project {
 
     @Expose()
     get uri(): string {
-        return `minimouli:${this.type}:${this.id}`
+        return `minimouli:${this.object}:${this.id}`
     }
 
     @UpdateDateColumn()

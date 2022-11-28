@@ -16,7 +16,7 @@ import type { SuiteDto } from '../dto/suite.dto'
 @Entity()
 class Run {
 
-    type = EntityType.Run
+    object = EntityType.Run
 
     @PrimaryColumn()
     id: string
@@ -44,7 +44,7 @@ class Run {
 
     @Expose()
     get uri(): string {
-        return `minimouli:${this.type}:${this.id}`
+        return `minimouli:${this.object}:${this.id}`
     }
 
     @UpdateDateColumn()

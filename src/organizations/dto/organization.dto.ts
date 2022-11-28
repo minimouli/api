@@ -29,7 +29,7 @@ class OrganizationDto {
     createdAt: string
 
     @ApiProperty()
-    type: EntityType
+    object: EntityType
 
 }
 

@@ -14,7 +14,7 @@ import { Project } from '../../projects/entities/project.entity'
 @Entity()
 class Organization {
 
-    type = EntityType.Organization
+    object = EntityType.Organization
 
     @PrimaryColumn()
     id: string
@@ -31,7 +31,7 @@ class Organization {
 
     @Expose()
     get uri(): string {
-        return `minimouli:${this.type}:${this.id}`
+        return `minimouli:${this.object}:${this.id}`
     }
 
     @UpdateDateColumn()

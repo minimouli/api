@@ -14,7 +14,7 @@ import { getSecureRandomString } from '../../common/helpers/random.helper'
 @Entity()
 class AuthToken {
 
-    type = EntityType.AuthToken
+    object = EntityType.AuthToken
 
     @PrimaryColumn()
     id: string

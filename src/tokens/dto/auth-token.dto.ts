@@ -29,7 +29,7 @@ class AuthTokenDto {
     createdAt: string
 
     @ApiProperty()
-    type: EntityType
+    object: EntityType
 
 }
 

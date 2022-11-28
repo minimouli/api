@@ -39,7 +39,7 @@ class ProjectDto {
     createdAt: string
 
     @ApiProperty()
-    type: EntityType
+    object: EntityType
 
 }
 

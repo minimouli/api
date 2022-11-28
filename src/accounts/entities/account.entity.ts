@@ -16,7 +16,7 @@ import type { Permission } from '../../common/enums/permission.enum'
 @Entity()
 class Account {
 
-    type = EntityType.Account
+    object = EntityType.Account
 
     @PrimaryColumn()
     id: string
@@ -55,7 +55,7 @@ class Account {
 
     @Expose()
     get uri(): string {
-        return `minimouli:${this.type}:${this.id}`
+        return `minimouli:${this.object}:${this.id}`
     }
 
     @UpdateDateColumn()
