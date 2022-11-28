@@ -180,8 +180,10 @@ class ProjectsController {
         return {
             status: 'success',
             data: {
+                object: 'list',
                 items: data,
-                ...cursor
+                beforeCursor: cursor.beforeCursor,
+                afterCursor: cursor.afterCursor
             }
         }
     }

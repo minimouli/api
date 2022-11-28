@@ -22,6 +22,7 @@ describe('Moulinettes', () => {
         deleteById: () => Promise.resolve(),
         findById: () => 'find by id',
         list: () => ({
+            object: 'list',
             data: ['item'],
             cursor: {
                 beforeCursor: 'before cursor',
@@ -278,6 +279,7 @@ describe('Moulinettes', () => {
             .expect({
                 status: 'success',
                 data: {
+                    object: 'list',
                     items: ['item'],
                     beforeCursor: 'before cursor',
                     afterCursor: 'after cursor'

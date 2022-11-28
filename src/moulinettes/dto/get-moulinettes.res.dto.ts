@@ -10,6 +10,9 @@ import { MoulinetteDto } from './moulinette.dto'
 
 class GetMoulinettesDataResDto {
 
+    @ApiProperty()
+    object: string
+
     @ApiProperty({
         type: [MoulinetteDto]
     })

@@ -56,8 +56,10 @@ describe('TokensController', () => {
             await expect(tokensController.listCurrentUserAuthTokens(currentUser, query)).resolves.toStrictEqual({
                 status: 'success',
                 data: {
+                    object: 'list',
                     items: pagingResult.data,
-                    ...pagingResult.cursor
+                    beforeCursor: pagingResult.cursor.beforeCursor,
+                    afterCursor: pagingResult.cursor.afterCursor
                 }
             })
 
@@ -87,8 +89,10 @@ describe('TokensController', () => {
             await expect(tokensController.listAuthTokens(currentUser, query, ownerId)).resolves.toStrictEqual({
                 status: 'success',
                 data: {
+                    object: 'list',
                     items: pagingResult.data,
-                    ...pagingResult.cursor
+                    beforeCursor: pagingResult.cursor.beforeCursor,
+                    afterCursor: pagingResult.cursor.afterCursor
                 }
             })
 

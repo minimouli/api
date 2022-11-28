@@ -10,6 +10,9 @@ import { OrganizationDto } from './organization.dto'
 
 class GetOrganizationsDataResDto {
 
+    @ApiProperty()
+    object: string
+
     @ApiProperty({
         type: [OrganizationDto]
     })

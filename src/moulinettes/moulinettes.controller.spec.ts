@@ -192,8 +192,10 @@ describe('MoulinettesController', () => {
             await expect(moulinettesController.listMoulinettes(query)).resolves.toStrictEqual({
                 status: 'success',
                 data: {
+                    object: 'list',
                     items: pagingResult.data,
-                    ...pagingResult.cursor
+                    beforeCursor: pagingResult.cursor.beforeCursor,
+                    afterCursor: pagingResult.cursor.afterCursor
                 }
             })
 

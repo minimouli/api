@@ -18,6 +18,7 @@ describe('Tokens', () => {
     let jwtService: JwtService
     const tokensService = {
         listAuthTokensFromAccountId: () => ({
+            object: 'list',
             data: ['item'],
             cursor: {
                 beforeCursor: 'before cursor',
@@ -93,6 +94,7 @@ describe('Tokens', () => {
                 .expect({
                     status: 'success',
                     data: {
+                        object: 'list',
                         items: ['item'],
                         beforeCursor: 'before cursor',
                         afterCursor: 'after cursor'
@@ -150,6 +152,7 @@ describe('Tokens', () => {
                 .expect({
                     status: 'success',
                     data: {
+                        object: 'list',
                         items: ['item'],
                         beforeCursor: 'before cursor',
                         afterCursor: 'after cursor'

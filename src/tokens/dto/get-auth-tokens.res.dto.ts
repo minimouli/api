@@ -10,6 +10,9 @@ import { AuthTokenDto } from './auth-token.dto'
 
 class GetAuthTokensDataResDto {
 
+    @ApiProperty()
+    object: string
+
     @ApiProperty({
         type: [AuthTokenDto]
     })

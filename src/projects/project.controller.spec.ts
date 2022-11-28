@@ -134,8 +134,10 @@ describe('ProjectsController', () => {
             await expect(projectsController.listProjects(query)).resolves.toStrictEqual({
                 status: 'success',
                 data: {
+                    object: 'list',
                     items: pagingResult.data,
-                    ...pagingResult.cursor
+                    beforeCursor: pagingResult.cursor.beforeCursor,
+                    afterCursor: pagingResult.cursor.afterCursor
                 }
             })
 

@@ -10,6 +10,9 @@ import { ProjectDto } from './project.dto'
 
 class GetProjectsDataResDto {
 
+    @ApiProperty()
+    object: string
+
     @ApiProperty({
         type: [ProjectDto]
     })
