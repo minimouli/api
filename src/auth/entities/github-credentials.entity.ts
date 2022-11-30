@@ -18,7 +18,9 @@ import {
 import { Account } from '../../accounts/entities/account.entity'
 import { getSecureRandomString } from '../../common/helpers/random.helper'
 
-@Entity()
+@Entity({
+    name: 'github_credentials'
+})
 class GitHubCredentials {
 
     @PrimaryColumn()
