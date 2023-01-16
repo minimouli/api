@@ -5,6 +5,9 @@ node_modules
 /dist
 /node_modules
 
+# TypeScript
+*.tsbuildinfo
+
 # Yarn
 .yarn/*
 .pnp.*
@@ -24,6 +27,11 @@ node_modules
 *.sublime-workspace
 .vscode
 *.swp
+
+# Env
+.env.prod
+.env.local
+.env.*.local
 
 # Logs
 *.log

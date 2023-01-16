@@ -5,17 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Injectable } from '@nestjs/common'
-
-@Injectable()
-class AppService {
-
-    getHello(): string {
-        return 'Hello World!'
-    }
-
+enum CaslAction {
+    Manage = 'manage',
+    Create = 'create',
+    Read = 'read',
+    Update = 'update',
+    Delete = 'delete'
 }
 
 export {
-    AppService
+    CaslAction
 }

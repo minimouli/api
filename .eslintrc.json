@@ -157,7 +157,7 @@
     "computed-property-spacing": ["warn", "never"],
     "dot-location": ["warn", "property"],
     "eol-last": ["warn", "always"],
-    "function-call-argument-newline": ["warn", "never"],
+    "function-call-argument-newline": ["warn", "consistent"],
     "function-paren-newline": ["warn", "consistent"],
     "generator-star-spacing": [
       "warn", {
@@ -236,7 +236,6 @@
       "warn", {
         "accessibility": "off",
         "overrides": {
-          "properties": "explicit",
           "parameterProperties": "explicit"
         }
       }
@@ -358,16 +357,23 @@
         }
       }
     ],
+    "unicorn/prefer-module": "off",
     "unicorn/prevent-abbreviations": [
       "error", {
         "allowList": {
+          "moduleRef": true,
           "args": true,
           "fn": true,
           "i": true
         },
         "ignore": [
+          ".*Params$",
           ".*Fn$",
-          ".*.e2e-spec$"
+          ".*ResDto$",
+          ".*ReqDto$",
+          ".*.e2e-spec$",
+          ".*.res.dto$",
+          ".*.req.dto$"
         ]
       }
     ]
