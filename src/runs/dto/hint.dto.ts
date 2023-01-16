@@ -9,12 +9,12 @@ import { ApiProperty } from '@nestjs/swagger'
 import { SnippetDto } from './snippet.dto'
 
 enum HintType {
-    Comparison = 'Hint.Comparison',
-    Equal = 'Hint.Equal',
-    StreamDifference = 'Hint.StreamDifference',
-    StringDifference = 'Hint.StringDifference',
-    Timeout = 'Hint.Timeout',
-    MatcherError = 'Hint.MatcherError'
+    Comparison = 'HintType.Comparison',
+    Equality = 'HintType.Equality',
+    StreamDifference = 'HintType.StreamDifference',
+    StringDifference = 'HintType.StringDifference',
+    Timeout = 'HintType.Timeout',
+    MatcherError = 'HintType.MatcherError'
 }
 
 enum HintStatus {
