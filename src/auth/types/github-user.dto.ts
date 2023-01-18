@@ -7,7 +7,8 @@
 
 interface GitHubUserDto {
     id: number
-    name: string
+    login: string
+    name: string | null
     avatar_url: string
 }
 

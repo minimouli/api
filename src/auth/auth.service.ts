@@ -49,7 +49,7 @@ class AuthService {
         const email = await this.githubApiService.getUserPrimaryEmail(accessToken)
 
         const account = await this.accountsService.create({
-            nickname: userProfile.name,
+            nickname: userProfile.name ?? userProfile.login,
             username,
             avatar: userProfile.avatar_url,
             email,
