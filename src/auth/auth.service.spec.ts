@@ -97,6 +97,7 @@ describe('AuthService', () => {
         const accessToken = 'access token'
         const userProfile = {
             id: 1,
+            login: 'login',
             name: 'user name',
             avatar_url: 'avatar url'
         }
@@ -150,6 +151,43 @@ describe('AuthService', () => {
             expect(githubCredentialsService.create).toHaveBeenCalledWith(userProfile.id, account)
             expect(getRandomStringMock).toHaveBeenCalledWith(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)
         })
+
+        it('should create the newly created account with login as nickname', async () => {
+
+            const account = 'account'
+            const username = 'username'
+            const userProfileWithoutName = {
+                id: 1,
+                login: 'login',
+                avatar_url: 'avatar url'
+            }
+
+            githubApiService.getUserProfile.mockResolvedValue(userProfileWithoutName)
+            // eslint-disable-next-line unicorn/no-null
+            githubCredentialsRepository.findOne.mockResolvedValue(null)
+            githubApiService.getUserPrimaryEmail.mockResolvedValue(primaryEmail)
+            accountsService.create.mockResolvedValue(account)
+            getRandomStringMock.mockReturnValue(username)
+
+            await expect(authService.signupWithGitHubAccessToken(accessToken)).resolves.toBe(account)
+
+            expect(githubApiService.getUserProfile).toHaveBeenCalledWith(accessToken)
+            expect(githubCredentialsRepository.findOne).toHaveBeenCalledWith({
+                where: { githubId: userProfileWithoutName.id },
+                relations: ['account']
+            })
+            expect(githubApiService.getUserPrimaryEmail).toHaveBeenCalledWith(accessToken)
+            expect(accountsService.create).toHaveBeenCalledWith({
+                nickname: userProfileWithoutName.login,
+                username,
+                avatar: userProfileWithoutName.avatar_url,
+                email: primaryEmail,
+                permissions: DefaultPermissions
+            })
+            expect(githubCredentialsService.create).toHaveBeenCalledWith(userProfileWithoutName.id, account)
+            expect(getRandomStringMock).toHaveBeenCalledWith(16, `${LOWER_CASE_ALPHA}${NUMERIC}`)
+        })
+
     })
 
     describe('loginWithGitHubAuthCode', () => {
