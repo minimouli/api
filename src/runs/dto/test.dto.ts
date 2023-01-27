@@ -19,7 +19,7 @@ class TestDto {
 
     @ApiProperty()
     @IsString()
-    @Length(1, 32)
+    @Length(1, 64)
     name: string
 
     @ApiProperty()
