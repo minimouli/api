@@ -26,7 +26,7 @@ class GitHubApiService {
 
     async consumeCodeForAccessToken(code: string): Promise<string> {
 
-        const url = new URL(this.configService.get('GITHUB_OAUTH2_ACCESS_TOKEN_ENDPOINT') ?? '')
+        const url = new URL('https://github.com/login/oauth/access_token')
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json'
@@ -66,7 +66,7 @@ class GitHubApiService {
 
     async getUserProfile(accessToken: string): Promise<GitHubUserDto> {
 
-        const url = new URL(this.configService.get('GITHUB_API_USER_PROFILE_ENDPOINT') ?? '')
+        const url = new URL('https://api.github.com/user')
         const headers = {
             Accept: 'application/vnd.github+json',
             Authorization: `Bearer ${accessToken}`
@@ -87,7 +87,7 @@ class GitHubApiService {
 
     async getUserPrimaryEmail(accessToken: string): Promise<string> {
 
-        const url = new URL(this.configService.get('GITHUB_API_USER_EMAILS_ENDPOINT') ?? '')
+        const url = new URL('https://api.github.com/user/emails')
         const headers = {
             Accept: 'application/vnd.github+json',
             Authorization: `Bearer ${accessToken}`

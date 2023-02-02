@@ -125,26 +125,23 @@ yarn run typeorm:seeder:down
 
 ### Variables table
 
-| **Variable name**                   | **Description**                           | **Type** | **Default value in dev env** | **Default value in all env** |
-|-------------------------------------|-------------------------------------------|----------|------------------------------|------------------------------|
-| APP_PORT                            | Port of the application                   | number   | ✅                            | ✅                            |
-| POSTGRES_HOST                       | Host of the Postgres service              | string   | ✅                            | ❌                            |
-| POSTGRES_PORT                       | Port of the Postgres service              | number   | ✅                            | ❌                            |
-| POSTGRES_USERNAME                   | Username of the Postgres database user    | string   | ✅                            | ❌                            |
-| POSTGRES_PASSWORD                   | Password of the Postgres database user    | string   | ✅                            | ❌                            |
-| POSTGRES_DATABASE                   | Database name of the Postgres database    | string   | ✅                            | ❌                            |
-| POSTGRES_SYNCHRONIZE                | Synchronize entities with database models | boolean  | ✅                            | ✅                            |
-| ADMINER_PORT                        | Port of the Adminer service               | number   | ✅                            | ❌                            |
-| JWT_SECRET                          | Secret of JWT                             | string   | ✅                            | ❌                            |
-| JWT_OPTION_EXPIRES_IN               | JWT expiration date                       | string   | ✅                            | ❌                            |
-| GITHUB_OAUTH2_CLIENT_ID             | Client ID of the GitHub app               | string   | ❌                            | ❌                            |
-| GITHUB_OAUTH2_CLIENT_SECRET         | Client secret of the GitHub app           | string   | ❌                            | ❌                            |
-| GITHUB_OAUTH2_ACCESS_TOKEN_ENDPOINT | GitHub endpoint for access token          | string   | ✅                            | ✅                            |
-| GITHUB_OAUTH2_REQUIRED_SCOPES       | GitHub required scopes for oauth2         | string   | ✅                            | ✅                            |
-| GITHUB_API_USER_PROFILE_ENDPOINT    | GitHub endpoint for user profile          | string   | ✅                            | ✅                            |
-| GITHUB_API_USER_EMAILS_ENDPOINT     | GitHub endpoint for user emails           | string   | ✅                            | ✅                            |
-| IS_SWAGGER_DOC_VISIBLE              | Visibility of the Swagger document        | boolean  | ✅                            | ✅                            |
-| NODE_ENV                            | Current environment                       | string   | ✅                            | ❌                            |
+| **Variable name**             | **Description**                           | **Type** | **Default value in dev env** | **Default value in all env** |
+|-------------------------------|-------------------------------------------|----------|------------------------------|------------------------------|
+| APP_PORT                      | Port of the application                   | number   | ✅                            | ✅                            |
+| POSTGRES_HOST                 | Host of the Postgres service              | string   | ✅                            | ❌                            |
+| POSTGRES_PORT                 | Port of the Postgres service              | number   | ✅                            | ❌                            |
+| POSTGRES_USERNAME             | Username of the Postgres database user    | string   | ✅                            | ❌                            |
+| POSTGRES_PASSWORD             | Password of the Postgres database user    | string   | ✅                            | ❌                            |
+| POSTGRES_DATABASE             | Database name of the Postgres database    | string   | ✅                            | ❌                            |
+| POSTGRES_SYNCHRONIZE          | Synchronize entities with database models | boolean  | ✅                            | ✅                            |
+| ADMINER_PORT                  | Port of the Adminer service               | number   | ✅                            | ❌                            |
+| JWT_SECRET                    | Secret of JWT                             | string   | ✅                            | ❌                            |
+| JWT_OPTION_EXPIRES_IN         | JWT expiration date                       | string   | ✅                            | ❌                            |
+| GITHUB_OAUTH2_CLIENT_ID       | Client ID of the GitHub app               | string   | ❌                            | ❌                            |
+| GITHUB_OAUTH2_CLIENT_SECRET   | Client secret of the GitHub app           | string   | ❌                            | ❌                            |
+| GITHUB_OAUTH2_REQUIRED_SCOPES | GitHub required scopes for oauth2         | string   | ✅                            | ✅                            |
+| IS_SWAGGER_DOC_VISIBLE        | Visibility of the Swagger document        | boolean  | ✅                            | ✅                            |
+| NODE_ENV                      | Current environment                       | string   | ✅                            | ❌                            |
 
 <span id="license" >License</span>
 ---

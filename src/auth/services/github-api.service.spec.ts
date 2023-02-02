@@ -52,15 +52,10 @@ describe('GitHubApiService', () => {
 
     describe('consumeCodeForAccessToken', () => {
 
-        const url = 'https://domain.com/'
         const code = 'github-code'
         const access_token = 'access-token'
         const token_type = 'bearer'
         const scope = 'GITHUB_OAUTH2_REQUIRED_SCOPES'
-
-        it('should throw an error if the url is invalid', async () => {
-            await expect(githubApiService.consumeCodeForAccessToken(code)).rejects.toThrow('Invalid URL')
-        })
 
         it('should throw a BadRequestException if HttpService.post throws an error', async () => {
 
@@ -72,17 +67,13 @@ describe('GitHubApiService', () => {
             })
 
             httpService.post.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_OAUTH2_ACCESS_TOKEN_ENDPOINT')
-                    return url
-                return key
-            })
+            configService.get.mockImplementation((key: string) => key)
 
             await expect(githubApiService.consumeCodeForAccessToken(code)).rejects.toThrow(
                 new BadRequestException('Unable to signup or login with GitHub')
             )
 
-            expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
+            expect(httpService.post).toHaveBeenCalledWith('https://github.com/login/oauth/access_token', JSON.stringify({
                 client_id: 'GITHUB_OAUTH2_CLIENT_ID',
                 client_secret: 'GITHUB_OAUTH2_CLIENT_SECRET',
                 code
@@ -108,17 +99,13 @@ describe('GitHubApiService', () => {
             })
 
             httpService.post.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_OAUTH2_ACCESS_TOKEN_ENDPOINT')
-                    return url
-                return key
-            })
+            configService.get.mockImplementation((key: string) => key)
 
             await expect(githubApiService.consumeCodeForAccessToken(code)).rejects.toThrow(
                 new BadRequestException('Unable to signup or login with GitHub, the provided code may be invalid or already used')
             )
 
-            expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
+            expect(httpService.post).toHaveBeenCalledWith('https://github.com/login/oauth/access_token', JSON.stringify({
                 client_id: 'GITHUB_OAUTH2_CLIENT_ID',
                 client_secret: 'GITHUB_OAUTH2_CLIENT_SECRET',
                 code
@@ -144,17 +131,13 @@ describe('GitHubApiService', () => {
             })
 
             httpService.post.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_OAUTH2_ACCESS_TOKEN_ENDPOINT')
-                    return url
-                return key
-            })
+            configService.get.mockImplementation((key: string) => key)
 
             await expect(githubApiService.consumeCodeForAccessToken(code)).rejects.toThrow(
                 new BadRequestException('Unable to signup or login with GitHub, the received token is not a bearer')
             )
 
-            expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
+            expect(httpService.post).toHaveBeenCalledWith('https://github.com/login/oauth/access_token', JSON.stringify({
                 client_id: 'GITHUB_OAUTH2_CLIENT_ID',
                 client_secret: 'GITHUB_OAUTH2_CLIENT_SECRET',
                 code
@@ -180,17 +163,13 @@ describe('GitHubApiService', () => {
             })
 
             httpService.post.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_OAUTH2_ACCESS_TOKEN_ENDPOINT')
-                    return url
-                return key
-            })
+            configService.get.mockImplementation((key: string) => key)
 
             await expect(githubApiService.consumeCodeForAccessToken(code)).rejects.toThrow(
                 new BadRequestException('Unable to signup or login with GitHub, provided scopes different from those expected')
             )
 
-            expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
+            expect(httpService.post).toHaveBeenCalledWith('https://github.com/login/oauth/access_token', JSON.stringify({
                 client_id: 'GITHUB_OAUTH2_CLIENT_ID',
                 client_secret: 'GITHUB_OAUTH2_CLIENT_SECRET',
                 code
@@ -217,8 +196,6 @@ describe('GitHubApiService', () => {
 
             httpService.post.mockReturnValue(observable)
             configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_OAUTH2_ACCESS_TOKEN_ENDPOINT')
-                    return url
                 if (key !== 'GITHUB_OAUTH2_REQUIRED_SCOPES')
                     return key
             })
@@ -227,7 +204,7 @@ describe('GitHubApiService', () => {
                 new BadRequestException('Unable to signup or login with GitHub, provided scopes different from those expected')
             )
 
-            expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
+            expect(httpService.post).toHaveBeenCalledWith('https://github.com/login/oauth/access_token', JSON.stringify({
                 client_id: 'GITHUB_OAUTH2_CLIENT_ID',
                 client_secret: 'GITHUB_OAUTH2_CLIENT_SECRET',
                 code
@@ -253,15 +230,11 @@ describe('GitHubApiService', () => {
             })
 
             httpService.post.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_OAUTH2_ACCESS_TOKEN_ENDPOINT')
-                    return url
-                return key
-            })
+            configService.get.mockImplementation((key: string) => key)
 
             await expect(githubApiService.consumeCodeForAccessToken(code)).resolves.toBe(access_token)
 
-            expect(httpService.post).toHaveBeenCalledWith(url, JSON.stringify({
+            expect(httpService.post).toHaveBeenCalledWith('https://github.com/login/oauth/access_token', JSON.stringify({
                 client_id: 'GITHUB_OAUTH2_CLIENT_ID',
                 client_secret: 'GITHUB_OAUTH2_CLIENT_SECRET',
                 code
@@ -276,12 +249,7 @@ describe('GitHubApiService', () => {
 
     describe('getUserProfile', () => {
 
-        const url = 'https://domain.com/'
         const accessToken = 'access-token'
-
-        it('should throw an error if the url is invalid', async () => {
-            await expect(githubApiService.getUserProfile(accessToken)).rejects.toThrow('Invalid URL')
-        })
 
         it('should throw a BadRequestException if if HttpService.get throws an error', async () => {
 
@@ -293,17 +261,12 @@ describe('GitHubApiService', () => {
             })
 
             httpService.get.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_API_USER_PROFILE_ENDPOINT')
-                    return url
-                return key
-            })
 
             await expect(githubApiService.getUserProfile(accessToken)).rejects.toThrow(
                 new BadRequestException('Unable to retrieve the GitHub user profile')
             )
 
-            expect(httpService.get).toHaveBeenCalledWith(url, {
+            expect(httpService.get).toHaveBeenCalledWith('https://api.github.com/user', {
                 headers: {
                     Accept: 'application/vnd.github+json',
                     Authorization: `Bearer ${accessToken}`
@@ -323,15 +286,10 @@ describe('GitHubApiService', () => {
             })
 
             httpService.get.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_API_USER_PROFILE_ENDPOINT')
-                    return url
-                return key
-            })
 
             await expect(githubApiService.getUserProfile(accessToken)).resolves.toBe(data)
 
-            expect(httpService.get).toHaveBeenCalledWith(url, {
+            expect(httpService.get).toHaveBeenCalledWith('https://api.github.com/user', {
                 headers: {
                     Accept: 'application/vnd.github+json',
                     Authorization: `Bearer ${accessToken}`
@@ -342,12 +300,8 @@ describe('GitHubApiService', () => {
 
     describe('getUserPrimaryEmail', () => {
 
-        const url = 'https://domain.com/'
         const accessToken = 'access-token'
 
-        it('should throw an error if the url is invalid', async () => {
-            await expect(githubApiService.getUserPrimaryEmail(accessToken)).rejects.toThrow('Invalid URL')
-        })
 
         it('should throw a BadRequestException if if HttpService.get throws an error', async () => {
 
@@ -359,17 +313,12 @@ describe('GitHubApiService', () => {
             })
 
             httpService.get.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_API_USER_EMAILS_ENDPOINT')
-                    return url
-                return key
-            })
 
             await expect(githubApiService.getUserPrimaryEmail(accessToken)).rejects.toThrow(
                 new BadRequestException('Unable to retrieve the GitHub user emails')
             )
 
-            expect(httpService.get).toHaveBeenCalledWith(url, {
+            expect(httpService.get).toHaveBeenCalledWith('https://api.github.com/user/emails', {
                 headers: {
                     Accept: 'application/vnd.github+json',
                     Authorization: `Bearer ${accessToken}`
@@ -393,15 +342,10 @@ describe('GitHubApiService', () => {
             })
 
             httpService.get.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_API_USER_EMAILS_ENDPOINT')
-                    return url
-                return key
-            })
 
             await expect(githubApiService.getUserPrimaryEmail(accessToken)).resolves.toBe('email3')
 
-            expect(httpService.get).toHaveBeenCalledWith(url, {
+            expect(httpService.get).toHaveBeenCalledWith('https://api.github.com/user/emails', {
                 headers: {
                     Accept: 'application/vnd.github+json',
                     Authorization: `Bearer ${accessToken}`
@@ -423,15 +367,10 @@ describe('GitHubApiService', () => {
             })
 
             httpService.get.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_API_USER_EMAILS_ENDPOINT')
-                    return url
-                return key
-            })
 
             await expect(githubApiService.getUserPrimaryEmail(accessToken)).resolves.toBe('email1')
 
-            expect(httpService.get).toHaveBeenCalledWith(url, {
+            expect(httpService.get).toHaveBeenCalledWith('https://api.github.com/user/emails', {
                 headers: {
                     Accept: 'application/vnd.github+json',
                     Authorization: `Bearer ${accessToken}`
@@ -449,15 +388,10 @@ describe('GitHubApiService', () => {
             })
 
             httpService.get.mockReturnValue(observable)
-            configService.get.mockImplementation((key: string) => {
-                if (key === 'GITHUB_API_USER_EMAILS_ENDPOINT')
-                    return url
-                return key
-            })
 
             await expect(githubApiService.getUserPrimaryEmail(accessToken)).resolves.toBe('')
 
-            expect(httpService.get).toHaveBeenCalledWith(url, {
+            expect(httpService.get).toHaveBeenCalledWith('https://api.github.com/user/emails', {
                 headers: {
                     Accept: 'application/vnd.github+json',
                     Authorization: `Bearer ${accessToken}`

@@ -13,6 +13,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { AccountsModule } from './accounts/accounts.module'
 import { AuthModule } from './auth/auth.module'
 import { CaslModule } from './casl/casl.module'
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor'
 import { MoulinettesModule } from './moulinettes/moulinettes.module'
 import { OrganizationsModule } from './organizations/organizations.module'
 import { ProjectsModule } from './projects/projects.module'
@@ -64,6 +65,10 @@ import { TokensModule } from './tokens/tokens.module'
         {
             provide: APP_INTERCEPTOR,
             useClass: ClassSerializerInterceptor
+        },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: LoggingInterceptor
         }
     ]
 })
